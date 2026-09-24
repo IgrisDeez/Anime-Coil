@@ -2,7 +2,7 @@ import { CHARACTERS } from "./simulation";
 import { MAPS } from "./maps";
 
 const coil = `<svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M29 11C12-1 1 25 16 30c13 5 23-11 12-17-8-4-15 8-7 11" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><circle cx="29" cy="11" r="3" fill="currentColor"/></svg>`;
-const brand = `<div class="brand">${coil}<span>anime<span class="brand-coil">coil</span><small>v1.1</small></span></div>`;
+const brand = `<div class="brand">${coil}<span>anime<span class="brand-coil">coil</span><small>WORLDS REBORN · v1.1</small></span></div>`;
 const tools = `<button class="icon-button help-open" aria-label="How to play" title="How to play">?</button><button class="icon-button settings-open" aria-label="Audio settings" title="Audio settings">♫</button>`;
 export const ui = `
 <canvas id="world" aria-label="3D spirit serpent arena"></canvas>

@@ -13,6 +13,7 @@ import { SpiritCinematic } from "./spirit";
 import { PurpleCinematic } from "./purple";
 import { MAPS, getMap, type MapId } from "./maps";
 import { buildEnvironment, type Environment } from "./environments";
+import { profileFor, VisualClock, reaction, type EnvironmentFrame } from "./worlds/types";
 const bodyGeo = new THREE.SphereGeometry(1, 12, 8),
   dummy = new THREE.Object3D();
 interface SnakeVisual {
@@ -38,7 +39,10 @@ export class GameRenderer {
   private target = new THREE.Vector3();
   private foodColors = CHARACTERS.map((c) => new THREE.Color(c.color));
   private ring: THREE.Mesh;
-  private motes: THREE.Points;
+  private visualClock = new VisualClock();
+  private profile = profileFor(innerWidth, matchMedia("(pointer:coarse)").matches);
+  private samples: number[] = [];
+  private frameStamp = 0;
   private environment?: Environment;
   private hemisphere = new THREE.HemisphereLight("#dde7ff", "#394354", 2.5);
   private sunlight = new THREE.DirectionalLight("#fff1d9", 3);
@@ -94,24 +98,6 @@ export class GameRenderer {
     this.food.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.food.frustumCulled = false;
     this.scene.add(this.food);
-    const positions = new Float32Array(150 * 3);
-    for (let i = 0; i < 150; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 180;
-      positions[i * 3 + 1] = 1 + Math.random() * 15;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 180;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    this.motes = new THREE.Points(
-      geo,
-      new THREE.PointsMaterial({
-        color: "#a994db",
-        size: 0.13,
-        transparent: true,
-        opacity: 0.5,
-      }),
-    );
-    this.scene.add(this.motes);
     this.scene.add(this.hero);
     this.purple = new PurpleCinematic(this.scene);
     this.spirit = new SpiritCinematic(this.scene);
@@ -126,17 +112,18 @@ export class GameRenderer {
     }
     this.mapId = id;
     const def = getMap(id);
-    this.environment = buildEnvironment(id);
+    this.environment = buildEnvironment(id, this.profile);
     this.scene.add(this.environment.group);
     this.renderer.setClearColor(def.sky);
-    this.scene.fog = new THREE.FogExp2(def.sky, 0.0022);
+    this.scene.fog = new THREE.FogExp2(def.sky, def.fog);
     this.hemisphere.color.set(def.ambient);
     this.hemisphere.intensity = def.intensity;
-    this.hemisphere.groundColor.set("#b5aa94");
+    this.hemisphere.groundColor.set(def.groundLight);
     this.sunlight.color.set(def.sun);
-    this.sunlight.intensity = def.intensity;
+    this.sunlight.intensity = def.sunIntensity;
+    this.sunlight.position.set(...def.sunDirection);
     this.rimLight.color.set(def.accent);
-    this.rimLight.intensity = 0.35;
+    this.rimLight.intensity = def.rimIntensity;
     (this.ring.material as THREE.MeshBasicMaterial).color.set(def.accent);
   }
   mapThumbnails() {
@@ -146,14 +133,19 @@ export class GameRenderer {
     camera.lookAt(0, 0, 0);
     this.renderer.setSize(320, 180, false);
     for (const def of MAPS) {
-      const env = buildEnvironment(def.id),
+      const env = buildEnvironment(def.id, this.profile),
         scene = new THREE.Scene();
+      camera.position.set(...def.preview.camera);
+      camera.lookAt(...def.preview.focus);
+      scene.fog = new THREE.FogExp2(def.sky, def.fog);
       scene.add(env.group);
       scene.add(
-        new THREE.HemisphereLight(def.ambient, "#38404c", def.intensity),
+        new THREE.HemisphereLight(def.ambient, def.groundLight, def.intensity),
       );
-      const sun = new THREE.DirectionalLight(def.sun, def.intensity);
-      sun.position.set(-30, 100, 50);
+      const sun = new THREE.DirectionalLight(def.sun, def.sunIntensity);
+      sun.position.set(...def.sunDirection);
+      const rim = new THREE.DirectionalLight(def.accent, def.rimIntensity);
+      rim.position.copy(this.rimLight.position); scene.add(rim);
       scene.add(sun);
       this.renderer.setClearColor(def.sky);
       this.renderer.render(scene, camera);
@@ -188,6 +180,11 @@ export class GameRenderer {
     this.resize();
     return result;
   }
+  diagnostics() {
+    const sorted=[...this.samples].sort((a,b)=>a-b),info=this.renderer.info;
+    return {map:this.mapId,profile:this.profile,environment:this.environment?.stats,game:{calls:info.render.calls,triangles:info.render.triangles,frameMsMedian:sorted[Math.floor(sorted.length*.5)]??0,frameMsP95:sorted[Math.floor(sorted.length*.95)]??0,samples:sorted.length},memory:{...info.memory,programs:info.programs?.length??0},snakes:this.visuals.size};
+  }
+  resetMeasurements(){this.samples=[];this.frameStamp=0;}
   setHero(id: CharacterId) {
     this.heroId = id;
     while (this.hero.children.length) {
@@ -243,6 +240,9 @@ export class GameRenderer {
   resize() {
     const w = innerWidth,
       h = innerHeight;
+    const profile = profileFor(w, matchMedia("(pointer:coarse)").matches);
+    if (this.profile !== profile) { this.profile = profile; this.setMap(this.mapId); }
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.75));
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -275,12 +275,19 @@ export class GameRenderer {
   }
   render(arena: Arena | undefined, time: number, alpha: number, dt: number) {
     const menu = this.mode === "menu";
+    const paused = document.hidden || (!!arena && arena.state !== "playing" && !menu);
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    time = this.visualClock.advance(dt, paused, document.hidden);
+    const stamp = performance.now();
+    if (this.frameStamp && !paused) { const ms = stamp-this.frameStamp; if(ms < 200) {this.samples.push(ms); if(this.samples.length>300)this.samples.shift();} }
+    this.frameStamp=stamp;
     // Miniature scenery in the menu; the identical world at full scale in play.
-    this.environment?.group.scale.setScalar(menu ? 0.15 : 1);
+    this.environment?.group.scale.setScalar(menu ? 0.115 : 1);
+    if (this.environment) this.environment.group.rotation.y = menu && this.mapId === "harbor" ? Math.PI : 0;
     this.hero.visible = menu;
     this.food.visible = !menu;
     this.ring.visible = !menu;
-    this.motes.rotation.y = time * 0.003;
+
     if (menu) {
       for (const v of this.visuals.values()) {
         v.head.visible = false;
@@ -433,6 +440,15 @@ export class GameRenderer {
     }
     this.purple.update(arena, this.camera, menu);
     this.spirit.update(arena, this.camera, menu);
+    const shot = menu ? undefined : arena?.cinematic;
+    const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,
+      ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
+    this.environment?.update(frame);
+    const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
+    this.hemisphere.intensity=base.intensity*response.light;
+    this.sunlight.intensity=base.sunIntensity*response.light;
+    this.sunlight.color.set(base.sun).lerp(new THREE.Color("#aa65ff"),response.tint);
+    this.rimLight.intensity=base.rimIntensity+response.tint;
     this.renderer.render(this.scene, this.camera);
   }
 }

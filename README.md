@@ -117,3 +117,21 @@ Press **V** or the Spirit Bomb touch button. A dedicated cinematic shows raised 
 All four maps now use rounded toy-town scenery, warm matte palettes, subtle ground details, cream signs, and layered contact shadows. Shibuya is lavender dusk; Hidden Leaf has mint greenery and honey paths; World Tournament has ivory paving and coral/teal gates; Grand Line has cream sand, scalloped shores, turquoise water and toy ships. Map IDs and saved choices remain compatible. Landmarks remain outside the arena and never create obstacles. Frozen coils have dark blue outlines; snakes have ground shadows for contrast.
 
 Spirit Bomb has independent pooled geometry and animation in `src/spirit.ts`; Hollow Purple keeps its original pull and presentation. Spirit Bomb's impact point is captured along the facing direction and clamped inside the arena. Reduced motion disables cinematic camera tracking and shake. SFX and Japanese voices remain; no music is included.
+
+
+## Worlds Reborn (v1.1)
+
+The four original maps now use their own authored world builders under `src/worlds/` and a shared batching/resource owner. `src/environments.ts` remains the public builder entry point. Each environment exposes a readonly visual frame update and idempotent disposal; map resources are owned separately from cached character models. A generated local sign atlas, instanced repeated props and bounded point/line effects keep the worlds compact. The renderer has one visual clock that stops while paused or hidden, and map lighting responds to the existing cinematic state and resets on completion.
+
+The desktop/mobile profile is selected from viewport width and coarse pointer input. Mobile keeps the landmarks and uses fewer props, crowd figures, particles, atlas pixels and water vertices. The profile budgets count environment geometry only:
+
+| World | Desktop calls / triangles | Mobile calls / triangles |
+|---|---:|---:|
+| Shibuya After Dark | 10 / 11,768 | 10 / 10,412 |
+| Hidden Leaf Village | 16 / 18,652 | 16 / 12,236 |
+| World Tournament | 19 / 65,104 | 19 / 26,512 |
+| Grand Line Harbor | 34 / 22,174 | 34 / 15,870 |
+
+These measurements are from the generated environment batches before other game objects are rendered. The complete match with 20 active bots measured 117 draw calls and 169,440 triangles in the local desktop browser; its observed frame-time median was 10.4 ms and 95th percentile 14.4 ms in a short run. Hardware and browser conditions change these numbers. Use `?worldDebug=1` for an opt-in local diagnostics panel with frame samples and a 40-switch resource cycling check; remove the query for normal play.
+
+Validation: `npm test` covers both profiles, deterministic authored layout, landmark clearance, motion bounds, pause/reduced-motion behavior, cinematic-response reset, and one-time disposal including textures, lines, points, instances and shared character assets. The 40-switch browser run returned to stable geometry/texture/program counts for all four maps after warmup. Mobile review used a 390 × 844 browser viewport; a physical phone and hardware GPU profile remain manual checks. The browser performance figures describe this workstation only, not a guaranteed frame rate.

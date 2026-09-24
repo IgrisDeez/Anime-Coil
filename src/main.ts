@@ -20,6 +20,7 @@ import {
   type MapStorage,
 } from "./maps";
 import { ui } from "./ui";
+import { installWorldDiagnostics } from "./worlds/diagnostics";
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = ui;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -529,6 +530,7 @@ try {
   CHARACTERS.forEach(
     (c, i) => (el<HTMLImageElement>(`portrait-${c.id}`).src = portraits[i]),
   );
+  installWorldDiagnostics(view,()=>screen, id=>chooseMap(id,false));
   requestAnimationFrame(frame);
 } catch (error) {
   console.error("WebGL initialization failed", error);

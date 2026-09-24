@@ -67,7 +67,7 @@ button:active:not(:disabled) {
   position: fixed;
   inset: 0;
   overflow: auto;
-  background: linear-gradient(90deg, #e9e9d8cf, #e4edd366 43%, transparent 72%);
+  background: linear-gradient(90deg, #e9e9d838, #e4edd318 35%, transparent 60%);
 }
 .topbar {
   display: flex;
