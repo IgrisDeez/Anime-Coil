@@ -1,0 +1,55 @@
+{
+  "speech": "VOICEVOX Nemo",
+  "engine": "0.23.0",
+  "terms": "https://voicevox.hiroshiba.jp/nemo/term/",
+  "voices": [
+    {
+      "file": "ember",
+      "text": "狐ステップ！",
+      "speaker": 10005,
+      "speed": 1.18,
+      "pitch": 0.08,
+      "intonation": 1.28
+    },
+    {
+      "file": "nova",
+      "text": "気のバースト！",
+      "speaker": 10001,
+      "speed": 1.15,
+      "pitch": 0.13,
+      "intonation": 1.35
+    },
+    {
+      "file": "cloud",
+      "text": "ゴムターン！",
+      "speaker": 10007,
+      "speed": 1.23,
+      "pitch": 0.06,
+      "intonation": 1.3
+    },
+    {
+      "file": "eclipse",
+      "text": "無限バリア！",
+      "speaker": 10002,
+      "speed": 1.1,
+      "pitch": 0.1,
+      "intonation": 1.15
+    },
+    {
+      "file": "purple",
+      "text": "ホロウ・パープル！",
+      "speaker": 10002,
+      "speed": 1.02,
+      "pitch": 0.1,
+      "intonation": 1.2
+    },
+    {
+      "file": "spirit",
+      "text": "元気玉！",
+      "speaker": 10001,
+      "speed": 1.05,
+      "pitch": 0.13,
+      "intonation": 1.35
+    }
+  ]
+}
