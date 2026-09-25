@@ -17,7 +17,6 @@ export class SpiritCinematic {
   private marker: THREE.Mesh;
   private wave: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>;
   private dummy = new THREE.Object3D();
-  private reduced = matchMedia("(prefers-reduced-motion: reduce)");
   constructor(scene: THREE.Scene) {
     const sphere = new THREE.SphereGeometry(1, 24, 16);
     const basic = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false});
@@ -59,7 +58,7 @@ export class SpiritCinematic {
     this.root.add(this.orb,this.arms,this.cloud,this.petals,this.motes,this.shadow,this.marker,this.wave,this.rays);
     this.root.visible=false; scene.add(this.root);
   }
-  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean) {
+  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false) {
     const shot = arena?.cinematic;
     this.root.visible = !menu && shot?.kind === "spirit";
     if (!this.root.visible || !shot || !arena) return;
@@ -70,7 +69,7 @@ export class SpiritCinematic {
     const x=THREE.MathUtils.lerp(p.x,impact.x,flight*flight), z=THREE.MathUtils.lerp(p.z,impact.z,flight*flight);
     const y=26*(1-flight*flight)+2;
     this.orb.visible=!detonated; this.orb.position.set(x,y,z); this.orb.scale.setScalar(1+charge*11);
-    this.orb.rotation.y=this.reduced.matches?0:t*.35;
+    this.orb.rotation.y=reduced?0:t*.35;
     this.arms.visible=!detonated; this.arms.position.set(p.x,.65*serpentScale(p.mass),p.z);
     this.arms.scale.setScalar(serpentScale(p.mass)); this.arms.rotation.y=-p.angle;
     this.shoulders.forEach((arm,i)=>{arm.rotation.z= flight*-1.9; arm.rotation.x=(i?1:-1)*(.35-charge*.25);});
@@ -98,13 +97,13 @@ export class SpiritCinematic {
     this.ribbons.forEach((line,i)=>{
       line.visible=t<2.4;
       const positions=line.geometry.attributes.position as THREE.BufferAttribute;
-      for(let j=0;j<32;j++) {const q=j/31, a=i*Math.PI/5+q*.8+(this.reduced.matches?0:t*.25), r=(1-q)*65;positions.setXYZ(j,p.x+Math.cos(a)*r,1+q*27,p.z+Math.sin(a)*r);}
+      for(let j=0;j<32;j++) {const q=j/31, a=i*Math.PI/5+q*.8+(reduced?0:t*.25), r=(1-q)*65;positions.setXYZ(j,p.x+Math.cos(a)*r,1+q*27,p.z+Math.sin(a)*r);}
       positions.needsUpdate=true;
     });
     const rays=this.rays.geometry.attributes.position as THREE.BufferAttribute;
     for(let i=0;i<32;i++){const a=i*Math.PI/16,r=12+blast*45;rays.setXYZ(i*2,impact.x,2,impact.z);rays.setXYZ(i*2+1,impact.x+Math.cos(a)*r,4+(i%4)*4,impact.z+Math.sin(a)*r);}rays.needsUpdate=true;
     (this.rays.material as THREE.LineBasicMaterial).opacity=fade*.7;
-    if(!this.reduced.matches){
+    if(!reduced){
       const blend=Math.max(0,Math.min(1,t*3,(NUKE_DURATION-t)*2));
       const width=Math.max(1,.85/camera.aspect), distance=detonated?100+blast*12:66+charge*20;
       const target=new THREE.Vector3(x+Math.sin(p.angle+.7)*distance*.35,distance*width,z+Math.cos(p.angle+.7)*distance*.65);

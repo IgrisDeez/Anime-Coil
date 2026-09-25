@@ -1,4 +1,4 @@
-# Anime Coil v1.2.0 — Character & Combat Polish
+# Anime Coil v1.2.1 — Spirit Compass & Living World Polish
 A complete solo browser arena built with TypeScript, Three.js, and Vite. Pick one of four original code-modeled anime-inspired chibi serpents and compete with 20 bots.
 
 
@@ -150,3 +150,37 @@ Kitsu, Kairo, Pomu and Shiro now have distinct E identities: movement, ranged di
 The HUD shows charge and remaining active time before showing cooldown. A mint ready state and quiet disabled state stay within the existing buttons. Short activation feedback and individual menu idles respect reduced motion. Per-step events reach the renderer before the next simulation step replaces them; voices remain player-only and cannon fire/impact effects are separate from the callout. The three renamed callouts were regenerated with the existing Nemo voices and settings.
 
 Validation includes charge/aim timing, swept head/body hits, first-contact selection, impulses and collision deaths, bot use, field entry/exit, normal Shiro vulnerability, pause/restart/cinematic cleanup, HUD states and bounded presentation pools. Physical touch-device input and extended competitive balance remain playtesting tasks. Earlier Worlds Reborn performance figures above are historical environment baselines, not measurements of this combat update.
+
+
+## v1.2.1 — Spirit Compass & Living World Polish
+
+The minimap is now a small cream spirit compass with a map-specific interior, quiet rival dots, a directional player marker, and a peach boundary warning. The warning begins in the outer 12% of the safe arena radius, accounting for the player's growing head. A cached canvas background and a maximum 30 Hz draw rate keep it inexpensive. Marker interpolation uses fixed-step snapshots without prediction; spawns, restarts and cinematic transitions snap cleanly. It preserves the existing player/rival/boundary information and adds no food markers.
+
+Existing world animation has been refined with slow sign and lantern brightness variation, softer rain, traffic, flags and ship rocking, drifting leaves, and sparse tournament glints. Ground markings do not receive lantern brightness modulation. Water, sails, foliage, crowds, clouds and gulls retain their existing pooled or shader-driven animation. Character breathing and boost response move vertically by at most 2.8% of scale, with unchanged horizontal centers and widths. Pickups, bot arrivals and deaths share existing effect buffers; rapid pickups coalesce and ultimate wipes suppress individual death puffs.
+
+The existing HUD receives short score/rank/readiness reactions, smooth cooldown fills, and a brief map-pill/compass entrance. Leaderboard rows retain their DOM identity and fade on rank changes, avoiding crossing text. There are no new gameplay HUD panels. Abilities, collision rules, scoring, map layouts, personal best and saved preferences are unchanged.
+
+### Presentation architecture and lifecycle
+
+- `src/minimap.ts`: typed themes, readonly snapshot projection and cached compass rendering.
+- `src/presentation.ts`: one live reduced-motion observer, readonly shared clock frame, bounded vertical motion and clock-sampled HUD animation handles.
+- `src/hud-feedback.ts`: change detection and keyed leaderboard row updates.
+- `src/life-reactions.ts`: 24 reusable reaction slots, with at most eight simultaneous spawn or death reactions; rendered through the existing skill-effect pools.
+
+The renderer's existing visual clock drives the compass, world and HUD. Pausing or hiding the tab freezes it; restart/quit clear reaction slots, marker histories and animation handles. Reduced motion removes decorative breathing, pulses, glints, pickup/spawn/death flourishes, and exaggerated deformation while preserving position, boundary warnings and skill cues. It also updates both ultimate renderers live. The opt-in `?worldDebug=1` checker includes a non-persistent **Reduced motion preview** toggle for review; normal play shows no diagnostics.
+
+### Validation and performance
+
+The 105 existing tests are retained, with ten additional presentation tests for themes, growing-head warning thresholds, snapshot interpolation and resets, the 30 Hz ceiling, paused rendering, reduced-motion changes, event coalescing, bounded effects, reusable accessible leaderboard content and repeated cleanup. Run `npm test` and `npm run build` before publishing.
+
+The new feedback reuses existing Three.js effect buffers and introduces no new environment meshes, texture downloads, shadow lights or physics. Snake body colors are now cached instead of allocated for each segment every frame. Existing environment draw-call/material budgets remain in force for desktop and mobile.
+
+Short local Shibuya gameplay samples with 20 bots measured a median/P95 frame interval of **7.0/10.4 ms before** (165 samples) and **6.9/10.4 ms after** (300 samples). These were different random matches and camera positions, not a controlled benchmark or an FPS guarantee. The captured post-death render counts were respectively 145 calls/258,616 triangles and 77 calls/292,704 triangles, so those totals must not be interpreted as a like-for-like speedup. Shibuya's environment stayed at 10 draw calls, 11,912 triangles and 10 materials.
+
+A 40-map switching review returned exactly to its warmed resource counts: Shibuya 20 geometries/1 texture/13 programs; Hidden Leaf 21/1/14; Tournament 21/1/15; Harbor 30/1/17. The additional glow shader varies elevated lights without new draw calls. These counts exclude active match objects and are specific to this desktop review.
+
+Release checks passed: **115 tests, zero failures**, and the TypeScript/production build. Browser review covered all four map themes on desktop and a 390 × 844 phone viewport, character selection, normal play, ability feedback, both ultimates, frozen opponents, pause, results and repeated restarts. Both ultimates completed with their existing eliminations and bot recovery. The compass and touch controls remained separate in the phone layout. Live reduced-motion preview retained essential markers and ability cues while removing decorative motion; the OS preference listener also has automated coverage.
+
+Changed files are the four presentation modules listed above; their integration in `src/main.ts`, `src/renderer.ts` and `src/skill-effects.ts`; shared reduced-motion handling in `src/spirit.ts` and `src/purple.ts`; `src/style.css` and `src/ui.ts`; existing world animation in `src/worlds/{architecture,atmosphere,builder,diagnostics,harbor}.ts`; `tests/presentation.test.ts`; package metadata and this documentation. `src/simulation.ts` is unchanged. Audio remains SFX and Japanese voices only.
+
+Remaining manual checks: physical-phone touch and GPU performance, extended maximum-size-snake play, and exhaustive boundary/ultimate combinations on every map. Boundary thresholds and growing-head safety are covered by automated tests, but the short browser sessions are not a full visual or performance matrix. A later pass should use repeatable seeded benchmark runs on desktop and mobile hardware before tuning effects further.

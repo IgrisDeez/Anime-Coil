@@ -11,7 +11,6 @@ export class PurpleCinematic {
     [];
   private sparks: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>;
   private light = new THREE.PointLight("#a347ff", 0, 200, 1);
-  private reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   constructor(scene: THREE.Scene) {
     const sphere = new THREE.SphereGeometry(1, 32, 20);
     const material = (color: string) =>
@@ -60,6 +59,7 @@ export class PurpleCinematic {
     arena: Arena | undefined,
     camera: THREE.PerspectiveCamera,
     menu: boolean,
+    reduced = false,
   ) {
     const shot = !menu && arena?.cinematic;
     this.group.visible = !!shot && shot.kind === "purple";
@@ -82,7 +82,7 @@ export class PurpleCinematic {
     this.core.material.opacity = blast > 0 ? fade * 0.48 : 0.9;
     this.red.visible = this.blue.visible = t < 2.5;
     const orbit = Math.max(0, 8 * (1 - t / 2.5)),
-      spin = this.reduced ? 0 : t * 3;
+      spin = reduced ? 0 : t * 3;
     this.red.position.set(Math.cos(spin) * orbit, 0, Math.sin(spin) * orbit);
     this.blue.position.copy(this.red.position).multiplyScalar(-1);
     this.red.scale.setScalar(1.4);
@@ -96,7 +96,7 @@ export class PurpleCinematic {
       );
       ring.rotation.set(
         Math.PI / 2 + (blast > 0 ? i * 0.15 : i * 0.5),
-        this.reduced ? 0 : t * 0.4 + i,
+        reduced ? 0 : t * 0.4 + i,
         0,
       );
       ring.material.opacity = fade * (blast > 0 ? 0.7 : 0.35);
@@ -104,10 +104,10 @@ export class PurpleCinematic {
     this.sparks.scale.setScalar(
       blast > 0 ? 10 + blast * 65 : 45 * (1 - charge) + 8,
     );
-    this.sparks.rotation.y = this.reduced ? 0 : t * 0.4;
+    this.sparks.rotation.y = reduced ? 0 : t * 0.4;
     this.sparks.material.opacity = fade;
     this.light.intensity = fade * (blast > 0 ? 80 : 20 * charge);
-    if (!this.reduced) {
+    if (!reduced) {
       // Ease from an intimate charge shot to a wide view of the arena blast.
       const zoom = t < 1
           ? 42 - t * 18

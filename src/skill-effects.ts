@@ -1,3 +1,4 @@
+import { LifeReactions } from './life-reactions';
 import * as THREE from 'three';
 import { CHARACTERS, HEAD_HIT_RADIUS, KI_CHARGE, KI_RADIUS, KI_RANGE, VEIL_RADIUS, serpentScale, type Arena, type GameEvent } from './simulation';
 
@@ -6,6 +7,8 @@ interface Trail { x: number; z: number; color: string; age: number; elastic: boo
 
 /** Presentation-only pools. Map switching never owns or disposes these resources. */
 export class SkillEffects {
+  readonly life = new LifeReactions();
+  seed(arena: Arena) { this.life.update(arena.snakes, 0, true); }
   readonly group = new THREE.Group();
   private bursts: Burst[] = [];
   private trails: Trail[] = [];
@@ -25,8 +28,9 @@ export class SkillEffects {
     this.group.add(mesh);
     return mesh;
   }
-  clear() { this.bursts=[]; this.trails=[]; this.trailClock=0; for(const m of [this.cores,this.sparks,this.ribbons,this.aims]) m.count=0; }
+  clear() { this.life.reset(); this.bursts=[]; this.trails=[]; this.trailClock=0; for(const m of [this.cores,this.sparks,this.ribbons,this.aims]) m.count=0; }
   ingest(events: readonly GameEvent[]) {
+    this.life.ingest(events);
     for(const e of events) {
       if(e.type==='nuke') { this.clear(); continue; }
       if(e.type!=='ability' && e.type!=='ki-impact' && e.type!=='ki-launch') continue;
@@ -44,7 +48,8 @@ export class SkillEffects {
   }
   update(arena: Arena|undefined, time:number, dt:number, reduced:boolean) {
     this.group.visible=!!arena && !arena.cinematic;
-    if(!arena || arena.cinematic) { this.clear(); return; }
+    if(!arena || arena.cinematic) { this.clear(); if(arena) this.seed(arena); return; }
+    this.life.update(arena.snakes, dt, reduced);
     for(const mesh of [this.cores,this.sparks,this.ribbons,this.aims]) mesh.count=0;
     for(const b of this.bursts) b.age+=dt;
     for(const t of this.trails) t.age+=dt;
@@ -92,6 +97,21 @@ export class SkillEffects {
         const distance=(reduced?.35:b.age*(b.impact?9:5));
         const size=(b.impact?.2:.12)*life;
         this.put(this.sparks,b.x+Math.cos(a)*distance+(b.impact?Math.cos(b.direction)*b.age*4:0),.6+(reduced?0:b.age*1.5),b.z+Math.sin(a)*distance+(b.impact?Math.sin(b.direction)*b.age*4:0),size,size,size,b.color);
+      }
+    }
+    for (const r of this.life.slots) {
+      if (!r.active) continue;
+      const life = 1 - r.age / .45;
+      if (r.kind === 'spawn') {
+        const radius = 1 + r.age * 5;
+        this.put(this.ribbons, r.x, -.26, r.z, radius, radius, radius, '#a7cbb3', 0, Math.PI / 2);
+      } else {
+        const count = r.kind === 'pickup' ? 3 : 6;
+        for (let i = 0; i < count; i++) {
+          const a = i * Math.PI * 2 / count, distance = .2 + r.age * (r.kind === 'pickup' ? 1.2 : 3);
+          const size = (r.kind === 'pickup' ? .18 : .32) * life;
+          this.put(this.sparks, r.x + Math.cos(a) * distance, .4 + r.age * 1.5, r.z + Math.sin(a) * distance, size, size, size, r.kind === 'pickup' ? '#f4dca3' : '#ddd3c2');
+        }
       }
     }
     for(const p of arena.projectiles) {

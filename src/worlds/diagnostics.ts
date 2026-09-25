@@ -2,12 +2,17 @@ import type { GameRenderer } from "../renderer";
 import { MAPS, type MapId } from "../maps";
 
 // Opt-in, local review surface. Does not alter gameplay or saved preferences.
-export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, select:(id:MapId)=>void) {
+export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, select:(id:MapId)=>void, previewMotion?:(reduced:boolean)=>void) {
   if (!new URLSearchParams(location.search).has("worldDebug")) return;
   const panel=document.createElement("details");
   panel.style.cssText="position:fixed;z-index:500;right:8px;bottom:8px;background:#fff8e8;color:#493e38;padding:8px;border-radius:12px;max-width:92vw;max-height:42vh;overflow:auto;font:11px monospace";
   panel.innerHTML='<summary>World diagnostics</summary><button>Measure frames</button> <button>Capture stats</button> <button>Cycle maps ×40</button><pre aria-live="polite"></pre>';
   document.body.append(panel);
+  if (previewMotion) {
+    const label = document.createElement('label'), toggle = document.createElement('input');
+    toggle.type = 'checkbox'; toggle.onchange = () => previewMotion(toggle.checked);
+    label.append(toggle, 'Reduced motion preview'); panel.append(label);
+  }
   const [reset,capture,cycle]=Array.from(panel.querySelectorAll("button")),output=panel.querySelector("pre")!;
   const show=()=>output.textContent=JSON.stringify(view.diagnostics(),null,2);
   reset.onclick=()=>{view.resetMeasurements();output.textContent="Sampling frames…";};

@@ -11,6 +11,8 @@ export class WorldBuilder {
   readonly textures = new Set<THREE.Texture>();
   readonly motions: ((f: EnvironmentFrame) => void)[] = [];
   readonly detail;
+  private purpleTint = new THREE.Color("#aa65ff");
+  private lampBreath = {value:1};
   private wind = {value:0};
   private windStrength = {value:1};
   private shapes: Record<Shape, THREE.BufferGeometry>;
@@ -32,6 +34,21 @@ export class WorldBuilder {
       glow:this.material(new THREE.MeshBasicMaterial({color:"white"})),
       shadow:this.material(new THREE.MeshBasicMaterial({color:"#363247",transparent:true,opacity:.13,depthWrite:false})),
     };
+    const glow = this.surface.glow as THREE.MeshBasicMaterial;
+    glow.onBeforeCompile = shader => {
+      shader.uniforms.lampBreath = this.lampBreath;
+      shader.vertexShader = 'varying float lampHeight;\n' + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+        vec4 lampPosition = vec4(position,1.0);
+        #ifdef USE_INSTANCING
+        lampPosition = instanceMatrix * lampPosition;
+        #endif
+        lampHeight = lampPosition.y;`);
+      shader.fragmentShader = 'uniform float lampBreath; varying float lampHeight;\n' + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `outgoingLight *= mix(1.0, lampBreath, step(1.0, lampHeight));
+        #include <opaque_fragment>`);
+    };
+    glow.customProgramCacheKey = () => 'world-lantern-breath';
     if (typeof document !== "undefined") {
       const canvas=document.createElement("canvas");canvas.width=canvas.height=this.detail.atlas;
       this.signContext=canvas.getContext("2d") ?? undefined;
@@ -46,16 +63,17 @@ export class WorldBuilder {
       shader.uniforms.worldWind=this.wind;shader.uniforms.windStrength=this.windStrength;
       shader.vertexShader="uniform float worldWind; uniform float windStrength;\n"+shader.vertexShader;
       shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>",`#include <begin_vertex>
-        transformed.${crowd?"y":"x"} += sin(worldWind * ${crowd?"1.4":".7"} + position.y * 1.6 + instanceMatrix[3].x) * windStrength * ${crowd?".09":".035"} * max(0.0,position.y);`);
+        transformed.${crowd?"y":"x"} += sin(worldWind * ${crowd?"1.15":".7"} + position.y * 1.6 + instanceMatrix[3].x) * windStrength * ${crowd?".07":".035"} * max(0.0,position.y);`);
     };
     material.customProgramCacheKey=()=>crowd?"world-crowd":"world-wind";
     return material;
   }
   update(frame:EnvironmentFrame){
+    this.lampBreath.value = frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .7) * .02;
     this.wind.value=frame.time;this.windStrength.value=frame.reducedMotion?0:1;
     const response=reaction(frame.ultimate,frame.reducedMotion);
-    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(new THREE.Color("#aa65ff"),response.tint).multiplyScalar(response.light);
-    this.signMaterial.color.copy((this.surface.glow as THREE.MeshBasicMaterial).color);
+    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(this.purpleTint,response.tint).multiplyScalar(response.light);
+    this.signMaterial.color.copy((this.surface.glow as THREE.MeshBasicMaterial).color).multiplyScalar(frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .45) * .02);
   }
   geo<T extends THREE.BufferGeometry>(g:T):T {this.geometries.add(g);return g;}
   material<T extends THREE.Material>(m:T):T {this.materials.add(m);return m;}

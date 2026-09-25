@@ -15,7 +15,7 @@ export function flag(b:WorldBuilder,parent:THREE.Group,x:number,y:number,z:numbe
   b.part(parent,"cylinder","#81796b",x,y/2,z,.12,y,.12);
   const g=new THREE.Group();g.position.set(x,y-1,z);parent.add(g);
   b.box(g,color,1.5,0,0,3,2,.12);b.box(g,"#efdcb0",1.5,0,.09,.4,1,.08);
-  b.moving(g,f=>{g.rotation.z=f.reducedMotion?0:Math.sin(f.time*1.1+phase)*.06;});
+  b.moving(g,f=>{g.rotation.z=f.reducedMotion?0:Math.sin(f.time*.85+phase)*.045;});
 }
 export function cable(b:WorldBuilder,g:THREE.Group,a:THREE.Vector3,c:THREE.Vector3,color="#514747") {
   let prev=a.clone();for(let i=1;i<=8;i++){const t=i/8,next=a.clone().lerp(c,t);next.y-=Math.sin(t*Math.PI)*1.7;b.beam(g,color,prev,next,.065);prev=next;}

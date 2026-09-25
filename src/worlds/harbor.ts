@@ -32,7 +32,7 @@ export function harbor(b:WorldBuilder) {
     b.box(g,"#55798a",3,43,-8,6,3,.15);
     // Anchor silhouette at the bow.
     b.box(g,"#4e6870",0,5,26,.5,6,.5);b.box(g,"#4e6870",0,3,26,5,.5,.5);for(const side of [-1,1])b.beam(g,"#4e6870",new THREE.Vector3(side*2.5,3,26),new THREE.Vector3(side*3.5,5,26),.25);
-    b.moving(g,f=>{g.position.y=f.reducedMotion?0:Math.sin(f.time*.7+i)*.35;g.rotation.z=f.reducedMotion?0:Math.sin(f.time*.45+i)*.014;});
+    b.moving(g,f=>{g.position.y=f.reducedMotion?0:Math.sin(f.time*.6+i)*.28;g.rotation.z=f.reducedMotion?0:Math.sin(f.time*.4+i)*.012;});
   });
   for(const [x,z,s] of [[-295,315,60],[290,355,75],[60,400,92]]){const g=b.landmark(`island-${x}`,x,z);b.part(g,"ball","#719b92",0,8,0,s,19,s*.48);b.part(g,"pebble","#6f9087",0,24,0,s*.55,35,s*.3);}
 }

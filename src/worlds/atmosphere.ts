@@ -29,15 +29,18 @@ export function atmosphere(b:WorldBuilder,id:MapId) {
     waterUniforms.time.value=t;waterUniforms.pulse.value=rx.pulse;waterUniforms.light.value=rx.light;waterUniforms.tint.value=rx.tint;
     for(let i=0;i<count;i++){
       const a=i*2.39996,rad=10+(i*17%65),drift=Math.sin(t*.17+i)*3;
-      let x=fx+Math.cos(a)*rad+drift,z=fz+Math.sin(a)*rad,y=id==="shibuya"?((i*.71-t*8)%22+22)%22:1+((i*.53+t*(id==="leaf"?-.5:.12))%9+9)%9;
+      let x=fx+Math.cos(a)*rad+drift,z=fz+Math.sin(a)*rad+(id==="leaf"?Math.cos(t*.3+i)*1.8:0),y=id==="shibuya"?((i*.71-t*6.5)%22+22)%22:1+((i*.53+t*(id==="leaf"?-.5:.12))%9+9)%9;
       if(rx.attraction&&f.ultimate){const pull=rx.attraction*.65;x+=(f.ultimate.origin.x-x)*pull;z+=(f.ultimate.origin.z-z)*pull;y+=(28-y)*pull;}
       const stride=id==="shibuya"?6:3,offset=i*stride;positions[offset]=x;positions[offset+1]=y;positions[offset+2]=z;
       if(stride===6){positions[offset+3]=x-.12;positions[offset+4]=y+.75;positions[offset+5]=z;}
     }
     geo.attributes.position.needsUpdate=true;
     for(let i=0;i<accentCount;i++){
-      if(id==="shibuya"){const lane=i%2?1:-1;dummy.position.set(-150+((i*39+t*8)%300),.3,lane*145);dummy.scale.set(3,.08,.22);}
-      else if(id==="tournament"){const a=i*Math.PI/12;dummy.position.set(Math.sin(a)*186,12+(i%4)*2,Math.cos(a)*186);const flash=rx.pulse>0&&!f.reducedMotion&&Math.sin(i*3+t*12)>.75?.65:0;dummy.scale.setScalar(flash);}
+      if(id==="shibuya"){const lane=i%2?1:-1;dummy.position.set(-150+((i*39+t*6)%300),.3,lane*145);dummy.scale.set(3,.08,.22);}
+      else if(id==="tournament"){const a=i*Math.PI/12;dummy.position.set(Math.sin(a)*186,12+(i%4)*2,Math.cos(a)*186);const phase = (t + i * 7.37) % 24;
+        const softGlint = !f.reducedMotion && phase < .85 ? Math.sin(phase / .85 * Math.PI) * .28 : 0;
+        const flash = rx.pulse>0&&!f.reducedMotion&&Math.sin(i*3+t*12)>.75?.65:softGlint;
+        dummy.scale.setScalar(flash);}
       else{dummy.position.set(-260+i*47+Math.sin(t*.035+i)*10,46+(i%3)*7,-260-(i%2)*35);dummy.scale.set(18+(i%3)*5,4,8);}
       dummy.rotation.set(0,0,0);dummy.updateMatrix();motion.setMatrixAt(i,dummy.matrix);
     }motion.instanceMatrix.needsUpdate=true;

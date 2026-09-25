@@ -450,17 +450,29 @@ kbd {
 .mini-wrap {
   width: 124px;
   height: 124px;
-  padding: 7px;
-  background: #fffbe8df;
-  border: 3px solid #fffdf4;
+  padding: 6px;
+  background: linear-gradient(145deg, #fffdf2, #eee4c9);
+  border: 3px solid #fffaf0;
   border-radius: 50%;
-  box-shadow: 0 4px 0 #514b3020;
+  box-shadow: 0 3px 0 #8e826139, 0 6px 14px #423d3324, inset 0 0 0 1px #b9b09570;
+  position: relative;
+}
+.mini-wrap::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 4px;
+  border-radius: 4px;
+  top: 0;
+  left: calc(50% - 6.5px);
+  background: var(--compass-accent, #81a18f);
 }
 .mini-wrap canvas {
   width: 100%;
   height: 100%;
-  background: #63846f;
+  background: #d9e5d7;
   border-radius: 50%;
+  box-shadow: inset 0 2px 4px #504a4930;
 }
 .abilities {
   display: flex;
@@ -1088,3 +1100,12 @@ kbd {
 .ability-button[data-state="cooldown"], .ability-button[data-state="disabled"] { background:#e9e5d9; border-color:#d8d2c0; box-shadow:none; }
 .ability-button[data-state="cooldown"] small { color:#645d4e; font-variant-numeric:tabular-nums; }
 @media(max-width:760px) { .ability-button { min-height:64px; } .ability-button small { font-size:11px; } }
+
+/* Progress is sampled from the shared visual clock, so pause freezes it exactly. */
+.ability-button .cool-fill { width: 100%; transform: scaleX(1); transform-origin: left center; transition: none; }
+.presentation-paused #hud *, .presentation-paused #skill-visual { animation-play-state: paused !important; }
+.hud-score strong { display: block; width: fit-content; transform-origin: center; }
+#rank { display: inline-block; transform-origin: center; }
+
+.reduced-motion * { animation: none !important; transition: none !important; }
+.reduced-motion .purple-flare { opacity: calc(var(--flare, 0) * 0.2); }

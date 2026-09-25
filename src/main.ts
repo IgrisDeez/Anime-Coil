@@ -1,9 +1,12 @@
+import { SpiritCompass } from './minimap';
+import { MotionPreference, HudMotion } from './presentation';
+import { HudChanges, Leaderboard, setText } from './hud-feedback';
 import { abilityFeedback } from "./ability-feedback";
 import "./style.css";
 import {
   Arena,
   CHARACTERS,
-  RADIUS,
+  KI_CHARGE,
   STEP,
   NUKE_BLAST,
   NUKE_COOLDOWN,
@@ -23,8 +26,16 @@ import {
 import { ui } from "./ui";
 import { installWorldDiagnostics } from "./worlds/diagnostics";
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = ui;
-const el = <T extends HTMLElement = HTMLElement>(id: string) =>
-  document.getElementById(id) as T;
+const nodes = new Map<string, HTMLElement>();
+const el = <T extends HTMLElement = HTMLElement>(id: string): T => {
+  if (!nodes.has(id)) nodes.set(id, document.getElementById(id)!);
+  return nodes.get(id) as T;
+};
+const motionPreference = new MotionPreference();
+const hudMotion = new HudMotion();
+const hudChanges = new HudChanges();
+const compass = new SpiritCompass(el<HTMLCanvasElement>('minimap'));
+const leaderboard = new Leaderboard(el('leaders'), hudMotion);
 const canvas = el<HTMLCanvasElement>("world");
 let view: GameRenderer;
 const audio = new AudioEngine();
@@ -41,6 +52,7 @@ let selectedMap: MapId = loadMap(mapStorage);
 function chooseMap(id: MapId, persist = true) {
   selectedMap = id;
   view.setMap(id);
+  compass.setMap(id);
   const m = getMap(id);
   document
     .querySelectorAll<HTMLButtonElement>(".map-card")
@@ -208,6 +220,11 @@ function start() {
   clearInput();
   mouse = { x: innerWidth * 0.75, y: innerHeight * 0.5 };
   view.start(arena);
+  compass.reset(); compass.state.sync(arena, true);
+  hudChanges.reset(); hudMotion.clear(); leaderboard.clear();
+  hudMotion.reduced = motionPreference.reduced;
+  hudMotion.pulse(el('minimap').parentElement!, 'settle');
+  hudMotion.pulse(el('hud-map'), 'settle');
   el("menu").hidden = true;
   el("nuke").hidden = selected !== "eclipse" && selected !== "nova";
   el("ultimate-name").textContent = selected === "nova" ? "Spirit Bomb" : "Hollow Purple";
@@ -239,6 +256,7 @@ function menu() {
   arena = undefined;
   view.mode = "menu";
   view.clearEffects();
+  compass.reset(); hudMotion.clear(); hudChanges.reset(); leaderboard.clear();
   clearInput();
   el("menu").hidden = false;
   el("hud").hidden = true;
@@ -376,23 +394,22 @@ function updateHUD() {
   if (!arena) return;
   const p = arena.player,
     c = CHARACTERS.find((c) => c.id === p.character)!;
-  el("score").textContent = Math.floor(p.mass * 10).toLocaleString();
+  setText(el("score"), Math.floor(p.mass * 10).toLocaleString());
   el("time").textContent = timeLabel(arena.elapsed);
   const ranking = [...arena.snakes]
     .filter((s) => s.alive)
     .sort((a, b) => b.mass - a.mass);
   el("rank").textContent = p.alive ? `#${ranking.indexOf(p) + 1}` : "—";
   el("population").textContent = String(ranking.length);
-  el("leaders").innerHTML = ranking
-    .slice(0, 5)
-    .map(
-      (s, i) =>
-        `<div class="leader-row ${s.id === 0 ? "you" : ""}"><span>${i + 1}</span><b>${s.name}</b><span>${Math.floor(s.mass * 10)}</span></div>`,
-    )
-    .join("");
+  leaderboard.update(ranking);
+  const changed = hudChanges.update(Math.floor(p.mass * 10), p.alive ? ranking.indexOf(p) + 1 : -1, p.cooldown, arena.nukeCooldown, arena.state === 'playing' && !arena.cinematic);
+  if (changed.score) hudMotion.pulse(el('score'));
+  if (changed.rank) hudMotion.pulse(el('rank'), 'rank');
+  if (changed.skillReady) hudMotion.pulse(el('ability'));
+  if (changed.ultimateReady) hudMotion.pulse(el('nuke'));
   const feedback = abilityFeedback(p, !!arena.cinematic, arena.state === "playing");
   el("ability-status").textContent = feedback.label;
-  el("cool-fill").style.width = `${feedback.progress * 100}%`;
+
   const button = el<HTMLButtonElement>("ability");
   button.disabled = feedback.disabled;
   button.dataset.state = feedback.state;
@@ -404,41 +421,26 @@ function updateHUD() {
     : arena.nukeCooldown > 0
       ? `${arena.nukeCooldown.toFixed(1)}s`
       : "Ready";
-  el("nuke-fill").style.width =
-    `${(1 - arena.nukeCooldown / NUKE_COOLDOWN) * 100}%`;
+
   el("boost").style.borderColor = p.boosting ? "#ff8067" : "#ffffff20";
-  const ctx = el<HTMLCanvasElement>("minimap").getContext("2d");
-  if (ctx) {
-    ctx.clearRect(0, 0, 240, 240);
-    ctx.strokeStyle = "#7d8c7855";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(120, 120, 114, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(6, 120);
-    ctx.lineTo(234, 120);
-    ctx.moveTo(120, 6);
-    ctx.lineTo(120, 234);
-    ctx.stroke();
-    for (const s of arena.snakes) {
-      if (!s.alive) continue;
-      ctx.fillStyle =
-        s.id === 0
-          ? "#554936"
-          : CHARACTERS.find((c) => c.id === s.character)!.color;
-      ctx.beginPath();
-      ctx.arc(
-        120 + (s.x / RADIUS) * 112,
-        120 + (s.z / RADIUS) * 112,
-        s.id === 0 ? 5 : 2.5,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fill();
-    }
-  }
 }
+function updatePresentation() {
+  const frame = view.presentation;
+  hudMotion.update(frame);
+  document.body.classList.toggle('presentation-paused', frame.paused);
+  document.body.classList.toggle('reduced-motion', frame.reducedMotion);
+  if (!arena || screen !== 'game') return;
+  compass.draw(frame, accumulator / STEP);
+  if (frame.paused) return;
+  const p = arena.player, c = CHARACTERS.find(c => c.id === p.character)!;
+  const lag = STEP * (1 - accumulator / STEP);
+  const progress = arena.cinematic ? 0 : p.charge ? 1 - Math.min(KI_CHARGE, p.charge.remaining + lag) / KI_CHARGE
+    : p.active > 0 && p.character !== 'nova' ? Math.min(c.duration, p.active + lag) / c.duration
+    : p.cooldown > 0 ? 1 - Math.min(c.cooldown, p.cooldown + lag) / c.cooldown : 1;
+  el('cool-fill').style.transform = `scaleX(${progress})`;
+  el('nuke-fill').style.transform = `scaleX(${arena.nukeCooldown > 0 ? 1 - Math.min(NUKE_COOLDOWN, arena.nukeCooldown + lag) / NUKE_COOLDOWN : 1})`;
+}
+
 function gameOver() {
   saveBest();
   audio.stopVoices();
@@ -472,6 +474,7 @@ function frame(now: number) {
       accumulator -= STEP;
       skillVisualRemaining = Math.max(0, skillVisualRemaining - STEP);
       if (!skillVisualRemaining) clearSkillVisual();
+      compass.state.sync(arena);
       view.handleEvents(arena.events);
       for (const event of arena.events) {
         if (event.type === "ki-launch" || event.type === "ki-impact") {
@@ -482,8 +485,7 @@ function frame(now: number) {
           if (event.type === "ability" || event.type === "nuke") {
             const ultimate = event.type === "nuke" ? arena.cinematic?.kind : undefined;
             audio.skill(selected, ultimate);
-            if (event.type === "ability" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
-              el("ability").animate([{transform:"scale(1)"},{transform:"scale(1.06)"},{transform:"scale(1)"}], {duration:220});
+            if (event.type === "ability") hudMotion.pulse(el("ability"));
             showSkillVisual(ultimate ?? selected);
           } else {
             audio.play(event.type, arena.cinematic?.kind);
@@ -519,7 +521,8 @@ function frame(now: number) {
       String(blasting ? Math.max(0, 0.65 - (shot.time - NUKE_BLAST) * 0.6) : 0),
     );
   }
-  view.render(arena, now / 1000, accumulator / STEP, dt);
+  view.render(arena, now / 1000, accumulator / STEP, dt, motionPreference.reduced);
+  updatePresentation();
   hudClock += dt;
   if (hudClock > 0.12) {
     updateHUD();
@@ -537,7 +540,7 @@ try {
   CHARACTERS.forEach(
     (c, i) => (el<HTMLImageElement>(`portrait-${c.id}`).src = portraits[i]),
   );
-  installWorldDiagnostics(view,()=>screen, id=>chooseMap(id,false));
+  installWorldDiagnostics(view,()=>screen, id=>chooseMap(id,false), reduced => { motionPreference.previewReduced = reduced; });
   requestAnimationFrame(frame);
 } catch (error) {
   console.error("WebGL initialization failed", error);
@@ -547,4 +550,8 @@ canvas.addEventListener("webglcontextlost", (e) => {
   e.preventDefault();
   pause();
   el("fatal").hidden = false;
+});
+
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear();
 });

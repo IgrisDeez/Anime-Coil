@@ -1,3 +1,4 @@
+import { breathing, type PresentationFrame } from './presentation';
 import * as THREE from "three";
 import {
   Arena,
@@ -47,6 +48,10 @@ export class GameRenderer {
   private foodColors = CHARACTERS.map((c) => new THREE.Color(c.color));
   private ring: THREE.Mesh;
   private visualClock = new VisualClock();
+  private visualFrame = { time: 0, dt: 0, paused: false, reducedMotion: false };
+  get presentation(): PresentationFrame { return this.visualFrame; }
+  private coilColors = new Map(CHARACTERS.map(c => [c.id, [new THREE.Color(c.color), new THREE.Color(c.secondary)]]));
+  private frozenColor = new THREE.Color('#bdeeff');
   private profile = profileFor(innerWidth, matchMedia("(pointer:coarse)").matches);
   private samples: number[] = [];
   private frameStamp = 0;
@@ -280,6 +285,7 @@ export class GameRenderer {
   }
   start(arena: Arena) {
     this.skillEffects.clear();
+    this.skillEffects.seed(arena);
     for (const v of this.visuals.values()) {
       this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
       v.outline.dispose(); (v.outline.material as THREE.Material).dispose();
@@ -293,11 +299,12 @@ export class GameRenderer {
     this.mode = "game";
     this.focus.set(arena.player.x, 0, arena.player.z);
   }
-  render(arena: Arena | undefined, time: number, alpha: number, dt: number) {
+  render(arena: Arena | undefined, time: number, alpha: number, dt: number, reducedMotion = false) {
     const menu = this.mode === "menu";
     const paused = document.hidden || (!!arena && arena.state !== "playing" && !menu);
-    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     time = this.visualClock.advance(dt, paused, document.hidden);
+    this.visualFrame.time = time; this.visualFrame.dt = paused ? 0 : Math.min(dt, .1);
+    this.visualFrame.paused = paused; this.visualFrame.reducedMotion = reducedMotion;
     this.skillEffects.update(menu ? undefined : arena, time, paused ? 0 : Math.min(dt,.1), reducedMotion);
     const stamp = performance.now();
     if (this.frameStamp && !paused) { const ms = stamp-this.frameStamp; if(ms < 200) {this.samples.push(ms); if(this.samples.length>300)this.samples.shift();} }
@@ -417,7 +424,8 @@ export class GameRenderer {
           hz = s.z;
         const size = serpentScale(s.mass);
         v.head.scale.setScalar(size);
-        v.head.position.set(hx, 0.55 * size, hz);
+        const still = reducedMotion || s.frozen || !!arena.cinematic || s.active > 0 || !!s.charge;
+        v.head.position.set(hx, (.55 + breathing(time, s.id, s.boosting, still)) * size, hz);
         const elastic = !reducedMotion && !s.frozen && s.character === "cloud" && s.active > 0;
         const squash = elastic ? 1 + Math.sin(time * 11) * .12 : 1;
         v.head.scale.y = size * squash;
@@ -445,7 +453,7 @@ export class GameRenderer {
           const scale = bodyRadiusAt(i, s.body.length, s.mass);
           dummy.position.set(
             b.x,
-            0.5 * size + (s.frozen || reducedMotion ? 0 : Math.sin(time * 4 - i * 0.5) * 0.04),
+            (0.5 + breathing(time - i * .15, s.id, s.boosting, still)) * size,
             b.z,
           );
           dummy.scale.set(scale, scale * .85 * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1), scale);
@@ -456,9 +464,7 @@ export class GameRenderer {
           dummy.position.y = -.37; dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(scale*1.25,scale*1.25,1); dummy.updateMatrix(); v.shadow.setMatrixAt(i,dummy.matrix);
           v.body.setColorAt(
             i - 1,
-            new THREE.Color(
-              s.frozen ? "#bdeeff" : i % 5 === 0 ? c.secondary : c.color,
-            ),
+            s.frozen ? this.frozenColor : this.coilColors.get(s.character)![i % 5 === 0 ? 1 : 0],
           );
         }
         v.body.instanceMatrix.needsUpdate = true;
@@ -468,9 +474,9 @@ export class GameRenderer {
       this.food.count = arena.food.length;
       for (let i = 0; i < arena.food.length; i++) {
         const f = arena.food[i];
-        dummy.position.set(f.x, 0.25 + Math.sin(time * 2 + f.id) * 0.12, f.z);
+        dummy.position.set(f.x, 0.25 + (reducedMotion ? 0 : Math.sin(time * 2 + f.id) * 0.12), f.z);
         dummy.scale.setScalar(f.value > 1 ? 1.45 : 1);
-        dummy.rotation.set(0, time * 0.6 + f.id, 0);
+        dummy.rotation.set(0, (reducedMotion ? 0 : time * 0.6) + f.id, 0);
         dummy.updateMatrix();
         this.food.setMatrixAt(i, dummy.matrix);
         this.food.setColorAt(i, this.foodColors[f.color]);
@@ -478,8 +484,8 @@ export class GameRenderer {
       this.food.instanceMatrix.needsUpdate = true;
       if (this.food.instanceColor) this.food.instanceColor.needsUpdate = true;
     }
-    this.purple.update(arena, this.camera, menu);
-    this.spirit.update(arena, this.camera, menu);
+    this.purple.update(arena, this.camera, menu, reducedMotion);
+    this.spirit.update(arena, this.camera, menu, reducedMotion);
     const shot = menu ? undefined : arena?.cinematic;
     const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,
       ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
