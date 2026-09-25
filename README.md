@@ -1,6 +1,6 @@
-# Anime Coil v1.1
-
+# Anime Coil v1.2.0 — Character & Combat Polish
 A complete solo browser arena built with TypeScript, Three.js, and Vite. Pick one of four original code-modeled anime-inspired chibi serpents and compete with 20 bots.
+
 
 ## Run locally
 
@@ -26,27 +26,33 @@ npm run preview # serve the production build locally
 | Steer  | Move mouse                      | Drag left joystick |
 | Boost  | Hold Space or left mouse button | Hold BOOST         |
 | Power  | E or right mouse button         | Tap ability button |
-| Ultimate | V (Eclipse Sage or Nova Monk) | Tap ultimate button |
+| Ultimate | V (Shiro or Kairo) | Tap ultimate button |
 | Pause  | Escape or pause button          | Pause button       |
 
-Collect energy to grow. Boost spends mass and sheds energy behind you, unless Fox Step is active. Boost becomes unavailable at the minimum length. Your head touching a rival's body or the arena edge ends the match. Your own coil is safe. A head-on collision eliminates both spirits. Defeated bots drop energy and are replaced. Pause freezes all simulation; hiding the tab pauses automatically.
+Collect energy to grow. Boost spends mass and sheds energy behind you, unless Fox Rush is active. Boost becomes unavailable at the minimum length. Your head touching a rival's body or the arena edge ends the match. Your own coil is safe. A head-on collision eliminates both spirits. Defeated bots drop energy and are replaced. Pause freezes all simulation; hiding the tab pauses automatically.
 
 ## Spirits
 
 | Original character | Visual inspiration | Power                                                                                     |
 | ------------------ | ------------------ | ----------------------------------------------------------------------------------------- |
-| Ember Fox          | Naruto             | Fox Step: free boost for 3 seconds; 12-second cooldown                                    |
-| Nova Monk          | Goku               | Ki Burst: one instant energy collection pulse within 4 head diameters; 14-second cooldown |
-| Cloud Corsair      | Luffy              | Elastic Turn: 2× turning speed for 3 seconds; 10-second cooldown                          |
-| Eclipse Sage       | Gojo               | Infinity Veil: freeze bots within 28 units for 8 seconds; 10-second cooldown; player only |
+| Kitsu          | Naruto             | Fox Rush: free boost for 3 seconds; 12-second cooldown                                    |
+| Kairo          | Goku               | Ki Cannon: 0.3s charge, forward knockback shot; 10-second cooldown |
+| Pomu      | Luffy              | Elastic Twist: 2× turning speed for 3 seconds; 10-second cooldown                          |
+| Shiro       | Gojo               | Infinity Veil: 40% slow within 12 units for 3 seconds; 12-second cooldown; player only |
 
-While Infinity Veil is active, the player is invincible and any head or body contact eliminates the other snake, drops its energy, and awards one elimination. The barrier keeps the player inside without killing them. Normal collision rules return when the power expires. Other powers obey normal collision rules. Infinity Veil follows the player and freezes an entire bot when any part of its coil is within 28 units. Frozen bots cannot move, turn, collect energy or use powers; their ability timers pause. They resume when the field leaves or expires. Bots cannot activate Infinity Veil. All characters are unlocked with equal base movement stats; bots can use the other three abilities. Models, outfits, geometry, and names are original. All assets needed for play are bundled; no online voice service is required.
+Infinity Veil follows Shiro and slows rivals whose heads are within 12 units; touching the ring with a tail does not slow a distant head. Movement, including boost, is reduced by 40%, but steering, ability timers, AI and knockback continue. The field does not grant immunity, erase rivals, or protect against the boundary. Bots cannot use Infinity Veil. All characters have equal base movement stats; bots use the other three E abilities. Ultimates remain player-only. Internal character IDs and storage keys are unchanged.
+
+Ki Cannon locks direction when E is accepted and charges for 0.3 seconds while Kairo can steer normally. A 0.65-radius projectile travels 24 units from the muzzle at 40 units/second and stops at its first rival or the boundary. Hits apply a 20-unit/second impulse that decays over 0.4 seconds (about four units); hits replace existing impulses instead of stacking. Forced movement uses synchronized substeps no longer than 0.2 units. The shot causes no direct death, mass loss, or bonus kill credit: normal collisions and boundary rules still decide the outcome. Charges cancel on caster death, launched shots can outlive a bot caster, and entering a cinematic clears shots and impulses.
+
+Models, outfits, geometry, and names are original. Speech is bundled; no online voice service is required. The game remains SFX-only.
 
 ## Architecture
 
 - `src/simulation.ts`: renderer-independent 60 Hz simulation, typed match state, spatial grids, bots, collision resolution, and abilities.
 - `src/models.ts`: original chibi mesh construction with shared geometry/materials.
-- `src/renderer.ts`: Three.js scene, smooth camera motion, instanced bodies and energy, character portraits and preview. Heads and bodies render the same simulation frame to avoid early-looking hits.
+- `src/renderer.ts`: Three.js scene, smooth camera motion, instanced bodies and energy, cached black coil and chibi-head silhouettes, character portraits and preview. Heads and bodies render the same simulation frame to avoid early-looking hits.
+- `src/skill-effects.ts`: four bounded instanced pools for charge cues, shots, impacts, trails and field accents; renderer-only, pause-aware and reduced-motion aware.
+- `src/ability-feedback.ts`: ready, charging, active-duration, cooldown and unavailable HUD states.
 - `src/main.ts`: menus, HUD, input, minimap, pause/restart, local best score and audio integration.
 - `src/ui.ts` and `src/style.css`: cozy menus, accessible dialogs, compact HUD and responsive touch layout.
 - `src/audio.ts` and `src/audio-settings.ts`: character-aware skill audio and saved effects/voice settings.
@@ -75,7 +81,7 @@ Choose any map with any character using the four preview cards. Selection update
 
 All scenery is original procedural Three.js geometry. Sign textures and preview thumbnails are generated locally, with no downloaded map assets. Tall landmarks sit outside the unchanged arena boundary; ground markings are decorative and safe to cross. Maps do not change movement, growth, bots or powers. `src/maps.ts` owns typed map definitions and preference handling; `src/environments.ts` builds and disposes map geometry, materials, instances and sign textures. Environment tests check landmark clearance, storage fallback and resource disposal.
 
-### Hollow Purple — Eclipse Sage / Gojo
+### Hollow Purple — Shiro / Gojo
 
 Press **V** (or tap **Hollow Purple** on the HUD) for a second, player-only power, independent of Infinity Veil on E. Red and blue energy merge during a 5.6-second cinematic; every rival across the arena is pulled to you. At 3.4 seconds, a huge purple blast eliminates all rivals, awards each kill once, and drops their energy. You stay invincible and stationary throughout. Twenty new bots appear after the cinematic ends. Cooldown: 30 seconds from activation; ready immediately in a new match.
 
@@ -95,9 +101,9 @@ There is no background music or external player. Effects and Voices have separat
 
 | Clip          | Japanese callout   | Nemo voice    |
 | ------------- | ------------------ | ------------- |
-| Ember Fox     | 狐ステップ！       | 女声1 / 10005 |
-| Nova Monk     | 気のバースト！     | 男声1 / 10001 |
-| Cloud Corsair | ゴムターン！       | 女声2 / 10007 |
+| Kitsu     | 狐ラッシュ！       | 女声1 / 10005 |
+| Kairo     | 気砲！     | 男声1 / 10001 |
+| Pomu | ゴムツイスト！       | 女声2 / 10007 |
 | Infinity Veil | 無限バリア！       | 男声3 / 10002 |
 | Hollow Purple | ホロウ・パープル！ | 男声3 / 10002 |
 | Spirit Bomb | 元気玉！ | 男声1 / 10001 |
@@ -108,9 +114,9 @@ To regenerate the six voice clips, run the official Nemo engine locally on `127.
 
 Validation includes gameplay, both ultimates, map resources, saved settings, voice cancellation, missing assets, and mute/volume behavior.
 
-### Spirit Bomb — Nova Monk / Goku
+### Spirit Bomb — Kairo / Goku
 
-Press **V** or the Spirit Bomb touch button. A dedicated cinematic shows raised chibi arms, energy ribbons gathering into a textured sphere, a forward throw, and a cloud-and-petal impact. Enemies freeze in place: there is no pull. This player-only ultimate detonates at 3.4 seconds, grants invulnerability throughout its 5.6-second cinematic, and respawns 20 bots afterward. Its independent cooldown is 30 seconds. **E** remains Ki Burst. Both ultimates display Japanese charge and explosion lettering. Pause freezes their simulation; restart clears every effect and cooldown.
+Press **V** or the Spirit Bomb touch button. A dedicated cinematic shows raised chibi arms, energy ribbons gathering into a textured sphere, a forward throw, and a cloud-and-petal impact. Enemies freeze in place: there is no pull. This player-only ultimate detonates at 3.4 seconds, grants invulnerability throughout its 5.6-second cinematic, and respawns 20 bots afterward. Its independent cooldown is 30 seconds. **E** remains Ki Cannon. Both ultimates display Japanese charge and explosion lettering. Pause freezes their simulation; restart clears every effect and cooldown.
 
 ### Cozy world rebuild
 
@@ -135,3 +141,12 @@ The desktop/mobile profile is selected from viewport width and coarse pointer in
 These measurements are from the generated environment batches before other game objects are rendered. The complete match with 20 active bots measured 117 draw calls and 169,440 triangles in the local desktop browser; its observed frame-time median was 10.4 ms and 95th percentile 14.4 ms in a short run. Hardware and browser conditions change these numbers. Use `?worldDebug=1` for an opt-in local diagnostics panel with frame samples and a 40-switch resource cycling check; remove the query for normal play.
 
 Validation: `npm test` covers both profiles, deterministic authored layout, landmark clearance, motion bounds, pause/reduced-motion behavior, cinematic-response reset, and one-time disposal including textures, lines, points, instances and shared character assets. The 40-switch browser run returned to stable geometry/texture/program counts for all four maps after warmup. Mobile review used a 390 × 844 browser viewport; a physical phone and hardware GPU profile remain manual checks. The browser performance figures describe this workstation only, not a guaranteed frame rate.
+
+
+## v1.2.0 — Character & Combat Polish
+
+Kitsu, Kairo, Pomu and Shiro now have distinct E identities: movement, ranged disruption, steering, and area control. Kitsu gains warm afterimages and a forward lean; Kairo shows a fixed firing direction and solid hit-sized projectile core; Pomu gets elastic ribbons, vertical squash/stretch and banking; Shiro has a clear 12-unit field and violet slowing cues. Cosmetic deformations keep body centers and horizontal collision widths aligned. Existing head outlines, Shiro’s curved blindfold and Denz credits are retained.
+
+The HUD shows charge and remaining active time before showing cooldown. A mint ready state and quiet disabled state stay within the existing buttons. Short activation feedback and individual menu idles respect reduced motion. Per-step events reach the renderer before the next simulation step replaces them; voices remain player-only and cannon fire/impact effects are separate from the callout. The three renamed callouts were regenerated with the existing Nemo voices and settings.
+
+Validation includes charge/aim timing, swept head/body hits, first-contact selection, impulses and collision deaths, bot use, field entry/exit, normal Shiro vulnerability, pause/restart/cinematic cleanup, HUD states and bounded presentation pools. Physical touch-device input and extended competitive balance remain playtesting tasks. Earlier Worlds Reborn performance figures above are historical environment baselines, not measurements of this combat update.

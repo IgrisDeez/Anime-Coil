@@ -7,9 +7,9 @@ import json, urllib.request, urllib.parse, sys
 OUT = Path(__file__).resolve().parents[1] / 'public' / 'audio'
 OUT.mkdir(parents=True, exist_ok=True)
 voices = [
- ('ember','狐ステップ！',10005,1.18,.08,1.28),
- ('nova','気のバースト！',10001,1.15,.13,1.35),
- ('cloud','ゴムターン！',10007,1.23,.06,1.3),
+ ('ember','狐ラッシュ！',10005,1.18,.08,1.28),
+ ('nova','気砲！',10001,1.15,.13,1.35),
+ ('cloud','ゴムツイスト！',10007,1.23,.06,1.3),
  ('eclipse','無限バリア！',10002,1.1,.10,1.15),
  ('purple','ホロウ・パープル！',10002,1.02,.10,1.2),
  ('spirit','元気玉！',10001,1.05,.13,1.35),

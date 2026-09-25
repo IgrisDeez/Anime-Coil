@@ -171,16 +171,26 @@ export class AudioEngine {
           i * 0.06,
         );
     } else if (character === "nova") {
-      [392, 523, 784, 1046].forEach((f, i) =>
-        this.tone(f, f * 1.15, 0.35, 0.07, "sine", i * 0.09),
-      );
+      this.tone(180, 760, .3, .07, "sine");
+      this.tone(360, 1200, .3, .035, "triangle");
     } else if (character === "cloud") {
-      this.tone(160, 720, 0.2, 0.09, "triangle");
-      this.tone(720, 240, 0.3, 0.065, "sine", 0.15);
+      this.tone(140, 820, .13, .09, "triangle");
+      this.tone(820, 190, .22, .07, "sine", .12);
+      this.tone(190, 420, .16, .05, "triangle", .3);
     } else {
       [660, 880, 1320].forEach((f, i) =>
         this.tone(f, f, 0.8, 0.04, "sine", i * 0.08),
       );
+    }
+  }
+  cannon(stage: "fire" | "impact") {
+    if (!this.ctx || !this.enabled || this.hidden) return;
+    if (stage === "fire") {
+      this.tone(1100, 180, .18, .09, "triangle");
+      this.tone(440, 90, .16, .045, "sine");
+    } else {
+      this.tone(240, 55, .22, .12, "triangle");
+      this.tone(850, 230, .12, .04, "sine");
     }
   }
   play(type: "collect" | "death" | "select" | "blast", ultimate?: "purple" | "spirit") {

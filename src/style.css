@@ -342,7 +342,7 @@ kbd {
 }
 .menu-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 0 4vw 22px;
   font-size: 11px;
   color: #fffbea;
@@ -1078,3 +1078,13 @@ kbd {
 /* Ink-colored captions stay readable against the pastel Spirit Bomb and maps. */
 #cinematic.spirit .cinema-title strong { color: #42667b; text-shadow: 0 2px 0 #fff6d9, 0 0 22px #e7faff; }
 #cinematic.spirit .cinema-title small, #cinematic.spirit .cinema-title span { color: #40576a; text-shadow: 0 1px 3px #fff8e7; }
+
+/* Compact ability feedback: an active duration takes precedence over cooldown fill. */
+.ability-button[data-state="ready"] { border-color:#77b89b; box-shadow:0 4px 0 #5a987c40; }
+.ability-button[data-state="ready"] small { color:#377857; font-weight:900; }
+.ability-button[data-state="charging"], .ability-button[data-state="active"] { background:#e5f4e9; border-color:#8ebca4; opacity:1; }
+.ability-button[data-state="charging"] .cool-fill { background:#5cbbdc; }
+.ability-button[data-state="active"] .cool-fill { background:#9b80bd; }
+.ability-button[data-state="cooldown"], .ability-button[data-state="disabled"] { background:#e9e5d9; border-color:#d8d2c0; box-shadow:none; }
+.ability-button[data-state="cooldown"] small { color:#645d4e; font-variant-numeric:tabular-nums; }
+@media(max-width:760px) { .ability-button { min-height:64px; } .ability-button small { font-size:11px; } }

@@ -14,51 +14,51 @@ export interface Character {
 export const CHARACTERS: Character[] = [
   {
     id: "ember",
-    name: "Ember Fox",
+    name: "Kitsu",
     title: "THE RESTLESS SPIRIT",
     color: "#ff9352",
     secondary: "#ffc75d",
-    power: "Fox Step",
-    description: "Burn brighter. Boost for 3 seconds without losing energy.",
+    power: "Fox Rush",
+    description: "Rush forward for 3 seconds without spending energy.",
     cooldown: 12,
     duration: 3,
     symbol: "火",
   },
   {
     id: "nova",
-    name: "Nova Monk",
+    name: "Kairo",
     title: "THE STARFORGED FIGHTER",
     color: "#58caff",
     secondary: "#ffab55",
-    power: "Ki Burst",
-    description: "Draw in every energy orb within 4 head diameters.",
-    cooldown: 14,
-    duration: 0.5,
+    power: "Ki Cannon",
+    description: "Charge a forward shot that knocks one rival off course.",
+    cooldown: 10,
+    duration: 0.3,
     symbol: "星",
   },
   {
     id: "cloud",
-    name: "Cloud Corsair",
+    name: "Pomu",
     title: "THE FREEWIND DREAMER",
     color: "#ff697f",
     secondary: "#ffe198",
-    power: "Elastic Turn",
-    description: "Bend the rules. Double your turn speed for 3 seconds.",
+    power: "Elastic Twist",
+    description: "Double your turning speed for 3 seconds.",
     cooldown: 10,
     duration: 3,
     symbol: "風",
   },
   {
     id: "eclipse",
-    name: "Eclipse Sage",
+    name: "Shiro",
     title: "THE INFINITE MYSTIC",
     color: "#b698ff",
     secondary: "#dcf0ff",
     power: "Infinity Veil",
     description:
-      "Freeze nearby rivals for 8s. Become invincible and eliminate any snake you touch. Player only.",
-    cooldown: 10,
-    duration: 8,
+      "Slow nearby rivals by 40% for 3 seconds; collisions remain lethal.",
+    cooldown: 12,
+    duration: 3,
     symbol: "空",
   },
 ];
@@ -72,7 +72,9 @@ export const RADIUS = 115,
 // Hair, hats and aura are decorative. Keep the lethal core inside the face,
 // with a small inset on the low-poly body so near misses favor the player.
 export const HEAD_HIT_RADIUS = 0.78;
-export const FREEZE_RADIUS = 28;
+export const VEIL_RADIUS = 12, VEIL_SPEED = 0.6;
+export const KI_CHARGE = 0.3, KI_RANGE = 24, KI_SPEED = 40, KI_RADIUS = 0.65;
+export const KI_IMPULSE = 20, KI_IMPULSE_DURATION = 0.4;
 export const NUKE_COOLDOWN = 30,
   NUKE_BLAST = 3.4,
   NUKE_DURATION = 5.6;
@@ -80,7 +82,7 @@ export const MAX_SIZE = 2.5;
 // Score is mass * 10. Sublinear growth keeps a high-score snake maneuverable.
 export const serpentScale = (mass: number) =>
   Math.min(MAX_SIZE, Math.pow(Math.max(MIN_MASS, mass) / MIN_MASS, 0.35));
-export const hasInfinity = (s: Serpent) =>
+export const hasVeil = (s: Serpent) =>
   s.id === 0 && s.alive && s.character === "eclipse" && s.active > 0;
 export const bodyRadiusAt = (index: number, length: number, mass = MIN_MASS) =>
   BODY_RADIUS *
@@ -114,11 +116,22 @@ export interface Serpent extends Point {
   active: number;
   boosting: boolean;
   frozen: boolean;
+  slowed: boolean;
+  charge?: { remaining: number; direction: number };
+  knockback?: { x: number; z: number; remaining: number };
   dropClock: number;
   botClock: number;
   kills: number;
   previous: Point;
   previousAngle: number;
+}
+export interface KiProjectile extends Point {
+  id: number;
+  ownerId: number;
+  direction: number;
+  remaining: number;
+  radius: number;
+  previous: Point;
 }
 export interface Input {
   nuke?: boolean;
@@ -128,7 +141,10 @@ export interface Input {
 }
 export type MatchState = "playing" | "paused" | "over";
 export interface GameEvent {
-  type: "collect" | "ability" | "death" | "nuke" | "blast";
+  character?: CharacterId;
+  targetId?: number;
+  direction?: number;
+  type: "collect" | "ability" | "death" | "nuke" | "blast" | "ki-launch" | "ki-impact";
   id: number;
   x: number;
   z: number;
@@ -197,6 +213,8 @@ export class Arena {
   snakes: Serpent[] = [];
   food: Food[] = [];
   events: GameEvent[] = [];
+  projectiles: KiProjectile[] = [];
+  private projectileId = 0;
   state: MatchState = "playing";
   elapsed = 0;
   nukeCooldown = 0;
@@ -246,6 +264,7 @@ export class Arena {
       active: 0,
       boosting: false,
       frozen: false,
+      slowed: false,
       dropClock: 0,
       botClock: 0,
       kills: 0,
@@ -310,13 +329,14 @@ export class Arena {
           });
   }
   activate(s: Serpent) {
-    if (this.cinematic) return false;
+    if (this.cinematic || this.state !== "playing") return false;
     if (!s.alive || s.frozen || s.cooldown > 0) return false;
     if (s.character === "eclipse" && s.id !== 0) return false;
     const c = CHARACTERS.find((c) => c.id === s.character)!;
     s.cooldown = c.cooldown;
     s.active = c.duration;
-    this.events.push({ type: "ability", id: s.id, x: s.x, z: s.z });
+    if (s.character === "nova") s.charge = { remaining: KI_CHARGE, direction: s.angle };
+    this.events.push({ type: "ability", id: s.id, character: s.character, direction: s.angle, x: s.x, z: s.z });
     return true;
   }
   ai(s: Serpent, dt: number): Input {
@@ -386,7 +406,12 @@ export class Arena {
       ability:
         s.cooldown === 0 &&
         (s.character === "nova"
-          ? this.foodGrid.query(s, 8.4).length > 5
+          ? this.snakes.some(o => o.id !== s.id && o.alive && o.body.some(p => {
+              const dx = p.x - s.x, dz = p.z - s.z;
+              const ahead = dx * Math.cos(s.angle) + dz * Math.sin(s.angle);
+              const sideways = Math.abs(-dx * Math.sin(s.angle) + dz * Math.cos(s.angle));
+              return ahead > 3 && ahead <= KI_RANGE && sideways < 1.2;
+            }))
           : s.character === "eclipse"
             ? false
             : this.random() < dt * 0.12),
@@ -403,186 +428,182 @@ export class Arena {
       return;
     }
     this.reindex();
-    const living = this.snakes.filter((s) => s.alive);
-    const controls = new Map<number, Input>(),
-      activated = new Set<number>();
-    // Resolve the player's field first so bots cannot act on its activation tick.
-    const player = this.player;
-    player.cooldown = Math.max(0, player.cooldown - dt);
-    player.active = Math.max(0, player.active - dt);
-    controls.set(0, input);
-    if (input.ability && this.activate(player)) activated.add(0);
-    for (const s of living) {
-      s.frozen =
-        s.id !== 0 &&
-        player.alive &&
-        player.character === "eclipse" &&
-        player.active > 0 &&
-        s.body.some((p) => dist2(p, player) <= FREEZE_RADIUS ** 2);
-      if (s.id === 0 || s.frozen) continue;
-      s.cooldown = Math.max(0, s.cooldown - dt);
-      s.active = Math.max(0, s.active - dt);
-      const c = this.ai(s, dt);
-      controls.set(s.id, c);
-      if (c.ability && this.activate(s)) activated.add(s.id);
-    }
-    const consumed = new Set<number>();
-    for (const s of living) {
+    const controls = new Map<number, Input>();
+    for (const s of this.snakes) {
+      if (!s.alive) continue;
       s.previous = { x: s.x, z: s.z };
       s.previousAngle = s.angle;
-      if (s.frozen) {
-        s.boosting = false;
-        continue;
-      }
-      const c = controls.get(s.id)!;
-      const turn =
-        2.65 * (s.character === "cloud" && s.active > 0 ? 2 : 1) * dt;
-      s.angle += Math.max(-turn, Math.min(turn, angleDelta(s.angle, c.angle)));
-      const free = s.character === "ember" && s.active > 0;
-      s.boosting = free || (c.boost && s.mass > MIN_MASS + 0.05);
-      const speed = BASE_SPEED * (s.boosting ? 1.7 : 1);
-      s.x += Math.cos(s.angle) * speed * dt;
-      s.z += Math.sin(s.angle) * speed * dt;
-      if (hasInfinity(s)) {
-        // Keep the invincible player inside the arena instead of allowing an
-        // out-of-bounds position that would kill them when the power expires.
-        const limit = RADIUS - HEAD_RADIUS * serpentScale(s.mass) - 0.05;
-        const distance = Math.hypot(s.x, s.z);
-        if (distance > limit) {
-          s.x *= limit / distance;
-          s.z *= limit / distance;
+      s.frozen = false;
+      s.cooldown = Math.max(0, s.cooldown - dt);
+      s.active = Math.max(0, s.active - dt);
+      if (s.charge) {
+        s.charge.remaining = Math.max(0, s.charge.remaining - dt);
+        if (s.charge.remaining < 1e-8) {
+          const direction = s.charge.direction;
+          const offset = HEAD_HIT_RADIUS * serpentScale(s.mass) + KI_RADIUS + 0.1;
+          const x = s.x + Math.cos(direction) * offset, z = s.z + Math.sin(direction) * offset;
+          this.projectiles.push({ id: this.projectileId++, ownerId: s.id, x, z, previous: { x, z }, direction, remaining: KI_RANGE, radius: KI_RADIUS });
+          this.events.push({ type: "ki-launch", id: s.id, character: s.character, x, z, direction });
+          s.charge = undefined;
+          s.active = 0;
         }
       }
-      if (s.boosting && !free) {
-        const loss = Math.min(s.mass - MIN_MASS, 2.4 * dt);
-        s.mass -= loss;
-        s.dropClock += loss;
-        if (s.dropClock >= 1) {
-          s.dropClock -= 1;
-          this.spawnFood(
-            s.body[s.body.length - 1],
-            1,
-            CHARACTERS.findIndex((c) => c.id === s.character),
-          );
-        }
-      }
-      const pickup =
-        (s.character === "nova" && activated.has(s.id)
-          ? HEAD_RADIUS * 8
-          : 1.55) * serpentScale(s.mass);
-      for (const f of this.foodGrid.query(s, pickup))
-        if (!consumed.has(f.id) && dist2(s, f) < pickup ** 2) {
-          consumed.add(f.id);
-          s.mass += f.value * 0.6;
-          s.peak = Math.max(s.peak, s.mass);
-          if (s.id === 0)
-            this.events.push({ type: "collect", id: s.id, x: f.x, z: f.z });
-        }
-      s.body[0] = { x: s.x, z: s.z };
-      const spacing = SPACING * serpentScale(s.mass);
-      for (let i = 1; i < s.body.length; i++) {
-        const prev = s.body[i - 1],
-          p = s.body[i],
-          dx = p.x - prev.x,
-          dz = p.z - prev.z,
-          d = Math.hypot(dx, dz);
-        if (d > spacing) {
-          p.x = prev.x + (dx / d) * spacing;
-          p.z = prev.z + (dz / d) * spacing;
-        }
-      }
-      // A bounded render/simulation length prevents unbounded memory growth in endless play.
-      const length = Math.min(360, Math.floor(s.mass));
-      while (s.body.length < length)
-        s.body.push({ ...s.body[s.body.length - 1] });
-      s.body.length = length;
+      const c = s.id === 0 ? input : this.ai(s, dt);
+      controls.set(s.id, c);
+      if (c.ability) this.activate(s);
     }
-    this.food = this.food.filter((f) => !consumed.has(f.id));
-    this.reindex();
-    const dead = new Map<number, string>();
-    const hitOwners = new Map<number, number>();
-    if (hasInfinity(player)) {
-      const targets = new SpatialGrid<BodyPoint>(5);
-      for (const other of living) {
-        if (other.id === 0) continue;
-        targets.add({
-          x: other.x,
-          z: other.z,
-          owner: other.id,
-          radius: HEAD_HIT_RADIUS * serpentScale(other.mass),
-        });
-        for (let i = 1; i < other.body.length; i++)
-          targets.add({
-            ...other.body[i],
-            owner: other.id,
-            radius: bodyHitRadiusAt(i, other.body.length, other.mass),
-          });
-      }
-      for (let i = 0; i < player.body.length; i++) {
-        const point = i === 0 ? player : player.body[i];
-        const radius =
-          i === 0
-            ? HEAD_HIT_RADIUS * serpentScale(player.mass)
-            : bodyHitRadiusAt(i, player.body.length, player.mass);
-        for (const target of targets.query(
-          point,
-          radius + HEAD_HIT_RADIUS * MAX_SIZE,
-        ))
-          if (dist2(point, target) < (radius + target.radius) ** 2) {
-            dead.set(target.owner, "Erased by Infinity Veil.");
-            hitOwners.set(target.owner, 0);
+    // All snakes move together in short steps while forced motion is possible.
+    // Timers, AI and casts still run exactly once per fixed simulation tick.
+    const forced = this.projectiles.length > 0 || this.snakes.some(s => s.knockback);
+    const steps = forced ? Math.max(1, Math.ceil((BASE_SPEED * 1.7 + KI_IMPULSE) * dt / 0.2)) : 1;
+    const h = dt / steps, consumed = new Set<number>();
+    for (let tick = 0; tick < steps; tick++) {
+      this.updateSlows();
+      for (const s of this.snakes) {
+        if (!s.alive) continue;
+        const c = controls.get(s.id)!;
+        const turn = 2.65 * (s.character === "cloud" && s.active > 0 ? 2 : 1) * h;
+        s.angle += Math.max(-turn, Math.min(turn, angleDelta(s.angle, c.angle)));
+        const free = s.character === "ember" && s.active > 0;
+        s.boosting = free || (c.boost && s.mass > MIN_MASS + 0.05);
+        const speed = BASE_SPEED * (s.boosting ? 1.7 : 1) * (s.slowed ? VEIL_SPEED : 1);
+        s.x += Math.cos(s.angle) * speed * h;
+        s.z += Math.sin(s.angle) * speed * h;
+        if (s.knockback) {
+          const k = s.knockback, used = Math.min(h, k.remaining);
+          const after = Math.max(0, k.remaining - used);
+          const integral = used * (k.remaining + after) / (2 * KI_IMPULSE_DURATION);
+          s.x += k.x * integral;
+          s.z += k.z * integral;
+          k.remaining = after;
+          if (after < 1e-8) s.knockback = undefined;
+        }
+        if (s.boosting && !free) {
+          const loss = Math.min(s.mass - MIN_MASS, 2.4 * h);
+          s.mass -= loss;
+          s.dropClock += loss;
+          if (s.dropClock >= 1) {
+            s.dropClock -= 1;
+            this.spawnFood(s.body[s.body.length - 1], 1, CHARACTERS.findIndex(c => c.id === s.character));
           }
-      }
-    }
-    for (let i = 0; i < living.length; i++) {
-      const s = living[i];
-      if (hasInfinity(s)) continue;
-      const headRadius = HEAD_HIT_RADIUS * serpentScale(s.mass);
-      if (Math.hypot(s.x, s.z) > RADIUS - HEAD_RADIUS * serpentScale(s.mass))
-        dead.set(s.id, "You crossed the spirit barrier.");
-      for (let j = i + 1; j < living.length; j++) {
-        const o = living[j];
-        if (
-          dist2(s, o) <
-          (headRadius + HEAD_HIT_RADIUS * serpentScale(o.mass)) ** 2
-        ) {
-          dead.set(s.id, "Head-on clash. Both spirits fell.");
-          if (!hasInfinity(o))
-            dead.set(o.id, "Head-on clash. Both spirits fell.");
         }
-      }
-      for (const b of this.bodyGrid.query(
-        s,
-        headRadius + BODY_RADIUS * MAX_SIZE,
-      ))
-        if (b.owner !== s.id && dist2(s, b) < (headRadius + b.radius) ** 2) {
-          if (!dead.has(s.id)) {
-            dead.set(s.id, "Your head touched a rival’s coil.");
-            hitOwners.set(s.id, b.owner);
+        const pickup = 1.55 * serpentScale(s.mass);
+        for (const f of this.foodGrid.query(s, pickup)) {
+          if (!consumed.has(f.id) && dist2(s, f) < pickup ** 2) {
+            consumed.add(f.id);
+            s.mass += f.value * 0.6;
+            s.peak = Math.max(s.peak, s.mass);
+            if (s.id === 0) this.events.push({ type: "collect", id: s.id, x: f.x, z: f.z });
           }
-          break;
         }
+        this.followBody(s);
+      }
+      this.reindex();
+      this.resolveCollisions();
+      if (this.state !== "playing") break;
+      this.stepProjectiles(h);
     }
-    for (const [id, reason] of dead) {
-      const s = living.find((s) => s.id === id)!;
-      s.alive = false;
-      for (let i = 0; i < s.body.length; i += 2)
-        this.spawnFood(
-          s.body[i],
-          2,
-          CHARACTERS.findIndex((c) => c.id === s.character),
-        );
-      this.events.push({ type: "death", id, x: s.x, z: s.z });
-      if (id === 0) {
-        this.state = "over";
-        this.deathReason = reason;
-      } else if (!dead.has(0) && hitOwners.get(id) === 0) this.player.kills++;
-    }
-    const removed = this.snakes.filter((s) => s.id !== 0 && !s.alive);
-    this.snakes = this.snakes.filter((s) => s.id === 0 || s.alive);
+    this.updateSlows();
+    this.food = this.food.filter(f => !consumed.has(f.id));
+    const removed = this.snakes.filter(s => s.id !== 0 && !s.alive);
+    this.snakes = this.snakes.filter(s => s.id === 0 || s.alive);
     for (const s of removed) this.spawnBot(NAMES.indexOf(s.name));
     while (this.food.length < this.foodTarget) this.spawnFood();
     if (this.food.length > 1600) this.food.splice(0, this.food.length - 1600);
+  }
+  private updateSlows() {
+    const field = hasVeil(this.player);
+    for (const s of this.snakes) s.slowed = field && s.alive && s.id !== 0 && dist2(s, this.player) <= VEIL_RADIUS ** 2;
+  }
+  private followBody(s: Serpent) {
+    s.body[0] = { x: s.x, z: s.z };
+    const spacing = SPACING * serpentScale(s.mass);
+    for (let i = 1; i < s.body.length; i++) {
+      const prev = s.body[i - 1], p = s.body[i];
+      const dx = p.x - prev.x, dz = p.z - prev.z, d = Math.hypot(dx, dz);
+      if (d > spacing) {
+        p.x = prev.x + dx / d * spacing;
+        p.z = prev.z + dz / d * spacing;
+      }
+    }
+    const length = Math.min(360, Math.floor(s.mass));
+    while (s.body.length < length) s.body.push({ ...s.body[s.body.length - 1] });
+    s.body.length = length;
+  }
+  private stepProjectiles(dt: number) {
+    const targets = new SpatialGrid<BodyPoint>(5);
+    for (const s of this.snakes) {
+      if (!s.alive) continue;
+      targets.add({ x: s.x, z: s.z, owner: s.id, radius: HEAD_HIT_RADIUS * serpentScale(s.mass) });
+      for (let i = 1; i < s.body.length; i++) targets.add({ ...s.body[i], owner: s.id, radius: bodyHitRadiusAt(i, s.body.length, s.mass) });
+    }
+    const retained: KiProjectile[] = [];
+    for (const p of this.projectiles) {
+      const vx = Math.cos(p.direction), vz = Math.sin(p.direction);
+      const limit = RADIUS - p.radius;
+      if (Math.hypot(p.x, p.z) >= limit) continue;
+      const dot = p.x * vx + p.z * vz;
+      const boundary = -dot + Math.sqrt(dot * dot + limit * limit - p.x * p.x - p.z * p.z);
+      const travel = Math.min(KI_SPEED * dt, p.remaining, boundary);
+      const midpoint = { x: p.x + vx * travel / 2, z: p.z + vz * travel / 2 };
+      let hit: BodyPoint | undefined, distance = Infinity;
+      for (const target of targets.query(midpoint, travel / 2 + HEAD_HIT_RADIUS * MAX_SIZE + p.radius)) {
+        if (target.owner === p.ownerId) continue;
+        const dx = target.x - p.x, dz = target.z - p.z;
+        const along = dx * vx + dz * vz, radius = target.radius + p.radius;
+        const perpendicular2 = Math.max(0, dx * dx + dz * dz - along * along);
+        if (perpendicular2 > radius * radius) continue;
+        const reach = Math.sqrt(radius * radius - perpendicular2);
+        if (along + reach < 0) continue;
+        const contact = Math.max(0, along - reach);
+        if (contact > travel) continue;
+        if (contact < distance - 1e-9 || (Math.abs(contact - distance) <= 1e-9 && target.owner < (hit?.owner ?? Infinity))) {
+          hit = target; distance = contact;
+        }
+      }
+      p.previous = { x: p.x, z: p.z };
+      p.x += vx * (hit ? distance : travel);
+      p.z += vz * (hit ? distance : travel);
+      p.remaining -= travel;
+      if (hit) {
+        const target = this.snakes.find(s => s.id === hit!.owner)!;
+        target.knockback = { x: vx * KI_IMPULSE, z: vz * KI_IMPULSE, remaining: KI_IMPULSE_DURATION };
+        this.events.push({ type: "ki-impact", id: p.ownerId, targetId: target.id, character: "nova", x: p.x, z: p.z, direction: p.direction });
+      } else if (p.remaining > 1e-8 && travel < boundary - 1e-8) retained.push(p);
+    }
+    this.projectiles = retained;
+  }
+  private resolveCollisions() {
+    const living = this.snakes.filter(s => s.alive);
+    const dead = new Map<number, string>(), hitOwners = new Map<number, number>();
+    for (let i = 0; i < living.length; i++) {
+      const s = living[i], headRadius = HEAD_HIT_RADIUS * serpentScale(s.mass);
+      if (Math.hypot(s.x, s.z) > RADIUS - HEAD_RADIUS * serpentScale(s.mass)) dead.set(s.id, "You crossed the spirit barrier.");
+      for (let j = i + 1; j < living.length; j++) {
+        const o = living[j];
+        if (dist2(s, o) < (headRadius + HEAD_HIT_RADIUS * serpentScale(o.mass)) ** 2) {
+          dead.set(s.id, "Head-on clash. Both spirits fell.");
+          dead.set(o.id, "Head-on clash. Both spirits fell.");
+        }
+      }
+      for (const b of this.bodyGrid.query(s, headRadius + BODY_RADIUS * MAX_SIZE)) {
+        if (b.owner !== s.id && dist2(s, b) < (headRadius + b.radius) ** 2) {
+          if (!dead.has(s.id)) { dead.set(s.id, "Your head touched a rival’s coil."); hitOwners.set(s.id, b.owner); }
+          break;
+        }
+      }
+    }
+    for (const [id, reason] of dead) {
+      const s = living.find(s => s.id === id)!;
+      s.alive = false;
+      s.charge = undefined;
+      s.knockback = undefined;
+      s.active = 0;
+      for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
+      this.events.push({ type: "death", id, x: s.x, z: s.z });
+      if (id === 0) { this.state = "over"; this.deathReason = reason; }
+      else if (!dead.has(0) && hitOwners.get(id) === 0) this.player.kills++;
+    }
   }
   activateNuke(s: Serpent) {
     if (
@@ -594,6 +615,8 @@ export class Arena {
       this.nukeCooldown > 0
     )
       return false;
+    this.projectiles = [];
+    for (const snake of this.snakes) { snake.charge = undefined; snake.knockback = undefined; snake.slowed = false; }
     this.nukeCooldown = NUKE_COOLDOWN;
     const impact = { x: s.x + Math.cos(s.angle) * 22, z: s.z + Math.sin(s.angle) * 22 };
     const reach = Math.hypot(impact.x, impact.z);
@@ -607,7 +630,6 @@ export class Arena {
       p = this.player;
     shot.time += dt;
     // Cinematic owns movement and collision resolution until recovery ends.
-    // This also prevents Infinity Veil from killing the cast before the blast.
     for (const s of this.snakes) {
       s.previous = { x: s.x, z: s.z };
       s.boosting = false;

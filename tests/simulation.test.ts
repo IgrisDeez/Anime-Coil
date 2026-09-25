@@ -84,7 +84,7 @@ test("boost costs mass, drops food, and stops at minimum mass", () => {
   assert.equal(a.player.mass, MIN_MASS);
   assert.equal(a.player.boosting, false);
 });
-test("Fox Step gives three seconds of free boost and a 12-second cooldown", () => {
+test("Fox Rush gives three seconds of free boost and a 12-second cooldown", () => {
   const a = empty();
   advance(a, 1, { ...input, ability: true });
   assert.equal(a.player.cooldown, 12);
@@ -96,43 +96,36 @@ test("Fox Step gives three seconds of free boost and a 12-second cooldown", () =
   assert.equal(a.player.active, 0);
   assert.ok(a.player.cooldown > 8.9 && a.player.cooldown < 9.1);
 });
-test("Ki Burst picks up in range once, without becoming a continuous magnet", () => {
+test("Ki Cannon no longer collects distant food", () => {
   const a = empty("nova");
   a.spawnFood({ x: 0, z: 7 }, 3);
   a.spawnFood({ x: 0, z: 10 }, 3);
   advance(a, 1, { ...input, ability: true });
-  assert.equal(a.food.length, 1);
-  a.spawnFood({ x: 0, z: 6 }, 1);
-  advance(a, 1);
   assert.equal(a.food.length, 2);
-  assert.equal(a.player.cooldown, 14 - STEP);
+  assert.equal(a.player.mass, MIN_MASS);
+  assert.equal(a.player.cooldown, 10);
 });
-test("Elastic Turn doubles angular speed", () => {
+
+test("Elastic Twist doubles angular speed", () => {
   const a = empty("cloud"),
     b = empty("ember");
   advance(a, 1, { ...input, angle: Math.PI / 2, ability: true });
   advance(b, 1, { ...input, angle: Math.PI / 2 });
   assert.ok(Math.abs(a.player.angle - b.player.angle * 2) < 1e-8);
 });
-test("Infinity Veil freezes nearby bots including their bodies, powers and timers", () => {
-  const a = empty("eclipse"),
-    bot = rival(a, 0, 12, "ember");
-  bot.active = 2;
-  bot.cooldown = 9;
-  const before = structuredClone(bot);
+test("Infinity Veil slows propulsion without freezing powers or timers", () => {
+  const a = empty("eclipse"), bot = rival(a, 0, 8, "ember");
+  a.ai = s => ({ ...input, angle: s.angle });
+  bot.active = 2; bot.cooldown = 9;
   advance(a, 1, { ...input, ability: true });
-  advance(a, 30, { ...input, angle: Math.PI });
-  assert.equal(bot.frozen, true);
-  assert.equal(bot.x, before.x);
-  assert.equal(bot.z, before.z);
-  assert.equal(bot.angle, before.angle);
-  assert.deepEqual(bot.body, before.body);
-  assert.equal(bot.active, 2);
-  assert.equal(bot.cooldown, 9);
-  assert.equal(bot.mass, before.mass);
-  assert.equal(bot.boosting, false);
-  assert.ok(a.player.x !== 0);
+  assert.equal(bot.frozen, false);
+  assert.equal(bot.slowed, true);
+  assert.ok(Math.abs(bot.x - BASE_SPEED * 1.7 * .6 * STEP) < 1e-8);
+  assert.equal(bot.active, 2 - STEP);
+  assert.equal(bot.cooldown, 9 - STEP);
+  assert.equal(bot.boosting, true);
 });
+
 test("bots cannot activate Infinity Veil, even through direct activation", () => {
   const a = empty(),
     bot = rival(a, 0, 8, "eclipse");
@@ -143,33 +136,28 @@ test("bots cannot activate Infinity Veil, even through direct activation", () =>
   assert.equal(bot.cooldown, 0);
   assert.equal(a.player.frozen, false);
 });
-test("field freezes a whole snake when its tail enters; distant bots keep moving", () => {
-  const a = empty("eclipse"),
-    tail = rival(a, 35, 0),
-    far = rival(a, 70, 30);
-  advance(a, 1, { ...input, ability: true });
-  assert.equal(tail.frozen, true);
-  assert.equal(tail.x, 35);
-  assert.equal(far.frozen, false);
-  assert.notEqual(far.x, 70);
+test("a tail in the field does not slow a distant head", () => {
+  const a = empty("eclipse"), tail = rival(a, 20, 0), far = rival(a, 70, 30);
+  a.step(0, { ...input, ability: true });
+  assert.equal(tail.slowed, false);
+  assert.equal(far.slowed, false);
 });
-test("frozen bots resume after expiry or when the field moves away", () => {
+
+test("slow ends on expiry or leaving the moving field", () => {
   for (const expired of [true, false]) {
-    const a = empty("eclipse"),
-      bot = rival(a, 0, 12);
+    const a = empty("eclipse"), bot = rival(a, 0, 8);
+    a.ai = s => ({ ...input, angle: s.angle });
     advance(a, 1, { ...input, ability: true });
-    assert.equal(bot.frozen, true);
+    assert.equal(bot.slowed, true);
     if (expired) a.player.active = STEP / 2;
-    else {
-      a.player.x = 80;
-      a.player.body = a.player.body.map((p) => ({ x: p.x + 80, z: p.z }));
-    }
-    const before = { x: bot.x, z: bot.z };
+    else { a.player.x = 80; a.player.body = a.player.body.map(p => ({ x: p.x + 80, z: p.z })); }
+    const x = bot.x;
     advance(a, 1);
-    assert.equal(bot.frozen, false);
-    assert.notDeepEqual({ x: bot.x, z: bot.z }, before);
+    assert.equal(bot.slowed, false);
+    assert.ok(Math.abs(bot.x - x - BASE_SPEED * STEP) < 1e-8);
   }
 });
+
 test("ability cooldown rejects immediate reactivation for every character", () => {
   for (const c of CHARACTERS) {
     const a = empty(c.id);
@@ -178,51 +166,43 @@ test("ability cooldown rejects immediate reactivation for every character", () =
     assert.equal(a.player.cooldown, c.cooldown);
   }
 });
-test("Infinity contact kills on head clashes and protects Gojo", () => {
-  const a = empty("eclipse"),
-    bot = rival(a, 1, 0);
+test("Infinity Veil has normal mutual head collisions and no immunity", () => {
+  const a = empty("eclipse"), bot = rival(a, 1, 0);
+  a.step(0, { ...input, ability: true });
+  assert.equal(a.player.alive, false);
+  assert.equal(bot.alive, false);
+  assert.equal(a.player.kills, 0);
+});
+
+test("Infinity Veil does not erase overlapping bodies", () => {
+  const a = empty("eclipse"), bot = rival(a, -6, 6, "cloud", Math.PI / 2);
   a.step(0, { ...input, ability: true });
   assert.equal(a.player.alive, true);
-  assert.equal(bot.alive, false);
-  assert.equal(a.player.kills, 1);
-  assert.equal(a.state, "playing");
-  assert.ok(a.food.length > 0);
-});
-test("Infinity kills when any part of Gojo touches a rival body, once per rival", () => {
-  const a = empty("eclipse");
-  // Heads are separated; only the coils overlap along their sides.
-  const bot = rival(a, -7, 1);
-  a.step(0, { ...input, ability: true });
-  assert.equal(a.player.alive, true);
-  assert.equal(bot.alive, false);
-  assert.equal(a.player.kills, 1);
-});
-test("Infinity protects a head entering another coil; protection ends on expiry", () => {
-  for (const active of [true, false]) {
-    const { a, attacker, defender } = contactFixture(true, 6, 1.3);
-    attacker.character = "eclipse";
-    attacker.active = active ? 8 : 0;
-    a.step(0, input);
-    assert.equal(attacker.alive, active);
-    assert.equal(defender.alive, !active);
-  }
-});
-test("Infinity freezes nearby snakes without killing them until contact", () => {
-  const a = empty("eclipse"),
-    bot = rival(a, 0, 12);
-  a.step(0, { ...input, ability: true });
-  assert.equal(bot.frozen, true);
   assert.equal(bot.alive, true);
   assert.equal(a.player.kills, 0);
 });
-test("Infinity prevents boundary death and keeps Gojo inside the arena", () => {
-  const a = empty("eclipse");
-  a.player.x = RADIUS - 1;
-  a.step(STEP, { ...input, ability: true });
-  assert.equal(a.player.alive, true);
-  assert.equal(a.state, "playing");
-  assert.ok(a.player.x < RADIUS - 1);
+
+test("Infinity Veil cannot protect a head entering a rival coil", () => {
+  for (const active of [true, false]) {
+    const { a, attacker, defender } = contactFixture(true, 6, 1.3);
+    attacker.character = "eclipse"; attacker.active = active ? 3 : 0;
+    a.step(0, input);
+    assert.equal(attacker.alive, false);
+    assert.equal(defender.alive, true);
+  }
 });
+
+test("Infinity Veil slows without damage and uses normal boundary deaths", () => {
+  const a = empty("eclipse"), bot = rival(a, 0, 8);
+  a.step(0, { ...input, ability: true });
+  assert.equal(bot.slowed, true);
+  assert.equal(bot.alive, true);
+  a.player.x = RADIUS - 1;
+  advance(a, 1);
+  assert.equal(a.player.alive, false);
+  assert.equal(a.state, "over");
+});
+
 test("all powers expire and become available after their cooldown", () => {
   for (const c of CHARACTERS) {
     const a = empty(c.id);

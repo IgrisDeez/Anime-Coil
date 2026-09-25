@@ -1,3 +1,4 @@
+import { abilityFeedback } from "./ability-feedback";
 import "./style.css";
 import {
   Arena,
@@ -87,9 +88,9 @@ function clearInput() {
 }
 let skillVisualRemaining = 0;
 const skillVisuals = {
-  ember: ["シュンッ", "狐ステップ！", "#e98340"],
-  nova: ["ドンッ", "気のバースト！", "#efa83f"],
-  cloud: ["ビヨーン", "ゴムターン！", "#e26a63"],
+  ember: ["シュンッ", "狐ラッシュ！", "#e98340"],
+  nova: ["ドンッ", "気砲！", "#efa83f"],
+  cloud: ["ビヨーン", "ゴムツイスト！", "#e26a63"],
   eclipse: ["キィーン", "無限バリア！", "#8595ed"],
   purple: ["ゴゴゴ…", "ホロウ・パープル！", "#ac79ee"],
   spirit: ["ゴゴゴ…", "元気玉！", "#65c6e8"],
@@ -237,6 +238,7 @@ function menu() {
   screen = "menu";
   arena = undefined;
   view.mode = "menu";
+  view.clearEffects();
   clearInput();
   el("menu").hidden = false;
   el("hud").hidden = true;
@@ -388,15 +390,13 @@ function updateHUD() {
         `<div class="leader-row ${s.id === 0 ? "you" : ""}"><span>${i + 1}</span><b>${s.name}</b><span>${Math.floor(s.mass * 10)}</span></div>`,
     )
     .join("");
-  el("ability-status").textContent =
-    p.active > 0
-      ? "Active"
-      : p.cooldown > 0
-        ? `${p.cooldown.toFixed(1)}s`
-        : "Ready";
-  el("cool-fill").style.width = `${(1 - p.cooldown / c.cooldown) * 100}%`;
-  el<HTMLButtonElement>("ability").disabled =
-    p.cooldown > 0 || !!arena.cinematic;
+  const feedback = abilityFeedback(p, !!arena.cinematic, arena.state === "playing");
+  el("ability-status").textContent = feedback.label;
+  el("cool-fill").style.width = `${feedback.progress * 100}%`;
+  const button = el<HTMLButtonElement>("ability");
+  button.disabled = feedback.disabled;
+  button.dataset.state = feedback.state;
+  button.setAttribute("aria-label", `${c.power}: ${feedback.label}`);
   el<HTMLButtonElement>("nuke").disabled =
     arena.nukeCooldown > 0 || !!arena.cinematic;
   el("nuke-status").textContent = arena.cinematic
@@ -472,11 +472,18 @@ function frame(now: number) {
       accumulator -= STEP;
       skillVisualRemaining = Math.max(0, skillVisualRemaining - STEP);
       if (!skillVisualRemaining) clearSkillVisual();
+      view.handleEvents(arena.events);
       for (const event of arena.events) {
+        if (event.type === "ki-launch" || event.type === "ki-impact") {
+          if (event.id === 0 || event.targetId === 0) audio.cannon(event.type === "ki-launch" ? "fire" : "impact");
+          continue;
+        }
         if (event.id === 0) {
           if (event.type === "ability" || event.type === "nuke") {
             const ultimate = event.type === "nuke" ? arena.cinematic?.kind : undefined;
             audio.skill(selected, ultimate);
+            if (event.type === "ability" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+              el("ability").animate([{transform:"scale(1)"},{transform:"scale(1.06)"},{transform:"scale(1)"}], {duration:220});
             showSkillVisual(ultimate ?? selected);
           } else {
             audio.play(event.type, arena.cinematic?.kind);

@@ -3,12 +3,15 @@ import {
   Arena,
   CHARACTERS,
   RADIUS,
-  FREEZE_RADIUS,
+  VEIL_RADIUS,
+  angleDelta,
+  type GameEvent,
   bodyRadiusAt,
   serpentScale,
   type CharacterId,
 } from "./simulation";
-import { createHead } from "./models";
+import { SkillEffects } from "./skill-effects";
+import { createHead, createHeadOutline } from "./models";
 import { SpiritCinematic } from "./spirit";
 import { PurpleCinematic } from "./purple";
 import { MAPS, getMap, type MapId } from "./maps";
@@ -18,6 +21,7 @@ const bodyGeo = new THREE.SphereGeometry(1, 12, 8),
   dummy = new THREE.Object3D();
 interface SnakeVisual {
   head: THREE.Group;
+  headOutline: THREE.Mesh;
   body: THREE.InstancedMesh;
   aura: THREE.Mesh;
   outline: THREE.InstancedMesh;
@@ -33,6 +37,9 @@ export class GameRenderer {
   heroHead: THREE.Group | null = null;
   heroId: CharacterId = "ember";
   mode: "menu" | "game" = "menu";
+  private skillEffects = new SkillEffects();
+  handleEvents(events: readonly GameEvent[]) { this.skillEffects.ingest(events); }
+  clearEffects() { this.skillEffects.clear(); }
   private focus = new THREE.Vector3();
   private ray = new THREE.Raycaster();
   private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -64,7 +71,7 @@ export class GameRenderer {
     this.scene.fog = new THREE.FogExp2("#10121d", 0.004);
     this.sunlight.position.set(-12, 30, 20);
     this.rimLight.position.set(10, 10, -15);
-    this.scene.add(this.hemisphere, this.sunlight, this.rimLight);
+    this.scene.add(this.hemisphere, this.sunlight, this.rimLight, this.skillEffects.group);
     const ringGeo = new THREE.RingGeometry(RADIUS - 0.3, RADIUS + 0.3, 180);
     this.ring = new THREE.Mesh(
       ringGeo,
@@ -193,7 +200,7 @@ export class GameRenderer {
       if (o instanceof THREE.InstancedMesh) {
         o.dispose();
         (o.material as THREE.Material).dispose();
-      } else if (o instanceof THREE.Mesh) {
+      } else if (o instanceof THREE.Mesh && !o.userData.sharedSilhouette) {
         o.geometry.dispose();
         (o.material as THREE.Material).dispose();
       }
@@ -202,6 +209,11 @@ export class GameRenderer {
     const body = new THREE.InstancedMesh(
       bodyGeo,
       new THREE.MeshToonMaterial({ color: "white" }),
+      70,
+    );
+    const bodyOutline = new THREE.InstancedMesh(
+      bodyGeo,
+      new THREE.MeshBasicMaterial({ color: "#17151d", side: THREE.BackSide }),
       70,
     );
     for (let i = 0; i < 70; i++) {
@@ -216,14 +228,21 @@ export class GameRenderer {
       dummy.scale.set(s, s * 0.8, s);
       dummy.updateMatrix();
       body.setMatrixAt(i, dummy.matrix);
+      dummy.scale.multiplyScalar(1.08);
+      dummy.updateMatrix();
+      bodyOutline.setMatrixAt(i, dummy.matrix);
       body.setColorAt(i, new THREE.Color(i % 5 === 0 ? c.secondary : c.color));
     }
-    this.hero.add(body);
+    this.hero.add(bodyOutline, body);
     this.heroHead = createHead(id);
     this.heroHead.position.set(3, 1.0, 6.6);
     this.heroHead.scale.setScalar(1.5);
     this.heroHead.rotation.y = 0.35;
-    this.hero.add(this.heroHead);
+    const headOutline = createHeadOutline(id);
+    headOutline.position.copy(this.heroHead.position);
+    headOutline.rotation.copy(this.heroHead.rotation);
+    headOutline.scale.setScalar(1.5 * 1.006);
+    this.hero.add(headOutline, this.heroHead);
     const halo = new THREE.Mesh(
       new THREE.RingGeometry(8.5, 8.55, 90),
       new THREE.MeshBasicMaterial({
@@ -260,8 +279,9 @@ export class GameRenderer {
     return arena.player.angle;
   }
   start(arena: Arena) {
+    this.skillEffects.clear();
     for (const v of this.visuals.values()) {
-      this.scene.remove(v.head, v.body, v.aura, v.outline, v.shadow);
+      this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
       v.outline.dispose(); (v.outline.material as THREE.Material).dispose();
       v.shadow.dispose(); v.shadow.geometry.dispose(); (v.shadow.material as THREE.Material).dispose();
       v.body.dispose();
@@ -278,6 +298,7 @@ export class GameRenderer {
     const paused = document.hidden || (!!arena && arena.state !== "playing" && !menu);
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     time = this.visualClock.advance(dt, paused, document.hidden);
+    this.skillEffects.update(menu ? undefined : arena, time, paused ? 0 : Math.min(dt,.1), reducedMotion);
     const stamp = performance.now();
     if (this.frameStamp && !paused) { const ms = stamp-this.frameStamp; if(ms < 200) {this.samples.push(ms); if(this.samples.length>300)this.samples.shift();} }
     this.frameStamp=stamp;
@@ -293,7 +314,7 @@ export class GameRenderer {
         v.head.visible = false;
         v.body.visible = false;
         v.aura.visible = false;
-        v.outline.visible = v.shadow.visible = false;
+        v.outline.visible = v.headOutline.visible = v.shadow.visible = false;
       }
       const narrow = innerWidth < 760;
       this.hero.scale.setScalar(narrow ? 0.8 : 1.15);
@@ -304,9 +325,20 @@ export class GameRenderer {
         narrow ? 42 : 30,
       );
       this.camera.lookAt(narrow ? 3 : -7, narrow ? -16 : 0, 0);
-      if (this.heroHead)
-        this.heroHead.position.y = 1 + Math.sin(time * 1.7) * 0.15;
-      this.hero.rotation.y = Math.sin(time * 0.18) * 0.1;
+      if (this.heroHead) {
+        const idle = this.heroId === "ember" ? 2.4 : this.heroId === "cloud" ? 2 : this.heroId === "nova" ? 1.4 : .9;
+        this.heroHead.position.y = 1 + (reducedMotion ? 0 : Math.sin(time * idle) * (this.heroId === "cloud" ? .2 : .1));
+        this.heroHead.rotation.z = reducedMotion ? 0 : Math.sin(time * idle * .5) * (this.heroId === "cloud" ? .08 : .025);
+        this.heroHead.rotation.y = .35 + (reducedMotion ? 0 : Math.sin(time * idle * .4) * .05);
+      }
+      const previewOutline = this.hero.children.find(
+        (child) => child instanceof THREE.Mesh && child.userData.sharedSilhouette,
+      );
+      if (previewOutline && this.heroHead) {
+        previewOutline.position.copy(this.heroHead.position);
+        previewOutline.rotation.copy(this.heroHead.rotation);
+      }
+      this.hero.rotation.y = reducedMotion ? 0 : Math.sin(time * 0.18) * 0.1;
     } else if (arena) {
       const p = arena.player;
       const zoom =
@@ -329,7 +361,7 @@ export class GameRenderer {
       const ids = new Set(arena.snakes.filter((s) => s.alive).map((s) => s.id));
       for (const [id, v] of this.visuals)
         if (!ids.has(id)) {
-          this.scene.remove(v.head, v.body, v.aura, v.outline, v.shadow);
+          this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
       v.outline.dispose(); (v.outline.material as THREE.Material).dispose();
       v.shadow.dispose(); v.shadow.geometry.dispose(); (v.shadow.material as THREE.Material).dispose();
           v.body.dispose();
@@ -344,6 +376,7 @@ export class GameRenderer {
         let v = this.visuals.get(s.id);
         if (!v) {
           const head = createHead(s.character),
+            headOutline = createHeadOutline(s.character),
             body = new THREE.InstancedMesh(
               bodyGeo,
               new THREE.MeshToonMaterial({ color: "white" }),
@@ -362,20 +395,21 @@ export class GameRenderer {
             }),
           );
           aura.rotation.x = -Math.PI / 2;
-          const outline = new THREE.InstancedMesh(bodyGeo, new THREE.MeshBasicMaterial({color:"#587787", side:THREE.BackSide}), 360);
+          const outline = new THREE.InstancedMesh(bodyGeo, new THREE.MeshBasicMaterial({color:"#17151d", side:THREE.BackSide}), 360);
           const shadow = new THREE.InstancedMesh(new THREE.CircleGeometry(1,16),new THREE.MeshBasicMaterial({color:"#635c67",transparent:true,opacity:.14,depthWrite:false}),360);
           outline.frustumCulled = shadow.frustumCulled = false;
-          v = { head, body, aura, outline, shadow };
+          v = { head, headOutline, body, aura, outline, shadow };
           this.visuals.set(s.id, v);
-          this.scene.add(head, body, aura, outline, shadow);
+          this.scene.add(outline, headOutline, head, body, aura, shadow);
         }
         v.head.visible = true;
         v.body.visible = true;
-        v.outline.visible = s.frozen;
+        v.outline.visible = true;
+        v.headOutline.visible = true;
         v.shadow.visible = true;
-        v.aura.visible = s.id === 0 || s.active > 0 || s.frozen;
+        v.aura.visible = s.id === 0 || s.active > 0 || s.frozen || s.slowed;
         (v.aura.material as THREE.MeshBasicMaterial).color.set(
-          s.frozen ? "#547a8e" : c.color,
+          s.frozen ? "#547a8e" : s.slowed ? "#ad8bcf" : c.color,
         );
         // Bodies and collisions use the current fixed-step state. Rendering
         // an older interpolated head makes a hit register ahead of its face.
@@ -384,15 +418,21 @@ export class GameRenderer {
         const size = serpentScale(s.mass);
         v.head.scale.setScalar(size);
         v.head.position.set(hx, 0.55 * size, hz);
-        v.head.rotation.y = Math.PI / 2 - s.angle;
+        const elastic = !reducedMotion && !s.frozen && s.character === "cloud" && s.active > 0;
+        const squash = elastic ? 1 + Math.sin(time * 11) * .12 : 1;
+        v.head.scale.y = size * squash;
+        v.head.rotation.set(!reducedMotion && s.character === "ember" && s.active > 0 ? .12 : 0, Math.PI / 2 - s.angle, elastic ? THREE.MathUtils.clamp(angleDelta(s.previousAngle,s.angle) * 2,-.16,.16) : 0);
+        v.headOutline.scale.copy(v.head.scale).multiplyScalar(1.006);
+        v.headOutline.position.copy(v.head.position);
+        v.headOutline.rotation.copy(v.head.rotation);
         v.aura.position.set(hx, -0.35, hz);
-        v.aura.rotation.z = s.frozen ? 0 : time * 0.8;
+        v.aura.rotation.z = s.frozen || reducedMotion ? 0 : time * 0.8;
         const a =
           s.active > 0
             ? s.character === "eclipse"
-              ? FREEZE_RADIUS / 1.68
+              ? VEIL_RADIUS / 1.68
               : s.character === "nova"
-                ? 5 * size
+                ? size
                 : 1.4 * size
             : size;
         v.aura.scale.setScalar(a);
@@ -405,14 +445,14 @@ export class GameRenderer {
           const scale = bodyRadiusAt(i, s.body.length, s.mass);
           dummy.position.set(
             b.x,
-            0.5 * size + (s.frozen ? 0 : Math.sin(time * 4 - i * 0.5) * 0.04),
+            0.5 * size + (s.frozen || reducedMotion ? 0 : Math.sin(time * 4 - i * 0.5) * 0.04),
             b.z,
           );
-          dummy.scale.set(scale, scale * 0.85, scale);
+          dummy.scale.set(scale, scale * .85 * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1), scale);
           dummy.rotation.set(0, 0, 0);
           dummy.updateMatrix();
           v.body.setMatrixAt(i - 1, dummy.matrix);
-          dummy.scale.multiplyScalar(1.12); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
+          dummy.scale.multiplyScalar(1.08); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
           dummy.position.y = -.37; dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(scale*1.25,scale*1.25,1); dummy.updateMatrix(); v.shadow.setMatrixAt(i,dummy.matrix);
           v.body.setColorAt(
             i - 1,

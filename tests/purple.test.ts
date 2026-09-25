@@ -28,7 +28,7 @@ function setup() {
   }
   return a;
 }
-test("Hollow Purple is exclusive to a living player Eclipse Sage", () => {
+test("Hollow Purple is exclusive to a living player Shiro", () => {
   const a = setup();
   assert.equal(a.activateNuke(a.snakes[1]), false);
   for (const character of ["ember", "cloud"] as const) {
@@ -79,8 +79,8 @@ test("recovery restores twenty bots; cooldown rejects a second activation", () =
   // Safe expiry without introducing collision outcomes into a timer test.
   a.snakes = [a.player];
   a.botCount = 0;
-  a.player.active = 100;
-  advance(a, NUKE_COOLDOWN);
+  for (let i = 0; i < Math.ceil(NUKE_COOLDOWN / STEP); i++)
+    a.step(STEP, { ...idle, angle: a.player.angle + 0.04 });
   assert.equal(a.activateNuke(a.player), true);
 });
 test("pause freezes the cutscene and cooldown; restarting clears all nuke state", () => {

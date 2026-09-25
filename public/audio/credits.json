@@ -5,7 +5,7 @@
   "voices": [
     {
       "file": "ember",
-      "text": "狐ステップ！",
+      "text": "狐ラッシュ！",
       "speaker": 10005,
       "speed": 1.18,
       "pitch": 0.08,
@@ -13,7 +13,7 @@
     },
     {
       "file": "nova",
-      "text": "気のバースト！",
+      "text": "気砲！",
       "speaker": 10001,
       "speed": 1.15,
       "pitch": 0.13,
@@ -21,7 +21,7 @@
     },
     {
       "file": "cloud",
-      "text": "ゴムターン！",
+      "text": "ゴムツイスト！",
       "speaker": 10007,
       "speed": 1.23,
       "pitch": 0.06,
