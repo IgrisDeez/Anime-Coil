@@ -69,6 +69,7 @@ export const RADIUS = 115,
   BASE_SPEED = 7.4,
   MIN_MASS = 18,
   STEP = 1 / 60;
+export const RESPAWN_DELAY = 3;
 // Hair, hats and aura are decorative. Keep the lethal core inside the face,
 // with a small inset on the low-poly body so near misses favor the player.
 export const HEAD_HIT_RADIUS = 0.78;
@@ -234,6 +235,8 @@ export class Arena {
   nukeCooldown = 0;
   cinematic: { kind: "purple" | "spirit"; impact: { x: number; z: number }; time: number; detonated: boolean } | undefined;
   deathReason = "";
+  playerRespawnRemaining = 0;
+  private pendingBotRespawns: Array<{ remaining: number; index: number }> = [];
   foodGrid = new SpatialGrid<Food>(8);
   bodyGrid = new SpatialGrid<BodyPoint>(5);
   private foodId = 0;
@@ -306,20 +309,7 @@ export class Arena {
   }
   spawnBot(index: number) {
     index = Math.max(0, index);
-    let p: Point = { x: 70, z: 0 },
-      angle = 0;
-    for (let tries = 0; tries < 80; tries++) {
-      const a = this.random() * Math.PI * 2,
-        r = 25 + this.random() * 70;
-      p = { x: Math.cos(a) * r, z: Math.sin(a) * r };
-      angle = a + Math.PI;
-      if (
-        this.snakes.every(
-          (s) => !s.alive || s.body.every((b) => dist2(b, p) > 24 ** 2),
-        )
-      )
-        break;
-    }
+    const { point: p, angle } = this.findSpawnPoint();
     const s = this.createSnake(
       this.nextId++,
       NAMES[index % NAMES.length],
@@ -333,6 +323,41 @@ export class Arena {
     for (let i = s.body.length; i < Math.floor(s.mass); i++)
       s.body.push({ ...s.body[s.body.length - 1] });
     this.snakes.push(s);
+  }
+  private findSpawnPoint() {
+    let point: Point = { x: 70, z: 0 }, angle = 0;
+    for (let tries = 0; tries < 80; tries++) {
+      const a = this.random() * Math.PI * 2,
+        r = 25 + this.random() * 70;
+      point = { x: Math.cos(a) * r, z: Math.sin(a) * r };
+      angle = a + Math.PI;
+      if (this.snakes.every(s => !s.alive || s.body.every(b => dist2(b, point) > 24 ** 2))) break;
+    }
+    return { point, angle };
+  }
+  private respawnPlayer() {
+    const fallen = this.player;
+    const { point, angle } = this.findSpawnPoint();
+    const returned = this.createSnake(0, fallen.name, this.selected, point, angle);
+    returned.peak = fallen.peak;
+    returned.kills = fallen.kills;
+    this.snakes[0] = returned;
+    this.playerRespawnRemaining = 0;
+    this.deathReason = "";
+    this.reindex();
+  }
+  private updateRespawns(dt: number) {
+    if (this.playerRespawnRemaining > 0)
+      this.playerRespawnRemaining = Math.max(0, this.playerRespawnRemaining - dt);
+    for (const pending of this.pendingBotRespawns)
+      pending.remaining = Math.max(0, pending.remaining - dt);
+    const canRespawn = !this.cinematic && this.state === "playing" &&
+      (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION);
+    if (!canRespawn) return;
+    if (!this.player.alive && this.playerRespawnRemaining <= 0) this.respawnPlayer();
+    const ready = this.pendingBotRespawns.filter(pending => pending.remaining <= 0);
+    this.pendingBotRespawns = this.pendingBotRespawns.filter(pending => pending.remaining > 0);
+    for (const pending of ready) this.spawnBot(pending.index);
   }
   spawnFood(p?: Point, value = 1, color?: number) {
     const a = this.random() * Math.PI * 2,
@@ -466,10 +491,12 @@ export class Arena {
     this.nukeCooldown = Math.max(0, this.nukeCooldown - playableDt);
     if (input.nuke && (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)) this.activateNuke(this.player);
     if (this.cinematic) {
+      this.updateRespawns(playableDt);
       this.stepNuke(dt);
       if (!this.cinematic && this.elapsed >= SPRINT_DURATION) this.finishSprint();
       return;
     }
+    this.updateRespawns(playableDt);
     dt = playableDt;
     this.reindex();
     const controls = new Map<number, Input>();
@@ -551,8 +578,8 @@ export class Arena {
     this.food = this.food.filter(f => !consumed.has(f.id));
     const removed = this.snakes.filter(s => s.id !== 0 && !s.alive);
     this.snakes = this.snakes.filter(s => s.id === 0 || s.alive);
-    if (this.mode !== "practice")
-      for (const s of removed) this.spawnBot(NAMES.indexOf(s.name));
+    if (this.mode !== "practice") for (const s of removed)
+      this.pendingBotRespawns.push({ remaining: RESPAWN_DELAY, index: Math.max(0, NAMES.indexOf(s.name)) });
     while (this.food.length < this.foodTarget) this.spawnFood();
     if (this.food.length > 1600) this.food.splice(0, this.food.length - 1600);
     if (this.elapsed >= SPRINT_DURATION) this.finishSprint();
@@ -647,7 +674,7 @@ export class Arena {
       s.active = 0;
       for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
       this.events.push({ type: "death", id, x: s.x, z: s.z });
-      if (id === 0) { this.state = "over"; this.endReason = "death"; this.deathReason = reason; }
+      if (id === 0) { this.playerRespawnRemaining = RESPAWN_DELAY; this.deathReason = reason; }
       else if (!dead.has(0) && hitOwners.get(id) === 0) {
         this.player.kills++;
         this.events.push({ type: "player-elimination", id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
@@ -699,6 +726,8 @@ export class Arena {
       for (const s of this.snakes) {
         if (s.id === 0 || !s.alive) continue;
         s.alive = false;
+        if (this.mode !== "practice")
+          this.pendingBotRespawns.push({ remaining: RESPAWN_DELAY, index: Math.max(0, NAMES.indexOf(s.name)) });
         p.kills++;
         this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
         for (let i = 0; i < s.body.length; i += 2)
@@ -714,9 +743,6 @@ export class Arena {
     }
     if (shot.time >= NUKE_DURATION) {
       this.snakes = this.snakes.filter((s) => s.alive);
-      if (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)
-        for (let i = this.snakes.length - 1; i < this.botCount; i++)
-          this.spawnBot(i);
       this.cinematic = undefined;
       if (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)
         while (this.food.length < this.foodTarget) this.spawnFood();

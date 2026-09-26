@@ -592,6 +592,24 @@ kbd {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+.respawn-notice {
+  position: fixed;
+  z-index: 7;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(90vw, 420px);
+  padding: 13px 20px;
+  border: 2px solid #fffdf4;
+  border-radius: 24px;
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  pointer-events: none;
+}
 .modal {
   position: fixed;
   inset: 0;
@@ -1243,6 +1261,7 @@ kbd {
 :root[data-theme="dark"] .ability-button,
 :root[data-theme="dark"] .mini-wrap,
 :root[data-theme="dark"] .modal-card,
+:root[data-theme="dark"] .respawn-notice,
 :root[data-theme="dark"] .sheet,
 :root[data-theme="dark"] .text-button {
   color: var(--ink);

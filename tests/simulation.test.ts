@@ -6,6 +6,7 @@ import {
   CHARACTERS,
   MIN_MASS,
   RADIUS,
+  RESPAWN_DELAY,
   STEP,
   SpatialGrid,
   serpentScale,
@@ -55,7 +56,7 @@ test("sprint ends at 180 active seconds and leaves the player alive", () => {
   a.step(1, input);
   assert.equal(a.player.x, x);
 });
-test("pause freezes the sprint clock and early death remains a death", () => {
+test("sprint continues after death, pauses the respawn timer, and respawns without resetting the run", () => {
   const a = sprint();
   a.elapsed = 50;
   a.state = "paused";
@@ -63,11 +64,29 @@ test("pause freezes the sprint clock and early death remains a death", () => {
   assert.equal(a.elapsed, 50);
   assert.equal(a.remaining, 130);
   a.state = "playing";
+  a.player.mass = 26;
+  a.player.peak = 40;
+  a.player.kills = 5;
   a.player.x = RADIUS + 1;
   a.step(0, input);
-  assert.equal(a.state, "over");
-  assert.equal(a.endReason, "death");
+  assert.equal(a.state, "playing");
+  assert.equal(a.endReason, undefined);
+  assert.equal(a.player.alive, false);
+  assert.equal(a.playerRespawnRemaining, RESPAWN_DELAY);
   assert.equal(a.elapsed, 50);
+  a.step(STEP, input);
+  const remaining = a.playerRespawnRemaining;
+  a.state = "paused";
+  a.step(1, input);
+  assert.equal(a.playerRespawnRemaining, remaining);
+  a.state = "playing";
+  for (let i = 0; i < Math.ceil(RESPAWN_DELAY / STEP); i++) a.step(STEP, input);
+  assert.equal(a.player.alive, true);
+  assert.equal(a.state, "playing");
+  assert.equal(a.player.mass, MIN_MASS);
+  assert.equal(a.player.peak, 40);
+  assert.equal(a.player.kills, 5);
+  assert.ok(Math.abs(a.elapsed - (50 + STEP + Math.ceil(RESPAWN_DELAY / STEP) * STEP)) < 1e-9);
 });
 test("sprint deadline during an ultimate waits for recovery without extra movement", () => {
   const a = new Arena("nova", () => 0.5, 1, 0, "sprint"), bot = a.snakes[1];
@@ -272,7 +291,8 @@ test("Infinity Veil slows without damage and uses normal boundary deaths", () =>
   a.player.x = RADIUS - 1;
   advance(a, 1);
   assert.equal(a.player.alive, false);
-  assert.equal(a.state, "over");
+  assert.equal(a.state, "playing");
+  assert.equal(a.playerRespawnRemaining, RESPAWN_DELAY);
 });
 
 test("all powers expire and become available after their cooldown", () => {
@@ -296,8 +316,9 @@ test("boundary kills player and leaves collectible energy", () => {
   a.player.x = RADIUS - 1;
   a.player.body[0].x = a.player.x;
   advance(a, 1);
-  assert.equal(a.state, "over");
+  assert.equal(a.state, "playing");
   assert.equal(a.player.alive, false);
+  assert.equal(a.playerRespawnRemaining, RESPAWN_DELAY);
   assert.ok(a.food.length > 0);
   assert.match(a.deathReason, /barrier/);
 });
@@ -422,13 +443,21 @@ test("new matches reset timers, mass, and cooldowns", () => {
   assert.equal(fresh.player.mass, MIN_MASS);
   assert.equal(fresh.state, "playing");
 });
-test("20 bots are maintained after death", () => {
-  const a = new Arena("ember", Math.random, 20, 100);
+test("bots remain gone for three seconds after death, then return", () => {
+  const a = new Arena("ember", () => 0.5, 1, 0);
   const victim = a.snakes[1];
   victim.x = RADIUS + 10;
-  advance(a, 1);
-  assert.equal(a.snakes.filter((s) => s.id !== 0 && s.alive).length, 20);
+  a.step(0, input);
+  assert.equal(a.snakes.filter((s) => s.id !== 0 && s.alive).length, 0);
   assert.ok(!a.snakes.some((s) => s.id === victim.id));
+  a.state = "paused";
+  advance(a, Math.ceil(4 / STEP));
+  assert.equal(a.snakes.filter((s) => s.id !== 0 && s.alive).length, 0);
+  a.state = "playing";
+  advance(a, Math.ceil((RESPAWN_DELAY - STEP) / STEP));
+  assert.equal(a.snakes.filter((s) => s.id !== 0 && s.alive).length, 0);
+  advance(a, 2);
+  assert.equal(a.snakes.filter((s) => s.id !== 0 && s.alive).length, 1);
 });
 test("seeded arena simulation stays finite through a long bot match", () => {
   let seed = 123;
@@ -445,7 +474,7 @@ test("seeded arena simulation stays finite through a long bot match", () => {
     });
     if (a.state === "over") break;
   }
-  assert.equal(a.snakes.length, 21);
+  assert.ok(a.snakes.length >= 1 && a.snakes.length <= 21);
   for (const s of a.snakes) {
     assert.ok(Number.isFinite(s.x) && Number.isFinite(s.z));
     assert.ok(s.body.length <= 360);

@@ -1,4 +1,4 @@
-# Anime Coil v1.3.10 — New Ways to Play
+# Anime Coil v1.3.11 — New Ways to Play
 A complete solo browser arena built with TypeScript, Three.js, and Vite. Pick one of four original code-modeled anime-inspired chibi serpents and compete with 20 bots in Endless or a three-minute Sprint. Guided Practice is available from Help.
 
 
@@ -31,7 +31,7 @@ The npm scripts use Vite's runner config loader so they also work in the restric
 | Ultimate | V (Shiro or Kairo) | Tap ultimate button |
 | Pause  | Escape or pause button          | Pause button       |
 
-Collect energy to grow. Boost spends mass and sheds energy behind you, unless Fox Rush is active. Boost becomes unavailable at the minimum length. Your head touching a rival's body or the arena edge ends the match. Your own coil is safe. A head-on collision eliminates both spirits. Defeated bots drop energy and are replaced. Pause freezes all simulation; hiding the tab pauses automatically. Sprint has a three-minute active-match clock and ends early if you die; an ultimate in progress finishes before the timer ends the run.
+Collect energy to grow. Boost spends mass and sheds energy behind you, unless Fox Rush is active. Boost becomes unavailable at the minimum length. Your head touching a rival's body or the arena edge ends your current life; your own coil is safe. A head-on collision eliminates both spirits. Defeated bots drop energy, then return after a three-second wait. The player also returns after three seconds, keeping the match, peak score, and eliminations; a returned coil starts at minimum size. Pause freezes all simulation; hiding the tab pauses automatically. Sprint runs to its three-minute active-match deadline, including through player respawns; an ultimate in progress finishes before the timer ends the run.
 
 ## Spirits
 
@@ -269,7 +269,7 @@ The 40-switch browser audit returned identical warm/final geometry / texture / p
 
 The menu offers **Endless** (the default) and **3-Minute Sprint**. Sprint uses the same peak-energy score as Endless. Its 180-second clock advances only with the simulation and freezes during pause or a hidden tab. Dying ends the run early. When time expires during Hollow Purple or Spirit Bomb, the cinematic finishes before results appear and before another normal movement step. Results show best energy, credited eliminations and survival time. Sprint records use `anime-coil-sprint-best-v1`, separate from the unchanged `anime-coil-best` Endless key. Equal Sprint scores compare eliminations, then survival time. Quitting a Sprint does not record a result.
 
-Help opens **Guided Practice** using the selected character and map. It has no bots and walks through turning, collecting five orbs, holding Boost for a second, and activating E. Each step can be skipped, and **Leave practice** returns to the garden. Practice can be restarted after a boundary death; it never records a best score or advances challenges.
+Help opens **Guided Practice** using the selected character and map. It has no bots and walks through turning, collecting five orbs, holding Boost for a second, and activating E. Each step can be skipped, and **Leave practice** returns to the garden. A boundary death uses the same three-second player respawn; practice never records a best score or advances challenges.
 
 The **Challenges** button opens four fixed, offline lifetime goals. Progress is awarded only from eligible match simulation steps and confirmed player events; saved data is validated, and disabled storage never prevents play.
 
@@ -347,3 +347,9 @@ When boost is active, the Boost label, active status, and Space keycap now use d
 ## v1.3.10 — Dark pause icon polish
 
 In dark mode, the cloud icon at the top of the pause and results cards now sits in a compact near-black circular badge instead of a full-width green strip. The mint cloud remains visible against the dark badge, which follows the modal palette more naturally. This is a presentation-only change; pause, resume, and results behavior are unchanged.
+
+## v1.3.11 — Three-second respawns
+
+Bot replacements now wait **3 seconds** after a confirmed death. The player also gets a 3-second respawn countdown, while the current match, clock, surviving bots, food, peak score, and credited eliminations continue. Respawn starts a fresh coil at minimum size in a clear arena position; the run's peak score and kill count are retained. Pause and hidden-tab states freeze respawn timers. A sprint still ends at its existing deadline, and practice remains bot-free. The countdown appears in a compact, accessible HUD notice.
+
+Validation: the full **164-test** suite passes, covering player and bot delays, paused countdowns, carried-over run stats, ultimate elimination timing, and the existing sprint deadline. The production build passes. Manual browser and phone play checks remain useful for tuning the countdown's placement and respawn camera transition.

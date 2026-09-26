@@ -87,15 +87,17 @@ test('both ultimates emit one credited event at each defeated rival position', (
     assert.equal(a.player.kills, 20);
   }
 });
-test("recovery restores twenty bots; cooldown rejects a second activation", () => {
+test("bots return three seconds after the blast while cooldown rejects a second activation", () => {
   const a = new Arena("eclipse");
   a.step(STEP, { ...idle, nuke: true });
   advance(a, NUKE_DURATION);
   assert.equal(a.cinematic, undefined);
+  assert.ok(a.nukeCooldown > NUKE_COOLDOWN - NUKE_DURATION - 0.1);
+  assert.equal(a.snakes.filter((s) => s.alive).length, 1);
+  advance(a, 1);
   assert.equal(a.snakes.filter((s) => s.alive).length, 21);
   assert.equal(a.player.kills, 20);
   assert.equal(a.activateNuke(a.player), false);
-  assert.ok(a.nukeCooldown > NUKE_COOLDOWN - NUKE_DURATION - 0.1);
   // Safe expiry without introducing collision outcomes into a timer test.
   a.snakes = [a.player];
   a.botCount = 0;
@@ -146,6 +148,7 @@ for (const character of ["nova", "eclipse"] as const) {
     assert.ok(a.food.length > 0);
     advance(a, 2.2);
     assert.equal(a.cinematic, undefined);
+    advance(a, 0.8);
     assert.equal(a.snakes.filter(s => s.alive).length, 21);
     assert.equal(a.player.alive, true);
     assert.equal(a.activateNuke(a.player), false);

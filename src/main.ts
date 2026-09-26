@@ -545,6 +545,9 @@ function updateHUD() {
   const p = arena.player,
     c = CHARACTERS.find((c) => c.id === p.character)!;
   setText(el("score"), Math.floor(p.mass * 10).toLocaleString());
+  const respawnNotice = el("respawn-notice");
+  respawnNotice.hidden = p.alive;
+  if (!p.alive) setText(respawnNotice, `${arena.deathReason} Returning in ${Math.ceil(arena.playerRespawnRemaining)}…`);
   el("time").textContent = arena.mode === 'sprint' ? timeLabel(Math.ceil(arena.remaining ?? 0)) : timeLabel(arena.elapsed);
   const ranking = [...arena.snakes]
     .filter((s) => s.alive)
