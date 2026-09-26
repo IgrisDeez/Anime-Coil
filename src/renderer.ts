@@ -1,4 +1,5 @@
-import { breathing, type PresentationFrame } from './presentation';
+import { BoostMotion, boostKind, breathing, PreviewMotion, previewBlink, type PresentationFrame } from './presentation';
+import type { TrailId } from './progression';
 import * as THREE from "three";
 import {
   Arena,
@@ -18,7 +19,7 @@ import { PurpleCinematic } from "./purple";
 import { MAPS, getMap, type MapId } from "./maps";
 import { buildEnvironment, type Environment } from "./environments";
 import { profileFor, VisualClock, reaction, type EnvironmentFrame } from "./worlds/types";
-const bodyGeo = new THREE.SphereGeometry(1, 12, 8),
+const bodyGeo = new THREE.SphereGeometry(1, 11, 7),
   dummy = new THREE.Object3D();
 interface SnakeVisual {
   head: THREE.Group;
@@ -27,6 +28,22 @@ interface SnakeVisual {
   aura: THREE.Mesh;
   outline: THREE.InstancedMesh;
   shadow: THREE.InstancedMesh;
+  colorKey: string;
+  coloredCount: number;
+}
+type FrameSample = { ms: number; calls: number; triangles: number; snakes: number };
+type SamplePhase = "normal" | "hollow-purple" | "spirit-bomb";
+function summarizeSamples(samples: readonly FrameSample[]) {
+  const times = samples.map(sample => sample.ms).sort((a, b) => a - b);
+  const median = (values: number[]) => values[Math.floor(values.length * .5)] ?? 0;
+  const calls = samples.map(sample => sample.calls).sort((a, b) => a - b);
+  const triangles = samples.map(sample => sample.triangles).sort((a, b) => a - b);
+  return {
+    frameMsMedian: median(times), frameMsP95: times[Math.floor(times.length * .95)] ?? 0,
+    callsMedian: median(calls), trianglesMedian: median(triangles),
+    snakeCountMin: samples.length ? Math.min(...samples.map(sample => sample.snakes)) : 0,
+    samples: samples.length,
+  };
 }
 export class GameRenderer {
   renderer: THREE.WebGLRenderer;
@@ -36,25 +53,43 @@ export class GameRenderer {
   food: THREE.InstancedMesh;
   hero = new THREE.Group();
   heroHead: THREE.Group | null = null;
+  private previewEyes: THREE.Object3D[] = [];
+  private previewMotion = new PreviewMotion();
+  reactToSelection() { this.previewMotion.select(); }
   heroId: CharacterId = "ember";
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
-  handleEvents(events: readonly GameEvent[]) { this.skillEffects.ingest(events); }
-  clearEffects() { this.skillEffects.clear(); }
+  handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
+  clearEffects() { this.skillEffects.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
+  private focusTarget = new THREE.Vector3();
+  private boostCamera = 0;
   private ray = new THREE.Raycaster();
   private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   private target = new THREE.Vector3();
+  private stampTarget = new THREE.Vector3();
+  projectPoint(x: number, z: number, out: { x: number; y: number }) {
+    this.stampTarget.set(x, 1.5, z).project(this.camera);
+    if (this.stampTarget.z < -1 || this.stampTarget.z > 1 || Math.abs(this.stampTarget.x) > 1 || Math.abs(this.stampTarget.y) > 1) return false;
+    out.x = (this.stampTarget.x + 1) * innerWidth * .5;
+    out.y = (1 - this.stampTarget.y) * innerHeight * .5;
+    return true;
+  }
   private foodColors = CHARACTERS.map((c) => new THREE.Color(c.color));
   private ring: THREE.Mesh;
   private visualClock = new VisualClock();
   private visualFrame = { time: 0, dt: 0, paused: false, reducedMotion: false };
   get presentation(): PresentationFrame { return this.visualFrame; }
-  private coilColors = new Map(CHARACTERS.map(c => [c.id, [new THREE.Color(c.color), new THREE.Color(c.secondary)]]));
+  private coilColors = new Map<CharacterId, readonly [THREE.Color, THREE.Color]>(
+    CHARACTERS.map(c => [c.id, [new THREE.Color(c.color), new THREE.Color(c.secondary)]]),
+  );
   private frozenColor = new THREE.Color('#bdeeff');
   private profile = profileFor(innerWidth, matchMedia("(pointer:coarse)").matches);
-  private samples: number[] = [];
+  private samples: Record<SamplePhase, FrameSample[]> = { normal: [], "hollow-purple": [], "spirit-bomb": [] };
   private frameStamp = 0;
+  private playerPalette?: readonly [THREE.Color, THREE.Color];
+  private paletteKey = "default";
   private environment?: Environment;
   private hemisphere = new THREE.HemisphereLight("#dde7ff", "#394354", 2.5);
   private sunlight = new THREE.DirectionalLight("#fff1d9", 3);
@@ -62,6 +97,20 @@ export class GameRenderer {
   mapId: MapId = "shibuya";
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
+  setCosmetics(palette?: { primary: string; secondary: string }, trail: TrailId = 'original') {
+    this.playerPalette = palette ? [new THREE.Color(palette.primary), new THREE.Color(palette.secondary)] : undefined;
+    this.paletteKey = palette ? `${palette.primary}:${palette.secondary}` : "default";
+    this.skillEffects.setBoostTrail(trail);
+    const previewCoil = this.hero.children.find(child => child instanceof THREE.InstancedMesh && child.userData.previewCoil);
+    if (previewCoil instanceof THREE.InstancedMesh) {
+      const colors = this.playerColors(this.heroId);
+      for (let i = 0; i < previewCoil.count; i++) previewCoil.setColorAt(i, colors[i % 5 === 0 ? 1 : 0]);
+      if (previewCoil.instanceColor) previewCoil.instanceColor.needsUpdate = true;
+    }
+  }
+  private playerColors(id: CharacterId): readonly [THREE.Color, THREE.Color] {
+    return this.playerPalette ?? this.coilColors.get(id)!;
+  }
   constructor(public canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -193,11 +242,23 @@ export class GameRenderer {
     return result;
   }
   diagnostics() {
-    const sorted=[...this.samples].sort((a,b)=>a-b),info=this.renderer.info;
-    return {map:this.mapId,profile:this.profile,environment:this.environment?.stats,game:{calls:info.render.calls,triangles:info.render.triangles,frameMsMedian:sorted[Math.floor(sorted.length*.5)]??0,frameMsP95:sorted[Math.floor(sorted.length*.95)]??0,samples:sorted.length},memory:{...info.memory,programs:info.programs?.length??0},snakes:this.visuals.size};
+    const info = this.renderer.info;
+    const normal = summarizeSamples(this.samples.normal);
+    return {
+      map: this.mapId, profile: this.profile, environment: this.environment?.stats,
+      game: { calls: info.render.calls, triangles: info.render.triangles, ...normal },
+      phases: {
+        normal,
+        hollowPurple: summarizeSamples(this.samples["hollow-purple"]),
+        spiritBomb: summarizeSamples(this.samples["spirit-bomb"]),
+      },
+      memory: { ...info.memory, programs: info.programs?.length ?? 0 }, snakes: this.visuals.size,
+    };
   }
-  resetMeasurements(){this.samples=[];this.frameStamp=0;}
+  resetMeasurements(){this.samples = { normal: [], "hollow-purple": [], "spirit-bomb": [] }; this.frameStamp = 0;}
   setHero(id: CharacterId) {
+    this.previewMotion.reset();
+    this.previewEyes.length = 0;
     this.heroId = id;
     while (this.hero.children.length) {
       const o = this.hero.children[0];
@@ -216,9 +277,10 @@ export class GameRenderer {
       new THREE.MeshToonMaterial({ color: "white" }),
       70,
     );
+    body.userData.previewCoil = true;
     const bodyOutline = new THREE.InstancedMesh(
       bodyGeo,
-      new THREE.MeshBasicMaterial({ color: "#17151d", side: THREE.BackSide }),
+      new THREE.MeshBasicMaterial({ color: "#25232c", side: THREE.BackSide }),
       70,
     );
     for (let i = 0; i < 70; i++) {
@@ -233,13 +295,14 @@ export class GameRenderer {
       dummy.scale.set(s, s * 0.8, s);
       dummy.updateMatrix();
       body.setMatrixAt(i, dummy.matrix);
-      dummy.scale.multiplyScalar(1.08);
+      dummy.scale.multiplyScalar(1.06);
       dummy.updateMatrix();
       bodyOutline.setMatrixAt(i, dummy.matrix);
-      body.setColorAt(i, new THREE.Color(i % 5 === 0 ? c.secondary : c.color));
+      body.setColorAt(i, this.playerColors(id)[i % 5 === 0 ? 1 : 0]);
     }
     this.hero.add(bodyOutline, body);
     this.heroHead = createHead(id);
+    this.heroHead.traverse(node => { if (node.userData.previewEye) this.previewEyes.push(node); });
     this.heroHead.position.set(3, 1.0, 6.6);
     this.heroHead.scale.setScalar(1.5);
     this.heroHead.rotation.y = 0.35;
@@ -284,7 +347,7 @@ export class GameRenderer {
     return arena.player.angle;
   }
   start(arena: Arena) {
-    this.skillEffects.clear();
+    this.clearEffects();
     this.skillEffects.seed(arena);
     for (const v of this.visuals.values()) {
       this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
@@ -305,9 +368,10 @@ export class GameRenderer {
     time = this.visualClock.advance(dt, paused, document.hidden);
     this.visualFrame.time = time; this.visualFrame.dt = paused ? 0 : Math.min(dt, .1);
     this.visualFrame.paused = paused; this.visualFrame.reducedMotion = reducedMotion;
-    this.skillEffects.update(menu ? undefined : arena, time, paused ? 0 : Math.min(dt,.1), reducedMotion);
+    this.boostMotion.update(!menu && arena ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic) : 'none', this.visualFrame.dt);
+    this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId);
     const stamp = performance.now();
-    if (this.frameStamp && !paused) { const ms = stamp-this.frameStamp; if(ms < 200) {this.samples.push(ms); if(this.samples.length>300)this.samples.shift();} }
+    const frameInterval = this.frameStamp ? stamp - this.frameStamp : 0;
     this.frameStamp=stamp;
     // Miniature scenery in the menu; the identical world at full scale in play.
     this.environment?.group.scale.setScalar(menu ? 0.115 : 1);
@@ -315,6 +379,8 @@ export class GameRenderer {
     this.hero.visible = menu;
     this.food.visible = !menu;
     this.ring.visible = !menu;
+    const nextFov = this.boostMotion.fov(reducedMotion);
+    if(Math.abs(nextFov-this.camera.fov)>.005) { this.camera.fov=nextFov; this.camera.updateProjectionMatrix(); }
 
     if (menu) {
       for (const v of this.visuals.values()) {
@@ -324,8 +390,8 @@ export class GameRenderer {
         v.outline.visible = v.headOutline.visible = v.shadow.visible = false;
       }
       const narrow = innerWidth < 760;
-      this.hero.scale.setScalar(narrow ? 0.8 : 1.15);
-      this.hero.position.set(narrow ? 0 : 1, 0, narrow ? 0 : -4);
+      this.hero.scale.setScalar(narrow ? 0.8 : 1.23);
+      this.hero.position.set(narrow ? 0 : 1, narrow ? 0 : .6, narrow ? 0 : -4);
       this.camera.position.set(
         narrow ? 10 : 14,
         narrow ? 24 : 22,
@@ -333,9 +399,13 @@ export class GameRenderer {
       );
       this.camera.lookAt(narrow ? 3 : -7, narrow ? -16 : 0, 0);
       if (this.heroHead) {
+        this.previewMotion.update(this.visualFrame.dt, reducedMotion);
+        const reaction = this.previewMotion.reaction;
+        for (const eye of this.previewEyes) eye.scale.y = previewBlink(time + 1.2, this.heroId, reducedMotion);
         const idle = this.heroId === "ember" ? 2.4 : this.heroId === "cloud" ? 2 : this.heroId === "nova" ? 1.4 : .9;
-        this.heroHead.position.y = 1 + (reducedMotion ? 0 : Math.sin(time * idle) * (this.heroId === "cloud" ? .2 : .1));
-        this.heroHead.rotation.z = reducedMotion ? 0 : Math.sin(time * idle * .5) * (this.heroId === "cloud" ? .08 : .025);
+        this.heroHead.position.y = 1 + (reducedMotion ? 0 : Math.sin(time * idle) * .07 + reaction * .12);
+        this.heroHead.rotation.x = reducedMotion ? 0 : reaction * (this.heroId === 'eclipse' ? .055 : this.heroId === 'nova' ? .09 : .035);
+        this.heroHead.rotation.z = reducedMotion ? 0 : Math.sin(time * idle * .5) * .025 + reaction * (this.heroId === 'cloud' ? .1 : this.heroId === 'ember' ? -.065 : 0);
         this.heroHead.rotation.y = .35 + (reducedMotion ? 0 : Math.sin(time * idle * .4) * .05);
       }
       const previewOutline = this.hero.children.find(
@@ -351,20 +421,15 @@ export class GameRenderer {
       const zoom =
         (42 + Math.min(17, p.mass * 0.055)) *
         Math.max(1, 0.85 / this.camera.aspect);
-      this.focus.lerp(
-        new THREE.Vector3(
-          p.previous.x + (p.x - p.previous.x) * alpha,
-          0,
-          p.previous.z + (p.z - p.previous.z) * alpha,
-        ),
-        1 - Math.exp(-dt * 8),
-      );
+      this.focusTarget.set(p.previous.x + (p.x - p.previous.x) * alpha, 0, p.previous.z + (p.z - p.previous.z) * alpha);
+      this.focus.lerp(this.focusTarget, 1 - Math.exp(-this.visualFrame.dt * 8));
+      this.boostCamera = this.boostMotion.cameraOffset(reducedMotion);
       this.camera.position.set(
-        this.focus.x,
+        this.focus.x - Math.cos(p.angle)*this.boostCamera,
         this.focus.y + zoom,
-        this.focus.z + zoom * 0.57,
+        this.focus.z - Math.sin(p.angle)*this.boostCamera + zoom * 0.57,
       );
-      this.camera.lookAt(this.focus.x, 0, this.focus.z);
+      this.camera.lookAt(this.focus.x + Math.cos(p.angle)*this.boostCamera*.55, 0, this.focus.z + Math.sin(p.angle)*this.boostCamera*.55);
       const ids = new Set(arena.snakes.filter((s) => s.alive).map((s) => s.id));
       for (const [id, v] of this.visuals)
         if (!ids.has(id)) {
@@ -402,10 +467,10 @@ export class GameRenderer {
             }),
           );
           aura.rotation.x = -Math.PI / 2;
-          const outline = new THREE.InstancedMesh(bodyGeo, new THREE.MeshBasicMaterial({color:"#17151d", side:THREE.BackSide}), 360);
+          const outline = new THREE.InstancedMesh(bodyGeo, new THREE.MeshBasicMaterial({color:"#25232c", side:THREE.BackSide}), 360);
           const shadow = new THREE.InstancedMesh(new THREE.CircleGeometry(1,16),new THREE.MeshBasicMaterial({color:"#635c67",transparent:true,opacity:.14,depthWrite:false}),360);
           outline.frustumCulled = shadow.frustumCulled = false;
-          v = { head, headOutline, body, aura, outline, shadow };
+          v = { head, headOutline, body, aura, outline, shadow, colorKey: "", coloredCount: 0 };
           this.visuals.set(s.id, v);
           this.scene.add(outline, headOutline, head, body, aura, shadow);
         }
@@ -428,8 +493,11 @@ export class GameRenderer {
         v.head.position.set(hx, (.55 + breathing(time, s.id, s.boosting, still)) * size, hz);
         const elastic = !reducedMotion && !s.frozen && s.character === "cloud" && s.active > 0;
         const squash = elastic ? 1 + Math.sin(time * 11) * .12 : 1;
-        v.head.scale.y = size * squash;
-        v.head.rotation.set(!reducedMotion && s.character === "ember" && s.active > 0 ? .12 : 0, Math.PI / 2 - s.angle, elastic ? THREE.MathUtils.clamp(angleDelta(s.previousAngle,s.angle) * 2,-.16,.16) : 0);
+        const boostPose = s.id === 0 ? this.boostMotion.intensity : s.boosting ? 1 : 0;
+        const foxPose = s.character === 'ember' && s.active > 0;
+        const compression = reducedMotion ? 1 : 1 - boostPose * (foxPose ? .045 : .025);
+        v.head.scale.y = size * squash * compression;
+        v.head.rotation.set(reducedMotion ? 0 : boostPose * (foxPose ? .16 : .08), Math.PI / 2 - s.angle, elastic ? THREE.MathUtils.clamp(angleDelta(s.previousAngle,s.angle) * 2,-.16,.16) : 0);
         v.headOutline.scale.copy(v.head.scale).multiplyScalar(1.006);
         v.headOutline.position.copy(v.head.position);
         v.headOutline.rotation.copy(v.head.rotation);
@@ -447,6 +515,10 @@ export class GameRenderer {
         v.body.count = s.body.length - 1;
         v.outline.count = v.body.count;
         v.shadow.count = s.body.length;
+        const colorKey = s.frozen ? "frozen" : s.id === 0 ? `${s.character}:${this.paletteKey}` : s.character;
+        const repaint = v.colorKey !== colorKey;
+        const firstUncolored = repaint ? 0 : v.coloredCount;
+        const colors = s.id === 0 ? this.playerColors(s.character) : this.coilColors.get(s.character)!;
         dummy.position.set(hx, -.37, hz); dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(size*1.25,size*1.05,1); dummy.updateMatrix(); v.shadow.setMatrixAt(0,dummy.matrix);
         for (let i = 1; i < s.body.length; i++) {
           const b = s.body[i];
@@ -456,20 +528,20 @@ export class GameRenderer {
             (0.5 + breathing(time - i * .15, s.id, s.boosting, still)) * size,
             b.z,
           );
-          dummy.scale.set(scale, scale * .85 * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1), scale);
+          dummy.scale.set(scale, scale * .85 * compression * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1), scale);
           dummy.rotation.set(0, 0, 0);
           dummy.updateMatrix();
           v.body.setMatrixAt(i - 1, dummy.matrix);
-          dummy.scale.multiplyScalar(1.08); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
+          dummy.scale.multiplyScalar(s.frozen ? 1.08 : 1.06); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
           dummy.position.y = -.37; dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(scale*1.25,scale*1.25,1); dummy.updateMatrix(); v.shadow.setMatrixAt(i,dummy.matrix);
-          v.body.setColorAt(
-            i - 1,
-            s.frozen ? this.frozenColor : this.coilColors.get(s.character)![i % 5 === 0 ? 1 : 0],
-          );
+          if (i - 1 >= firstUncolored)
+            v.body.setColorAt(i - 1, s.frozen ? this.frozenColor : colors[i % 5 === 0 ? 1 : 0]);
         }
+        v.colorKey = colorKey;
+        v.coloredCount = repaint ? v.body.count : Math.max(v.coloredCount, v.body.count);
         v.body.instanceMatrix.needsUpdate = true;
         v.outline.instanceMatrix.needsUpdate = v.shadow.instanceMatrix.needsUpdate = true;
-        if (v.body.instanceColor) v.body.instanceColor.needsUpdate = true;
+        if (v.body.instanceColor && firstUncolored < v.body.count) v.body.instanceColor.needsUpdate = true;
       }
       this.food.count = arena.food.length;
       for (let i = 0; i < arena.food.length; i++) {
@@ -496,5 +568,12 @@ export class GameRenderer {
     this.sunlight.color.set(base.sun).lerp(new THREE.Color("#aa65ff"),response.tint);
     this.rimLight.intensity=base.rimIntensity+response.tint;
     this.renderer.render(this.scene, this.camera);
+    if (!paused && !menu && arena && frameInterval > 0 && frameInterval < 200) {
+      const phase: SamplePhase = arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal";
+      const samples = this.samples[phase];
+      samples.push({ ms: frameInterval, calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles,
+        snakes: arena.snakes.filter(s => s.alive).length });
+      if (samples.length > 300) samples.shift();
+    }
   }
 }

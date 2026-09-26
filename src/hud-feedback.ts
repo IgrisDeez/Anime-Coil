@@ -30,6 +30,9 @@ export class Leaderboard {
   constructor(private root: HTMLElement, private motion: HudMotion) { }
   update(leaders: readonly Leader[]) {
     const top = leaders.slice(0, 5);
+    const reordered = top.some((s, i) => this.rows.has(s.id) && this.rows.get(s.id)!.index !== i);
+    // One measurement before DOM writes; no layout reads inside the row loop.
+    const rowHeight = reordered ? (this.root.firstElementChild?.getBoundingClientRect().height || 22) : 22;
     for (const [id, row] of this.rows) if (!top.some(s => s.id === id)) {
       this.motion.forget(row.node); row.node.remove(); this.rows.delete(id);
     }
@@ -44,7 +47,10 @@ export class Leaderboard {
       }
       setText(row.rank, String(i + 1)); setText(row.name, s.name); setText(row.score, String(Math.floor(s.mass * 10)));
       if (this.root.children[i] !== row.node) this.root.insertBefore(row.node, this.root.children[i] ?? null);
-      if (row.index !== i) this.motion.animate(row.node, [{ opacity: .65 }, { opacity: 1 }], 200);
+      if (row.index !== i) {
+        const offset = Math.max(-16, Math.min(16, (row.index - i) * rowHeight));
+        this.motion.animate(row.node, [{ opacity: .78, transform: `translateY(${offset}px)` }, { opacity: 1, transform: 'translateY(0)' }], 220);
+      }
       row.index = i;
     }
   }

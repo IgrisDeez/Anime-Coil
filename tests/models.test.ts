@@ -14,7 +14,7 @@ for (const character of CHARACTERS) {
 
     assert.equal(outlineA.geometry, outlineB.geometry);
     assert.equal(outlineA.material, outlineB.material);
-    assert.equal((outlineA.material as THREE.MeshBasicMaterial).color.getHexString(), "17151d");
+    assert.equal((outlineA.material as THREE.MeshBasicMaterial).color.getHexString(), "25232c");
     assert.equal((outlineA.material as THREE.MeshBasicMaterial).side, THREE.BackSide);
     assert.ok(outlineA.geometry.attributes.position.count > 0);
     outlineA.geometry.computeBoundingBox();
@@ -34,6 +34,30 @@ for (const character of CHARACTERS) {
     assert.equal(sharedDisposed, 0);
   });
 }
+
+test("cached heads merge fixed parts while keeping per-instance eyes animated", () => {
+  for (const character of CHARACTERS) {
+    const first = createHead(character.id), second = createHead(character.id);
+    const meshes: THREE.Mesh[] = [], secondMeshes: THREE.Mesh[] = [];
+    const eyes: THREE.Group[] = [], secondEyes: THREE.Group[] = [];
+    first.traverse(part => {
+      if (part instanceof THREE.Mesh) meshes.push(part);
+      if (part instanceof THREE.Group && part.userData.previewEye) eyes.push(part);
+    });
+    second.traverse(part => {
+      if (part instanceof THREE.Mesh) secondMeshes.push(part);
+      if (part instanceof THREE.Group && part.userData.previewEye) secondEyes.push(part);
+    });
+    assert.ok(meshes.length <= 16, `${character.id} should use at most 16 head draws`);
+    assert.equal(eyes.length, 1);
+    assert.notEqual(eyes[0], secondEyes[0], "blink transforms belong to each head instance");
+    eyes[0].scale.y = .1;
+    assert.equal(secondEyes[0].scale.y, 1);
+    assert.equal(meshes.length, secondMeshes.length);
+    for (let i = 0; i < meshes.length; i++)
+      assert.equal(meshes[i].geometry, secondMeshes[i].geometry, "head clones should share batched geometry");
+  }
+});
 
 test("Shiro blindfold curves across the face and wraps toward both temples", () => {
   const head = createHead("eclipse");

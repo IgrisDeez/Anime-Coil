@@ -73,17 +73,21 @@ function buildHead(id: CharacterId) {
     c = CHARACTERS.find((c) => c.id === id)!;
   part(g, sphere, c.color, [0, 0.25, -0.18], [0.91, 0.55, 0.84]);
   part(g, sphere, "#ffd3ae", [0, 1.15, 0], [0.98, 0.99, 0.82]);
+  const eyes = new THREE.Group();
+  eyes.position.y = 1.3;
+  eyes.userData.previewEye = true;
+  g.add(eyes);
   for (const x of [-1, 1]) {
     part(g, sphere, "#eeb08b", [x * 0.93, 1.13, 0], [0.19, 0.3, 0.21]);
-    part(g, sphere, "#ffffff", [x * 0.36, 1.3, 0.73], [0.255, 0.3, 0.13]);
+    part(eyes, sphere, "#ffffff", [x * .36, 0, 0.73], [0.255, 0.3, 0.13]);
     part(
-      g,
+      eyes,
       sphere,
       id === "nova" ? "#1786ab" : "#27273a",
-      [x * 0.36, 1.28, 0.845],
+      [x * .36, -.02, 0.845],
       [0.13, 0.2, 0.045],
     );
-    part(g, sphere, "#ffffff", [x * 0.32, 1.36, 0.882], [0.042, 0.06, 0.025]);
+    part(eyes, sphere, "#ffffff", [x * .32, .06, 0.882], [0.042, 0.06, 0.025]);
     part(
       g,
       box,
@@ -209,23 +213,59 @@ function buildHead(id: CharacterId) {
   }
   return g;
 }
+const rawHeads = new Map<CharacterId, THREE.Group>();
 const templates = new Map<CharacterId, THREE.Group>();
 const silhouettes = new Map<CharacterId, THREE.BufferGeometry>();
 const silhouetteMaterial = new THREE.MeshBasicMaterial({
-  color: "#17151d",
+  color: "#25232c",
   side: THREE.BackSide,
 });
 export function createHead(id: CharacterId) {
-  if (!templates.has(id)) templates.set(id, buildHead(id));
+  if (!templates.has(id)) templates.set(id, compactHead(sourceHead(id)));
   return templates.get(id)!.clone(true);
+}
+
+function sourceHead(id: CharacterId) {
+  if (!rawHeads.has(id)) rawHeads.set(id, buildHead(id));
+  return rawHeads.get(id)!;
+}
+
+/** Bake fixed head parts into one mesh per material. The eye groups and the
+ * shaped blindfold stay independent for preview blinking and their own detail. */
+function compactHead(source: THREE.Group) {
+  const head = source.clone(false);
+  const batches = new Map<THREE.Material, THREE.BufferGeometry[]>();
+  source.updateMatrix();
+  for (const child of source.children) {
+    if (child instanceof THREE.Group) {
+      head.add(compactHead(child));
+      continue;
+    }
+    if (!(child instanceof THREE.Mesh) || child.userData.blindfold) {
+      head.add(child.clone(true));
+      continue;
+    }
+    child.updateMatrix();
+    const material = child.material as THREE.Material;
+    const pieces = batches.get(material) ?? [];
+    pieces.push(child.geometry.clone().applyMatrix4(child.matrix));
+    batches.set(material, pieces);
+  }
+  for (const [material, pieces] of batches) {
+    const geometry = mergeGeometries(pieces, false);
+    for (const piece of pieces) piece.dispose();
+    if (!geometry) throw new Error("Could not merge character head geometry");
+    geometry.computeBoundingSphere();
+    head.add(new THREE.Mesh(geometry, material));
+  }
+  return head;
 }
 
 function silhouetteGeometry(id: CharacterId) {
   let geometry = silhouettes.get(id);
   if (geometry) return geometry;
 
-  if (!templates.has(id)) templates.set(id, buildHead(id));
-  const template = templates.get(id)!;
+  const template = sourceHead(id);
   template.updateMatrixWorld(true);
   const shells: THREE.BufferGeometry[] = [];
   template.traverse((object) => {

@@ -119,9 +119,9 @@ export class SpiritCompass {
         c.beginPath(); c.arc(120, 120, 103, a - .4, a + .4); c.stroke(); c.globalAlpha = 1;
       }
       c.fillStyle = '#fff9e9'; c.beginPath();
-      c.arc(p.x, p.y, 9 + (this.reduced ? 0 : Math.sin(frame.time * 2.2) * .7), 0, Math.PI * 2); c.fill();
+      c.arc(p.x, p.y, 9.5 + (this.reduced ? 0 : Math.sin(frame.time * 2.2) * .55), 0, Math.PI * 2); c.fill();
       c.save(); c.translate(p.x, p.y); c.rotate(p.angle);
-      c.fillStyle = '#514334'; c.beginPath(); c.moveTo(7, 0); c.lineTo(-5, -4.5); c.quadraticCurveTo(-2, 0, -5, 4.5); c.closePath(); c.fill(); c.restore();
+      c.fillStyle = '#463a30'; c.beginPath(); c.moveTo(8, 0); c.lineTo(-5.5, -5.2); c.quadraticCurveTo(-2, 0, -5.5, 5.2); c.closePath(); c.fill(); c.restore();
     }
     c.restore();
   }

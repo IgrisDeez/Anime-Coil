@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { Arena, CHARACTERS } from '../src/simulation.ts';
+import { Arena, CHARACTERS, bodyRadiusAt } from '../src/simulation.ts';
 import { abilityFeedback } from '../src/ability-feedback.ts';
 import { SkillEffects } from '../src/skill-effects.ts';
 
@@ -51,4 +51,32 @@ test('ultimate transitions clear pending E particles and projectiles',()=>{
   assert.equal(fx.group.visible,false);
   assert.equal((fx.group.children as THREE.InstancedMesh[]).reduce((n,m)=>n+m.count,0),0);
   fx.dispose();
+});
+
+test('equipped boost trails produce distinct visible marks beside the coil',()=>{
+  for(const [style,expected] of [['original',3],['petals',1],['starlight',2]] as const){
+    const arena=new Arena('ember',()=>.5,0,0),fx=new SkillEffects();
+    fx.seed(arena);
+    fx.setBoostTrail(style);
+    arena.player.boosting=true;
+    const before=JSON.stringify(arena.snakes);
+    fx.update(arena,.1,.1,false);
+    const meshes=fx.group.children as THREE.InstancedMesh[];
+    assert.ok(meshes[expected].count>0,`${style} has its own visual mark`);
+    if(style==='original'){
+      const matrix=new THREE.Matrix4(),position=new THREE.Vector3();
+      meshes[3].getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
+      const point=arena.player.body[2];
+      assert.ok(Math.hypot(position.x-point.x,position.z-point.z)>bodyRadiusAt(2,arena.player.body.length,arena.player.mass));
+    }
+    assert.equal(JSON.stringify(arena.snakes),before);
+    const counts=meshes.map(mesh=>mesh.count);
+    fx.update(arena,.1,0,false);
+    assert.deepEqual(meshes.map(mesh=>mesh.count),counts,'pause does not emit another mark');
+    fx.clear();
+    assert.ok(meshes.every(mesh=>mesh.count===0));
+    fx.update(arena,.2,.1,true);
+    assert.ok(meshes.every(mesh=>mesh.count===0),'reduced motion removes decorative marks');
+    fx.dispose();
+  }
 });

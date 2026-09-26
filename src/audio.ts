@@ -16,9 +16,15 @@ export class AudioEngine {
   private buffers = new Map<Clip, Promise<AudioBuffer | undefined>>();
   private voice?: AudioBufferSourceNode;
   private effects = new Set<OscillatorNode>();
+  private noise?: AudioBuffer;
+  private wind?: { source: AudioBufferSourceNode; filter: BiquadFilterNode; gain: GainNode };
+  private whooshes = new Set<AudioBufferSourceNode>();
+  private boostActive = false;
+  private windReleaseAt = 0;
   private voiceToken = 0;
   private hidden = false;
   private lastCollect = -1;
+  private lastElimination = -1;
   constructor(
     private contextFactory: () => AudioContext = () => new AudioContext(),
     private fetcher: typeof fetch = (...args) => fetch(...args),
@@ -28,12 +34,13 @@ export class AudioEngine {
   }
   set enabled(on: boolean) {
     this.prefs.enabled = on;
-    if (!on) this.stopVoices();
+    if (!on) { this.stopVoices(); this.stopBoost(true); }
     this.applyVolumes();
   }
   setVolume(channel: AudioChannel, value: number) {
     this.prefs[channel] = volume(value, this.prefs[channel]);
     if (channel === "voices" && value === 0) this.stopVoices();
+    if (channel === "effects" && this.prefs.effects === 0) this.stopBoost(true);
     this.applyVolumes();
   }
   unlock() {
@@ -114,13 +121,84 @@ export class AudioEngine {
     this.applyVolumes();
   }
   resetTransient() {
+    this.stopBoost(true);
     this.stopVoices();
+    this.lastElimination = -1;
     for (const o of this.effects) {
       try {
         o.stop();
       } catch {}
     }
     this.effects.clear();
+  }
+  private noiseBuffer() {
+    if (this.noise) return this.noise;
+    const ctx = this.ctx!;
+    const buffer = ctx.createBuffer(1, Math.round(ctx.sampleRate * .5), ctx.sampleRate);
+    const samples = buffer.getChannelData(0);
+    let seed = 47329;
+    for (let i = 0; i < samples.length; i++) { seed = (1664525 * seed + 1013904223) >>> 0; samples[i] = (seed / 2147483648 - 1) * .5; }
+    this.noise = buffer;
+    return buffer;
+  }
+  private whoosh(fox: boolean) {
+    if (!this.ctx || !this.channels) return;
+    const t = this.ctx.currentTime;
+    const source = this.ctx.createBufferSource(), filter = this.ctx.createBiquadFilter(), gain = this.ctx.createGain();
+    source.buffer = this.noiseBuffer();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(320, t);
+    filter.frequency.exponentialRampToValueAtTime(fox ? 1700 : 1300, t + .16);
+    gain.gain.setValueAtTime(.0001, t);
+    gain.gain.exponentialRampToValueAtTime(fox ? .085 : .06, t + .045);
+    gain.gain.exponentialRampToValueAtTime(.0001, t + .24);
+    source.connect(filter); filter.connect(gain); gain.connect(this.channels.effects);
+    this.whooshes.add(source);
+    source.onended = () => { this.whooshes.delete(source); source.disconnect(); filter.disconnect(); gain.disconnect(); };
+    source.start(t); source.stop(t + .25);
+  }
+  private stopWindNow() {
+    const wind = this.wind; this.wind = undefined; this.windReleaseAt = 0;
+    if (!wind) return;
+    wind.source.onended = null;
+    try { wind.source.stop(); } catch {}
+    wind.source.disconnect(); wind.filter.disconnect(); wind.gain.disconnect();
+  }
+  stopBoost(immediate = false) {
+    this.boostActive = false;
+    if (immediate) {
+      this.stopWindNow();
+      for (const source of this.whooshes) { try { source.stop(); } catch {} }
+      this.whooshes.clear();
+      return;
+    }
+    if (this.wind && !this.windReleaseAt && this.ctx) {
+      this.wind.gain.gain.setTargetAtTime(.0001, this.ctx.currentTime, .065);
+      this.windReleaseAt = this.ctx.currentTime + .3;
+    }
+  }
+  setBoost(active: boolean, fox: boolean, intensity: number) {
+    if (!this.ctx || !this.channels || !this.enabled || this.hidden || this.prefs.effects === 0) { this.stopBoost(true); return; }
+    if (!active) {
+      this.stopBoost();
+      if (this.windReleaseAt && this.ctx.currentTime >= this.windReleaseAt) this.stopWindNow();
+      return;
+    }
+    const t = this.ctx.currentTime;
+    if (!this.wind) {
+      const source = this.ctx.createBufferSource(), filter = this.ctx.createBiquadFilter(), gain = this.ctx.createGain();
+      source.buffer = this.noiseBuffer(); source.loop = true;
+      filter.type = 'lowpass';
+      gain.gain.setValueAtTime(.0001, t);
+      source.connect(filter); filter.connect(gain); gain.connect(this.channels.effects);
+      source.start(t);
+      this.wind = { source, filter, gain };
+    }
+    this.windReleaseAt = 0;
+    if (!this.boostActive) this.whoosh(fox);
+    this.boostActive = true;
+    this.wind.filter.frequency.setTargetAtTime(fox ? 1100 : 830, t, .07);
+    this.wind.gain.gain.setTargetAtTime((fox ? .043 : .029) * Math.max(.3, Math.min(1, intensity)), t, .06);
   }
   private async speak(clip: Clip) {
     this.stopVoices();
@@ -192,6 +270,16 @@ export class AudioEngine {
       this.tone(240, 55, .22, .12, "triangle");
       this.tone(850, 230, .12, .04, "sine");
     }
+  }
+  elimination(count: number) {
+    if (!this.ctx || !this.enabled || this.hidden || this.prefs.effects === 0 || count < 1) return;
+    const t = this.ctx.currentTime;
+    if (t - this.lastElimination < .09) return;
+    this.lastElimination = t;
+    // One compact ink-stamp hit per batch: soft low thump, crisp brush snap, tiny sparkle.
+    this.tone(count > 3 ? 270 : 340, 96, .17, count > 3 ? .07 : .075, "triangle");
+    this.tone(760, 290, .09, .042, "triangle");
+    this.tone(1040, 1320, .14, .021, "sine", .035);
   }
   play(type: "collect" | "death" | "select" | "blast", ultimate?: "purple" | "spirit") {
     if (!this.ctx || !this.enabled || this.hidden) return;

@@ -1,7 +1,9 @@
 import { SpiritCompass } from './minimap';
-import { MotionPreference, HudMotion } from './presentation';
+import { MotionPreference, HudMotion, HudLifetime, HUD_MODE_LABELS, UI_ACCENTS, boostKind, boostStatus } from './presentation';
 import { HudChanges, Leaderboard, setText } from './hud-feedback';
 import { abilityFeedback } from "./ability-feedback";
+import { EliminationStampView } from './elimination-stamps';
+import { SpeedWindView } from './speed-wind';
 import "./style.css";
 import {
   Arena,
@@ -11,6 +13,8 @@ import {
   NUKE_BLAST,
   NUKE_COOLDOWN,
   type CharacterId,
+  type MatchMode,
+  type SprintResult,
 } from "./simulation";
 import { GameRenderer } from "./renderer";
 import { AudioEngine } from "./audio";
@@ -25,6 +29,9 @@ import {
 } from "./maps";
 import { ui } from "./ui";
 import { installWorldDiagnostics } from "./worlds/diagnostics";
+import { Progression, CHALLENGES, PALETTES, TRAILS, type PaletteId, type TrailId } from './progression';
+import { PracticeGuide } from './practice';
+import { loadSprintBest, recordSprint } from './sprint-record';
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = ui;
 const nodes = new Map<string, HTMLElement>();
 const el = <T extends HTMLElement = HTMLElement>(id: string): T => {
@@ -33,8 +40,12 @@ const el = <T extends HTMLElement = HTMLElement>(id: string): T => {
 };
 const motionPreference = new MotionPreference();
 const hudMotion = new HudMotion();
+const hudLifetime = new HudLifetime();
 const hudChanges = new HudChanges();
 const compass = new SpiritCompass(el<HTMLCanvasElement>('minimap'));
+const eliminationStamps = new EliminationStampView(el('kill-stamps'));
+const speedWind = new SpeedWindView(el<HTMLCanvasElement>('boost-speed-lines'));
+const windFrom={x:0,y:0},windTo={x:0,y:0};
 const leaderboard = new Leaderboard(el('leaders'), hudMotion);
 const canvas = el<HTMLCanvasElement>("world");
 let view: GameRenderer;
@@ -47,9 +58,24 @@ let mapStorage: MapStorage | undefined;
 try {
   mapStorage = localStorage;
 } catch {}
+const progression = new Progression(mapStorage);
+let sprintBest: SprintResult | undefined = loadSprintBest(mapStorage);
+let selectedMode: 'endless' | 'sprint' = 'endless';
+let practiceGuide: PracticeGuide | undefined;
+let matchFinalized = false;
+let darkTheme = false;
+try { darkTheme = mapStorage?.getItem("anime-coil-theme-v1") === "dark"; } catch {}
+function applyTheme() {
+  document.documentElement.dataset.theme = darkTheme ? "dark" : "light";
+  const toggle = el<HTMLButtonElement>("theme-toggle");
+  toggle.textContent = `Dark mode: ${darkTheme ? "On" : "Off"}`;
+  toggle.setAttribute("aria-pressed", String(darkTheme));
+}
+applyTheme();
 audio.prefs = loadAudio(mapStorage);
 let selectedMap: MapId = loadMap(mapStorage);
 function chooseMap(id: MapId, persist = true) {
+  const changed = selectedMap !== id;
   selectedMap = id;
   view.setMap(id);
   compass.setMap(id);
@@ -61,8 +87,12 @@ function chooseMap(id: MapId, persist = true) {
     );
   el("map-preview-name").textContent = m.name;
 
-  el("hud-map").textContent = m.name;
   if (persist) {
+    if (changed) {
+      hudMotion.reduced = motionPreference.reduced;
+      const image = document.querySelector<HTMLElement>(`.map-card[data-map="${id}"] img`)!;
+      hudMotion.selection(image);
+    }
     saveMap(id, mapStorage);
     audio.unlock();
     audio.play("select");
@@ -77,6 +107,56 @@ try {
   /* Private browsing can disable storage. */
 }
 el("best-score").textContent = String(best);
+function showBest() {
+  el('best-label').textContent = selectedMode === 'sprint' ? 'Sprint record' : 'Personal best';
+  el('best-score').textContent = String(selectedMode === 'sprint' ? sprintBest?.score ?? 0 : best);
+}
+function chooseMode(mode: 'endless' | 'sprint') {
+  selectedMode = mode;
+  document.querySelectorAll<HTMLButtonElement>('.mode-choice').forEach(button =>
+    button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
+  showBest();
+  audio.unlock(); audio.play('select');
+}
+document.querySelectorAll<HTMLButtonElement>('.mode-choice').forEach(button =>
+  button.addEventListener('click', () => chooseMode(button.dataset.mode as 'endless' | 'sprint')));
+function applyCosmetics() {
+  const { cosmetics } = progression.state;
+  const palette = PALETTES.find(item => item.id === cosmetics.palette)!;
+  view?.setCosmetics(palette.primary ? { primary: palette.primary, secondary: palette.secondary! } : undefined, cosmetics.trail);
+  speedWind.setTrail(cosmetics.trail);
+}
+function renderChallenges() {
+  const state = progression.state;
+  const progressById = {
+    orbs: state.progress.collectedOrbs,
+    survival: Math.floor(state.progress.survivedSeconds),
+    eliminations: state.progress.creditedEliminations,
+    'sprint-maps': state.progress.completedSprintMaps.length,
+  };
+  el('challenge-list').innerHTML = CHALLENGES.map(challenge => {
+    const count = progressById[challenge.id];
+    const unit = challenge.id === 'survival' ? `${timeLabel(count)} / 10:00` : `${count} / ${challenge.target}`;
+    const complete = count >= challenge.target;
+    return `<article class="challenge-item${complete ? ' complete' : ''}"><div><strong>${challenge.name}</strong><small>${challenge.description}</small></div><span>${complete ? '✓ Unlocked' : unit}</span><progress max="${challenge.target}" value="${count}" aria-label="${challenge.name}: ${unit}"></progress><em>${challenge.reward}</em></article>`;
+  }).join('');
+  el('palette-choices').innerHTML = PALETTES.map(palette => {
+    const unlocked = progression.isUnlocked('palette', palette.id);
+    return `<button class="cosmetic-choice" data-palette="${palette.id}" aria-pressed="${state.cosmetics.palette === palette.id}" ${unlocked ? '' : 'disabled'}><span class="cosmetic-swatch" style="--swatch:${palette.primary ?? '#fff4d6'};--swatch-second:${palette.secondary ?? '#d98b66'}"></span>${palette.name}${unlocked ? '' : ' · Locked'}</button>`;
+  }).join('');
+  el('trail-choices').innerHTML = TRAILS.map(trail => {
+    const unlocked = progression.isUnlocked('trail', trail.id);
+    return `<button class="cosmetic-choice" data-trail="${trail.id}" aria-pressed="${state.cosmetics.trail === trail.id}" ${unlocked ? '' : 'disabled'}><span class="cosmetic-swatch trail-swatch" style="--swatch:${trail.color ?? '#ffb75b'};--swatch-second:${trail.secondary ?? '#fff2d0'}"></span>${trail.name}${unlocked ? '' : ' · Locked'}</button>`;
+  }).join('');
+}
+el('palette-choices').addEventListener('click', event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-palette]');
+  if (button && progression.equipPalette(button.dataset.palette as PaletteId)) { applyCosmetics(); renderChallenges(); audio.play('select'); }
+});
+el('trail-choices').addEventListener('click', event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-trail]');
+  if (button && progression.equipTrail(button.dataset.trail as TrailId)) { applyCosmetics(); renderChallenges(); audio.play('select'); }
+});
 let mouse = { x: innerWidth * 0.7, y: innerHeight * 0.5 },
   boostKey = false,
   boostPointer = false,
@@ -86,8 +166,7 @@ let mouse = { x: innerWidth * 0.7, y: innerHeight * 0.5 },
   joystickPointer: number | undefined;
 let accumulator = 0,
   last = performance.now(),
-  hudClock = 0,
-  toastUntil = 0;
+  hudClock = 0;
 function clearInput() {
   clearSkillVisual();
   boostKey = false;
@@ -114,7 +193,8 @@ function clearSkillVisual() {
 }
 function showSkillVisual(skill: keyof typeof skillVisuals) {
   el("toast").classList.remove("visible");
-  toastUntil = 0;
+  el("toast").hidden = true;
+  hudLifetime.dismissHint();
   const [text, label, color] = skillVisuals[skill];
   const node = el("skill-visual");
   el("skill-japanese").textContent = text;
@@ -126,9 +206,10 @@ function showSkillVisual(skill: keyof typeof skillVisuals) {
   node.classList.add("pop");
   skillVisualRemaining = skill === "blast" ? 1.8 : 1.6;
 }
-function showToast(text: string, duration = 2600) {
+function showToast(text: string) {
   el("toast").textContent = text;
-  toastUntil = performance.now() + duration;
+  el("toast").style.opacity = '1';
+  el("toast").hidden = false;
   el("toast").classList.add("visible");
 }
 function updateSound() {
@@ -148,6 +229,11 @@ document.querySelectorAll(".sound-toggle").forEach((b) =>
   }),
 );
 updateSound();
+el("theme-toggle").addEventListener("click", () => {
+  darkTheme = !darkTheme;
+  applyTheme();
+  try { mapStorage?.setItem("anime-coil-theme-v1", darkTheme ? "dark" : "light"); } catch {}
+});
 for (const channel of ["effects", "voices"] as AudioChannel[]) {
   const slider = el<HTMLInputElement>(`volume-${channel}`);
   slider.value = String(Math.round(audio.prefs[channel] * 100));
@@ -159,7 +245,7 @@ for (const channel of ["effects", "voices"] as AudioChannel[]) {
     saveAudio(audio.prefs, mapStorage);
   });
 }
-for (const name of ["help", "settings", "credits"]) {
+for (const name of ["help", "settings", "credits", "challenges"]) {
   const dialog = el<HTMLDialogElement>(`${name}-dialog`);
   let opener: HTMLElement | undefined;
   document.querySelectorAll<HTMLElement>(`.${name}-open`).forEach(
@@ -170,6 +256,7 @@ for (const name of ["help", "settings", "credits"]) {
 
         audio.unlock();
         dialog.showModal();
+        if (name === 'challenges') renderChallenges();
         if (name === "settings")
           el("audio-note").textContent = audio.missingClips.size
             ? "Some callouts could not load. The game is still ready to play."
@@ -190,9 +277,10 @@ el("voice-preview").onclick = () => {
 window.addEventListener("pointerdown", () => audio.unlock(), { once: true });
 window.addEventListener("keydown", () => audio.unlock(), { once: true });
 function choose(id: CharacterId) {
+  const changed = selected !== id;
   selected = id;
   const c = CHARACTERS.find((c) => c.id === id)!;
-  view.setHero(id);
+  if (changed) { view.setHero(id); view.reactToSelection(); }
   document
     .querySelectorAll<HTMLButtonElement>(".character")
     .forEach((b) =>
@@ -202,8 +290,18 @@ function choose(id: CharacterId) {
   el("hero-name").textContent = c.name;
   el("purple-badge").hidden = id !== "eclipse" && id !== "nova";
   el("ultimate-badge-name").textContent = id === "nova" ? "Spirit Bomb" : "Hollow Purple";
+  applyAccent();
+  if (changed) {
+    hudMotion.reduced = motionPreference.reduced;
+    const portrait = document.querySelector<HTMLElement>(`.character[data-character="${id}"]`)!;
+    hudMotion.selection(portrait, portrait.querySelector<HTMLElement>('.selected-mark'));
+  }
   audio.unlock();
   audio.play("select");
+}
+function applyAccent() {
+  const accent = UI_ACCENTS[selected];
+  for (const [key, value] of Object.entries(accent)) el('app').style.setProperty(`--spirit-${key}`, value);
 }
 document
   .querySelectorAll<HTMLButtonElement>(".character")
@@ -212,23 +310,43 @@ document
       choose(b.dataset.character as CharacterId),
     ),
   );
-function start() {
-  arena = new Arena(selected);
+function updatePracticeGuide() {
+  if (!practiceGuide) return;
+  setText(el('practice-step'), practiceGuide.complete ? 'Practice complete' : `Step ${practiceGuide.step + 1} / 4`);
+  setText(el('practice-instruction'), practiceGuide.label);
+  setText(el('practice-detail'), practiceGuide.detail);
+  el('practice-skip').hidden = practiceGuide.complete;
+}
+function start(mode: MatchMode = selectedMode) {
+  if (arena) finalizeMatch();
+  arena = new Arena(selected, Math.random, 20, 850, mode);
+  matchFinalized = false;
+  progression.beginMatch(mode);
+  practiceGuide = mode === 'practice' ? new PracticeGuide() : undefined;
   screen = "game";
   accumulator = 0;
   last = performance.now();
   clearInput();
   mouse = { x: innerWidth * 0.75, y: innerHeight * 0.5 };
   view.start(arena);
+  applyCosmetics();
+  eliminationStamps.clear();
+  eliminationStamps.setAccent(UI_ACCENTS[selected].fill);
+  speedWind.clear();
   compass.reset(); compass.state.sync(arena, true);
   hudChanges.reset(); hudMotion.clear(); leaderboard.clear();
+  hudLifetime.start();
   hudMotion.reduced = motionPreference.reduced;
   hudMotion.pulse(el('minimap').parentElement!, 'settle');
-  hudMotion.pulse(el('hud-map'), 'settle');
   el("menu").hidden = true;
-  el("nuke").hidden = selected !== "eclipse" && selected !== "nova";
+  el("nuke").hidden = mode === 'practice' || (selected !== "eclipse" && selected !== "nova");
   el("ultimate-name").textContent = selected === "nova" ? "Spirit Bomb" : "Hollow Purple";
+  el('hud-mode').textContent = HUD_MODE_LABELS[mode];
+  el('hud-mode').setAttribute('aria-label', `${mode === 'practice' ? 'Guided practice' : mode === 'sprint' ? '3-minute sprint' : 'Endless'} mode`);
+  el('practice-guide').hidden = mode !== 'practice';
+  updatePracticeGuide();
   el("hud").hidden = false;
+  el('hud').dataset.mode = mode;
   el("results").hidden = true;
   el("pause-modal").hidden = true;
   el("ability-name").textContent = CHARACTERS.find(
@@ -237,37 +355,62 @@ function start() {
   audio.unlock();
   audio.resetTransient();
   audio.play("select");
-  showToast("Gather energy. Watch your head!", 2600);
+  if (mode === 'practice') { hudLifetime.dismissHint(); el('toast').textContent = ''; el('toast').classList.remove('visible'); el('toast').hidden = true; }
+  else showToast("Gather energy. Watch your head!");
   updateHUD();
   canvas.focus();
 }
-function saveBest() {
-  if (!arena) return;
-  best = Math.max(best, Math.floor(arena.player.peak * 10));
-  try {
-    localStorage.setItem("anime-coil-best", String(best));
-  } catch {}
-  el("best-score").textContent = String(best);
+function saveBest(): boolean {
+  if (!arena || arena.mode === 'practice') return false;
+  if (arena.mode === 'sprint') {
+    if (arena.state !== 'over') return false;
+    const recorded = recordSprint(arena.sprintResult, sprintBest, mapStorage);
+    sprintBest = recorded.best;
+    showBest();
+    return recorded.newRecord;
+  }
+  const score = Math.floor(arena.player.peak * 10);
+  const improved = score > best;
+  best = Math.max(best, score);
+  try { mapStorage?.setItem("anime-coil-best", String(best)); } catch {}
+  showBest();
+  return improved;
+}
+function finalizeMatch(): boolean {
+  if (!arena || matchFinalized) return false;
+  const record = saveBest();
+  progression.finishMatch(selectedMap, arena.mode === 'sprint' && arena.endReason === 'time');
+  matchFinalized = true;
+  return record;
 }
 function menu() {
-  saveBest();
+  finalizeMatch();
   audio.resetTransient();
   screen = "menu";
   arena = undefined;
+  practiceGuide = undefined;
   view.mode = "menu";
   view.clearEffects();
+  eliminationStamps.clear();
+  speedWind.clear();
   compass.reset(); hudMotion.clear(); hudChanges.reset(); leaderboard.clear();
+  hudLifetime.clear();
+  el('toast').classList.remove('visible');
+  el('toast').textContent = '';
+  el('toast').hidden = true;
   clearInput();
   el("menu").hidden = false;
   el("hud").hidden = true;
   el("pause-modal").hidden = true;
   el("results").hidden = true;
+  el('practice-guide').hidden = true;
   el("play").focus();
 }
 function pause() {
   if (!arena || arena.state !== "playing") return;
   arena.state = "paused";
   audio.resetTransient();
+  speedWind.clear();
   clearInput();
   el("pause-modal").hidden = false;
   el("resume").focus();
@@ -281,13 +424,20 @@ function resume() {
 
   canvas.focus();
 }
-el("play").onclick = start;
-el("restart").onclick = start;
+el("play").onclick = () => start();
+el("restart").onclick = () => start(arena?.mode ?? selectedMode);
 el("change").onclick = menu;
 el("quit").onclick = menu;
 el("pause").onclick = pause;
 el("resume").onclick = resume;
 el("reload").onclick = () => location.reload();
+el('practice-start').onclick = () => {
+  el<HTMLDialogElement>('help-dialog').close();
+  if (arena) menu();
+  start('practice');
+};
+el('practice-skip').onclick = () => { practiceGuide?.skip(); updatePracticeGuide(); };
+el('practice-exit').onclick = menu;
 canvas.tabIndex = 0;
 window.addEventListener("keydown", (e) => {
   if (document.querySelector("dialog[open]")) return;
@@ -395,7 +545,7 @@ function updateHUD() {
   const p = arena.player,
     c = CHARACTERS.find((c) => c.id === p.character)!;
   setText(el("score"), Math.floor(p.mass * 10).toLocaleString());
-  el("time").textContent = timeLabel(arena.elapsed);
+  el("time").textContent = arena.mode === 'sprint' ? timeLabel(Math.ceil(arena.remaining ?? 0)) : timeLabel(arena.elapsed);
   const ranking = [...arena.snakes]
     .filter((s) => s.alive)
     .sort((a, b) => b.mass - a.mass);
@@ -415,21 +565,42 @@ function updateHUD() {
   button.dataset.state = feedback.state;
   button.setAttribute("aria-label", `${c.power}: ${feedback.label}`);
   el<HTMLButtonElement>("nuke").disabled =
-    arena.nukeCooldown > 0 || !!arena.cinematic;
+    arena.state !== 'playing' || !p.alive || arena.nukeCooldown > 0 || !!arena.cinematic;
+  el('nuke').dataset.state = arena.state !== 'playing' || !p.alive ? 'disabled' : arena.cinematic ? 'active' : arena.nukeCooldown > 0 ? 'cooldown' : 'ready';
   el("nuke-status").textContent = arena.cinematic
     ? "Unleashing…"
     : arena.nukeCooldown > 0
       ? `${arena.nukeCooldown.toFixed(1)}s`
       : "Ready";
+  el('nuke').setAttribute('aria-label', `${p.character === 'nova' ? 'Spirit Bomb' : 'Hollow Purple'}: ${el('nuke-status').textContent}`);
 
-  el("boost").style.borderColor = p.boosting ? "#ff8067" : "#ffffff20";
+  const status = boostStatus(p);
+  const unavailable = status === 'unavailable';
+  const boostButton = el<HTMLButtonElement>('boost');
+  boostButton.dataset.state = status;
+  boostButton.setAttribute('aria-disabled', String(unavailable));
+  boostButton.setAttribute('aria-label', p.boosting ? 'Boosting' : unavailable ? 'Boost unavailable: need energy' : 'Boost: hold Space');
+  setText(el('boost-status'), p.boosting ? 'Rushing' : unavailable ? 'Need energy' : 'Hold');
 }
 function updatePresentation() {
   const frame = view.presentation;
   hudMotion.update(frame);
   document.body.classList.toggle('presentation-paused', frame.paused);
   document.body.classList.toggle('reduced-motion', frame.reducedMotion);
-  if (!arena || screen !== 'game') return;
+  if (!arena || screen !== 'game') { speedWind.clear(); return; }
+  hudLifetime.update(frame);
+  el('toast').style.opacity = String(hudLifetime.hintOpacity);
+  el('toast').classList.toggle('visible', hudLifetime.hintRemaining > 0);
+  el('toast').hidden = hudLifetime.hintRemaining <= 0;
+  const boost = view.boostMotion;
+  const player=arena.player;
+  if(arena.state==='playing'&&!arena.cinematic&&boost.intensity>.01){
+    const heading=player.angle;
+    const from=view.projectPoint(player.x,player.z,windFrom);
+    const to=view.projectPoint(player.x+Math.cos(heading)*5,player.z+Math.sin(heading)*5,windTo);
+    speedWind.draw(frame,boost.intensity,boost.enhanced,selectedMap,from&&to?windTo.x-windFrom.x:0,from&&to?windTo.y-windFrom.y:-1);
+  } else speedWind.clear();
+  el('boost').style.setProperty('--boost-strength', String(boost.intensity));
   compass.draw(frame, accumulator / STEP);
   if (frame.paused) return;
   const p = arena.player, c = CHARACTERS.find(c => c.id === p.character)!;
@@ -442,13 +613,22 @@ function updatePresentation() {
 }
 
 function gameOver() {
-  saveBest();
-  audio.stopVoices();
+  if (!arena) return;
+  speedWind.clear();
+  const record = finalizeMatch();
+  audio.resetTransient();
+  view.clearEffects();
+  eliminationStamps.clear();
+  hudLifetime.clear(); hudMotion.clear();
+  el('toast').hidden = true;
   clearInput();
-  el("death-reason").textContent = arena!.deathReason;
-  el("result-score").textContent = String(Math.floor(arena!.player.peak * 10));
-  el("result-time").textContent = timeLabel(arena!.elapsed);
-  el("result-kills").textContent = String(arena!.player.kills);
+  el('results-title').textContent = arena.mode === 'practice' ? 'A little more practice?' : arena.endReason === 'time' ? 'Sprint complete!' : 'One more adventure?';
+  el("death-reason").textContent = arena.deathReason;
+  el('result-record').textContent = record ? arena.mode === 'sprint' ? 'New sprint record! ✦' : 'New personal best! ✦' : '';
+  el("result-score").textContent = String(Math.floor(arena.player.peak * 10));
+  el("result-time").textContent = timeLabel(arena.elapsed);
+  el("result-kills").textContent = String(arena.player.kills);
+  el('restart').textContent = arena.mode === 'practice' ? 'Practice again ↗' : 'Play again ↗';
   el("results").hidden = false;
   el("restart").focus();
 }
@@ -463,11 +643,12 @@ function frame(now: number) {
         (matchMedia("(pointer:coarse)").matches
           ? arena.player.angle
           : view.steering(mouse.x, mouse.y, arena));
+      const beforeElapsed = arena.elapsed;
       arena.step(STEP, {
         angle,
         boost: boostKey || boostPointer,
         ability: abilityQueued,
-        nuke: nukeQueued,
+        nuke: arena.mode !== 'practice' && nukeQueued,
       });
       abilityQueued = false;
       nukeQueued = false;
@@ -475,14 +656,20 @@ function frame(now: number) {
       skillVisualRemaining = Math.max(0, skillVisualRemaining - STEP);
       if (!skillVisualRemaining) clearSkillVisual();
       compass.state.sync(arena);
-      view.handleEvents(arena.events);
+      progression.recordStep(arena.events, Math.max(0, arena.elapsed - beforeElapsed), arena.player.alive);
+      if (practiceGuide) { practiceGuide.update(STEP, arena.player, arena.events); updatePracticeGuide(); }
+      view.handleEvents(arena.events, arena);
+      const eliminations = eliminationStamps.ingest(arena.events);
+      if (eliminations) audio.elimination(eliminations);
       for (const event of arena.events) {
+        if (event.type === 'player-elimination') continue;
         if (event.type === "ki-launch" || event.type === "ki-impact") {
           if (event.id === 0 || event.targetId === 0) audio.cannon(event.type === "ki-launch" ? "fire" : "impact");
           continue;
         }
         if (event.id === 0) {
           if (event.type === "ability" || event.type === "nuke") {
+            if (event.type === 'nuke') audio.stopBoost(true);
             const ultimate = event.type === "nuke" ? arena.cinematic?.kind : undefined;
             audio.skill(selected, ultimate);
             if (event.type === "ability") hudMotion.pulse(el("ability"));
@@ -493,7 +680,7 @@ function frame(now: number) {
           }
         }
       }
-      if (!arena.player.alive) {
+      if (arena.endReason) {
         gameOver();
         break;
       }
@@ -522,17 +709,21 @@ function frame(now: number) {
     );
   }
   view.render(arena, now / 1000, accumulator / STEP, dt, motionPreference.reduced);
+  if (arena && screen === 'game') eliminationStamps.draw(view, view.presentation);
+  const currentBoost = arena && screen === 'game' ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic) : 'none';
+  audio.setBoost(currentBoost === 'fox' || (currentBoost === 'normal' && (boostKey || boostPointer)), currentBoost === 'fox', view.boostMotion.intensity);
   updatePresentation();
   hudClock += dt;
   if (hudClock > 0.12) {
     updateHUD();
     hudClock = 0;
   }
-  if (now > toastUntil) el("toast").classList.remove("visible");
   requestAnimationFrame(frame);
 }
 try {
+  applyAccent();
   view = new GameRenderer(canvas);
+  applyCosmetics();
   const maps = view.mapThumbnails();
   MAPS.forEach((m, i) => (el<HTMLImageElement>(`map-${m.id}`).src = maps[i]));
   chooseMap(selectedMap, false);
@@ -553,5 +744,5 @@ canvas.addEventListener("webglcontextlost", (e) => {
 });
 
 if (import.meta.hot) import.meta.hot.dispose(() => {
-  motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear();
+  motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear(); eliminationStamps.dispose();
 });

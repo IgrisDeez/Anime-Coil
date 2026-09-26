@@ -67,6 +67,26 @@ test("blast kills all twenty exactly once, drops energy, keeps player safe, dela
   assert.equal(a.food.length, 180);
   assert.equal(a.snakes.filter((s) => s.alive).length, 1);
 });
+test('both ultimates emit one credited event at each defeated rival position', () => {
+  for (const character of ['eclipse', 'nova'] as const) {
+    const a = setup();
+    a.player.character = character;
+    a.step(STEP, { ...idle, nuke: true });
+    while (!a.cinematic?.detonated) a.step(STEP, idle);
+    const events = a.events.filter(e => e.type === 'player-elimination');
+    assert.equal(events.length, 20);
+    assert.equal(new Set(events.map(e => e.id)).size, 20);
+    assert.equal(new Set(events.map(e => e.sequence)).size, 20);
+    for (const e of events) {
+      const victim = a.snakes.find(s => s.id === e.id)!;
+      assert.deepEqual([e.x, e.z], [victim.x, victim.z]);
+    }
+    assert.equal(a.player.kills, 20);
+    a.step(STEP, idle);
+    assert.equal(a.events.filter(e => e.type === 'player-elimination').length, 0);
+    assert.equal(a.player.kills, 20);
+  }
+});
 test("recovery restores twenty bots; cooldown rejects a second activation", () => {
   const a = new Arena("eclipse");
   a.step(STEP, { ...idle, nuke: true });

@@ -140,11 +140,23 @@ export interface Input {
   ability: boolean;
 }
 export type MatchState = "playing" | "paused" | "over";
+export type MatchMode = "endless" | "sprint" | "practice";
+export type MatchEndReason = "death" | "time";
+export const SPRINT_DURATION = 180;
+export interface SprintResult {
+  score: number;
+  kills: number;
+  survival: number;
+}
+/** Positive means the first completed run ranks ahead of the second. */
+export const compareSprintResults = (a: SprintResult, b: SprintResult) =>
+  a.score - b.score || a.kills - b.kills || a.survival - b.survival;
 export interface GameEvent {
   character?: CharacterId;
   targetId?: number;
   direction?: number;
-  type: "collect" | "ability" | "death" | "nuke" | "blast" | "ki-launch" | "ki-impact";
+  type: "collect" | "ability" | "death" | "player-elimination" | "nuke" | "blast" | "ki-launch" | "ki-impact";
+  sequence?: number;
   id: number;
   x: number;
   z: number;
@@ -213,10 +225,12 @@ export class Arena {
   snakes: Serpent[] = [];
   food: Food[] = [];
   events: GameEvent[] = [];
+  private eliminationSequence = 0;
   projectiles: KiProjectile[] = [];
   private projectileId = 0;
   state: MatchState = "playing";
   elapsed = 0;
+  endReason: MatchEndReason | undefined;
   nukeCooldown = 0;
   cinematic: { kind: "purple" | "spirit"; impact: { x: number; z: number }; time: number; detonated: boolean } | undefined;
   deathReason = "";
@@ -229,14 +243,32 @@ export class Arena {
     public random: () => number = Math.random,
     public botCount = 20,
     public foodTarget = 850,
+    public readonly mode: MatchMode = "endless",
   ) {
+    if (mode === "practice") this.botCount = 0;
     this.snakes.push(this.createSnake(0, "You", selected, { x: 0, z: 0 }, 0));
-    for (let i = 0; i < botCount; i++) this.spawnBot(i);
+    for (let i = 0; i < this.botCount; i++) this.spawnBot(i);
     while (this.food.length < foodTarget) this.spawnFood();
     this.reindex();
   }
   get player() {
     return this.snakes[0];
+  }
+  get remaining() {
+    return this.mode === "sprint" ? Math.max(0, SPRINT_DURATION - this.elapsed) : undefined;
+  }
+  get sprintResult(): SprintResult {
+    return {
+      score: Math.floor(this.player.peak * 10),
+      kills: this.player.kills,
+      survival: Math.min(this.elapsed, SPRINT_DURATION),
+    };
+  }
+  private finishSprint() {
+    if (this.mode !== "sprint" || this.state !== "playing") return;
+    this.state = "over";
+    this.endReason = "time";
+    this.deathReason = "Time’s up!";
   }
   createSnake(
     id: number,
@@ -419,14 +451,26 @@ export class Arena {
   }
   step(dt: number, input: Input) {
     if (this.state !== "playing") return;
-    this.events = [];
-    this.elapsed += dt;
-    this.nukeCooldown = Math.max(0, this.nukeCooldown - dt);
-    if (input.nuke) this.activateNuke(this.player);
-    if (this.cinematic) {
-      this.stepNuke(dt);
+    if (this.mode === "sprint" && this.elapsed >= SPRINT_DURATION && !this.cinematic) {
+      this.events = [];
+      this.finishSprint();
       return;
     }
+    this.events = [];
+    const playableDt = this.mode === "sprint" && !this.cinematic
+      ? Math.min(dt, SPRINT_DURATION - this.elapsed)
+      : dt;
+    this.elapsed = this.mode === "sprint"
+      ? Math.min(SPRINT_DURATION, this.elapsed + playableDt)
+      : this.elapsed + dt;
+    this.nukeCooldown = Math.max(0, this.nukeCooldown - playableDt);
+    if (input.nuke && (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)) this.activateNuke(this.player);
+    if (this.cinematic) {
+      this.stepNuke(dt);
+      if (!this.cinematic && this.elapsed >= SPRINT_DURATION) this.finishSprint();
+      return;
+    }
+    dt = playableDt;
     this.reindex();
     const controls = new Map<number, Input>();
     for (const s of this.snakes) {
@@ -507,9 +551,11 @@ export class Arena {
     this.food = this.food.filter(f => !consumed.has(f.id));
     const removed = this.snakes.filter(s => s.id !== 0 && !s.alive);
     this.snakes = this.snakes.filter(s => s.id === 0 || s.alive);
-    for (const s of removed) this.spawnBot(NAMES.indexOf(s.name));
+    if (this.mode !== "practice")
+      for (const s of removed) this.spawnBot(NAMES.indexOf(s.name));
     while (this.food.length < this.foodTarget) this.spawnFood();
     if (this.food.length > 1600) this.food.splice(0, this.food.length - 1600);
+    if (this.elapsed >= SPRINT_DURATION) this.finishSprint();
   }
   private updateSlows() {
     const field = hasVeil(this.player);
@@ -601,8 +647,11 @@ export class Arena {
       s.active = 0;
       for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
       this.events.push({ type: "death", id, x: s.x, z: s.z });
-      if (id === 0) { this.state = "over"; this.deathReason = reason; }
-      else if (!dead.has(0) && hitOwners.get(id) === 0) this.player.kills++;
+      if (id === 0) { this.state = "over"; this.endReason = "death"; this.deathReason = reason; }
+      else if (!dead.has(0) && hitOwners.get(id) === 0) {
+        this.player.kills++;
+        this.events.push({ type: "player-elimination", id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
+      }
     }
   }
   activateNuke(s: Serpent) {
@@ -651,6 +700,7 @@ export class Arena {
         if (s.id === 0 || !s.alive) continue;
         s.alive = false;
         p.kills++;
+        this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
         for (let i = 0; i < s.body.length; i += 2)
           this.spawnFood(
             s.body[i],
@@ -664,10 +714,12 @@ export class Arena {
     }
     if (shot.time >= NUKE_DURATION) {
       this.snakes = this.snakes.filter((s) => s.alive);
-      for (let i = this.snakes.length - 1; i < this.botCount; i++)
-        this.spawnBot(i);
+      if (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)
+        for (let i = this.snakes.length - 1; i < this.botCount; i++)
+          this.spawnBot(i);
       this.cinematic = undefined;
-      while (this.food.length < this.foodTarget) this.spawnFood();
+      if (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)
+        while (this.food.length < this.foodTarget) this.spawnFood();
       this.reindex();
     }
   }

@@ -12,10 +12,13 @@ import {
   bodyRadiusAt,
   bodyHitRadiusAt,
   MAX_SIZE,
+  SPRINT_DURATION,
+  compareSprintResults,
   type CharacterId,
 } from "../src/simulation.ts";
 const input = { angle: 0, boost: false, ability: false };
 const empty = (id: CharacterId = "ember") => new Arena(id, () => 0.5, 0, 0);
+const sprint = (id: CharacterId = "ember") => new Arena(id, () => 0.5, 0, 0, "sprint");
 const advance = (a: Arena, n: number, control = input) => {
   for (let i = 0; i < n; i++) a.step(STEP, control);
 };
@@ -30,6 +33,75 @@ function rival(
   a.snakes.push(s);
   return s;
 }
+test("endless remains the default and guided practice has no bots", () => {
+  const endless = empty();
+  assert.equal(endless.mode, "endless");
+  assert.equal(endless.remaining, undefined);
+  const practice = new Arena("ember", () => 0.5, 20, 0, "practice");
+  assert.equal(practice.botCount, 0);
+  assert.equal(practice.snakes.length, 1);
+  assert.equal(practice.mode, "practice");
+});
+test("sprint ends at 180 active seconds and leaves the player alive", () => {
+  const a = sprint();
+  a.elapsed = SPRINT_DURATION - 0.01;
+  a.step(0.04, input);
+  assert.equal(a.elapsed, SPRINT_DURATION);
+  assert.equal(a.remaining, 0);
+  assert.equal(a.state, "over");
+  assert.equal(a.endReason, "time");
+  assert.equal(a.player.alive, true);
+  const x = a.player.x;
+  a.step(1, input);
+  assert.equal(a.player.x, x);
+});
+test("pause freezes the sprint clock and early death remains a death", () => {
+  const a = sprint();
+  a.elapsed = 50;
+  a.state = "paused";
+  a.step(20, input);
+  assert.equal(a.elapsed, 50);
+  assert.equal(a.remaining, 130);
+  a.state = "playing";
+  a.player.x = RADIUS + 1;
+  a.step(0, input);
+  assert.equal(a.state, "over");
+  assert.equal(a.endReason, "death");
+  assert.equal(a.elapsed, 50);
+});
+test("sprint deadline during an ultimate waits for recovery without extra movement", () => {
+  const a = new Arena("nova", () => 0.5, 1, 0, "sprint"), bot = a.snakes[1];
+  a.elapsed = SPRINT_DURATION - 1;
+  assert.equal(a.activateNuke(a.player), true);
+  a.step(1.5, input);
+  assert.equal(a.elapsed, SPRINT_DURATION);
+  assert.equal(a.state, "playing");
+  assert.ok(a.cinematic);
+  const playerX = a.player.x;
+  a.step(2, input);
+  assert.equal(bot.alive, false);
+  assert.equal(a.player.kills, 1);
+  assert.equal(a.state, "playing");
+  a.step(2.1, input);
+  assert.equal(a.cinematic, undefined);
+  assert.equal(a.state, "over");
+  assert.equal(a.endReason, "time");
+  assert.equal(a.player.x, playerX);
+  assert.equal(a.player.kills, 1);
+  assert.equal(a.snakes.length, 1);
+});
+test("sprint records use peak energy, then kills, then survival", () => {
+  const a = sprint();
+  a.player.mass = 50;
+  a.player.peak = 80.5;
+  a.player.kills = 3;
+  a.elapsed = 72;
+  assert.deepEqual(a.sprintResult, { score: 805, kills: 3, survival: 72 });
+  assert.ok(compareSprintResults(a.sprintResult, { score: 804, kills: 99, survival: 180 }) > 0);
+  assert.ok(compareSprintResults(a.sprintResult, { score: 805, kills: 2, survival: 180 }) > 0);
+  assert.ok(compareSprintResults(a.sprintResult, { score: 805, kills: 3, survival: 73 }) < 0);
+  assert.equal(compareSprintResults(a.sprintResult, { score: 805, kills: 3, survival: 72 }), 0);
+});
 test("spatial grid searches across negative cell boundaries", () => {
   const g = new SpatialGrid<{ x: number; z: number }>();
   g.add({ x: -0.1, z: 0 });
@@ -311,8 +383,26 @@ test("actual body contact kills only the attacking head, regardless of entity or
     a.step(0, input);
     assert.equal(attacker.alive, false);
     assert.equal(defender.alive, true);
-    if (!player) assert.equal(defender.kills, 1);
+    const credited = a.events.filter(e => e.type === 'player-elimination');
+    if (!player) {
+      assert.equal(defender.kills, 1);
+      assert.deepEqual(credited.map(e => [e.id, e.x, e.z]), [[attacker.id, attacker.x, attacker.z]]);
+    } else assert.equal(credited.length, 0);
   }
+});
+test('bot-vs-bot deaths and player death never emit a credited elimination', () => {
+  const a = empty();
+  const attacker = rival(a, 6, 1.3, 'ember');
+  rival(a, 12.24, 0, 'cloud');
+  a.ai = s => ({ angle: s.angle, boost: false, ability: false });
+  a.step(0, input);
+  assert.equal(attacker.alive, false);
+  assert.equal(a.player.kills, 0);
+  assert.equal(a.events.filter(e => e.type === 'player-elimination').length, 0);
+  const fatal = contactFixture(true, 6, 1.3).a;
+  fatal.step(0, input);
+  assert.equal(fatal.player.alive, false);
+  assert.equal(fatal.events.filter(e => e.type === 'player-elimination').length, 0);
 });
 test("heads with a visible gap survive; overlapping heads both die", () => {
   for (const gap of [1.7, 1.4]) {

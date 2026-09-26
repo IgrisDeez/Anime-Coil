@@ -1,8 +1,19 @@
 import * as THREE from "three";
 import { RADIUS } from "../simulation";
 import { reaction, PROFILES, type DetailProfile, type EnvironmentFrame, type WorldStats } from "./types";
-export type Shape = "box" | "ball" | "cylinder" | "cone" | "disk" | "pebble";
-type Style = "matte" | "glow" | "shadow" | "foliage" | "crowd";
+import { createSurfaceTexture, finishSurface, type SurfaceKind } from "./surfaces";
+export type Shape = "box" | "ball" | "cylinder" | "cone" | "disk" | "pebble" | "gable";
+export type Style = SurfaceKind | "matte" | "glow" | "shadow" | "foliage" | "crowd";
+function gableGeometry() {
+  const profile = new THREE.Shape();
+  profile.moveTo(-.5, 0);
+  profile.lineTo(.5, 0);
+  profile.lineTo(0, 1);
+  profile.closePath();
+  const geometry = new THREE.ExtrudeGeometry(profile, { depth: 1, steps: 1, bevelEnabled: false });
+  geometry.translate(0, 0, -.5);
+  return geometry;
+}
 export class WorldBuilder {
   readonly group = new THREE.Group();
   readonly landmarks: THREE.Group[] = [];
@@ -16,7 +27,7 @@ export class WorldBuilder {
   private wind = {value:0};
   private windStrength = {value:1};
   private shapes: Record<Shape, THREE.BufferGeometry>;
-  private surface: Record<Style, THREE.Material>;
+  private surface: Record<string, THREE.Material>;
   private atlas: THREE.Texture;
   private signMaterial: THREE.MeshBasicMaterial;
   private signCount = 0;
@@ -26,7 +37,7 @@ export class WorldBuilder {
   private dynamic = new Set<THREE.Object3D>();
   constructor(readonly profile: DetailProfile) {
     this.detail = PROFILES[profile];
-    this.shapes = {box:this.geo(new THREE.BoxGeometry(1,1,1)),ball:this.geo(new THREE.SphereGeometry(1,8,6)),cylinder:this.geo(new THREE.CylinderGeometry(1,1,1,8)),cone:this.geo(new THREE.ConeGeometry(1,1,4)),disk:this.geo(new THREE.CircleGeometry(1,24)),pebble:this.geo(new THREE.IcosahedronGeometry(1,0))};
+    this.shapes = {box:this.geo(new THREE.BoxGeometry(1,1,1)),ball:this.geo(new THREE.SphereGeometry(1,8,6)),cylinder:this.geo(new THREE.CylinderGeometry(1,1,1,8)),cone:this.geo(new THREE.ConeGeometry(1,1,4)),disk:this.geo(new THREE.CircleGeometry(1,24)),pebble:this.geo(new THREE.IcosahedronGeometry(1,0)),gable:this.geo(gableGeometry())};
     this.surface = {
       foliage: this.swayMaterial("white",false),
       crowd: this.swayMaterial("white",true),
@@ -49,12 +60,17 @@ export class WorldBuilder {
         #include <opaque_fragment>`);
     };
     glow.customProgramCacheKey = () => 'world-lantern-breath';
-    if (typeof document !== "undefined") {
-      const canvas=document.createElement("canvas");canvas.width=canvas.height=this.detail.atlas;
-      this.signContext=canvas.getContext("2d") ?? undefined;
-      this.atlas=this.texture(new THREE.CanvasTexture(canvas));
-    } else this.atlas=this.texture(new THREE.DataTexture(new Uint8Array([255,255,255,255]),1,1));
+    let signCanvas: HTMLCanvasElement | undefined;
+    try {
+      if (typeof document !== "undefined") {
+        const canvas=document.createElement("canvas");canvas.width=canvas.height=this.detail.atlas;
+        this.signContext=canvas.getContext("2d") ?? undefined;
+        if(this.signContext) signCanvas=canvas;
+      }
+    } catch { this.signContext=undefined; }
+    this.atlas=this.texture(signCanvas ? new THREE.CanvasTexture(signCanvas) : new THREE.DataTexture(new Uint8Array([32,43,61,255]),1,1));
     this.atlas.colorSpace=THREE.SRGBColorSpace;
+    this.atlas.generateMipmaps=false;this.atlas.minFilter=THREE.LinearFilter;this.atlas.magFilter=THREE.LinearFilter;
     this.signMaterial=this.material(new THREE.MeshBasicMaterial({map:this.atlas,color:"white",side:THREE.DoubleSide}));
   }
   swayMaterial(color:string,crowd=false) {
@@ -79,11 +95,32 @@ export class WorldBuilder {
   material<T extends THREE.Material>(m:T):T {this.materials.add(m);return m;}
   texture<T extends THREE.Texture>(t:T):T {this.textures.add(t);return t;}
   part(parent:THREE.Group,shape:Shape,color:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {
-    const mesh=new THREE.Mesh(this.shapes[shape],this.surface[style]);mesh.position.set(x,y,z);mesh.scale.set(w,h,d);
+    const mesh=new THREE.Mesh(this.shapes[shape],this.surface[style] ?? this.surfaceMaterial(style as SurfaceKind));mesh.position.set(x,y,z);mesh.scale.set(w,h,d);
     mesh.userData.color=color;mesh.userData.role=y+h/2>0?"scenery":"ground";parent.add(mesh);return mesh;
   }
+  surfaceMaterial(kind: SurfaceKind) {
+    if(this.surface[kind])return this.surface[kind];
+    const texture=createSurfaceTexture(kind,this.profile);if(texture)this.texture(texture);
+    const material=['asphalt','sand','grass','stone'].includes(kind)
+      ? new THREE.MeshBasicMaterial({color:'white',map:texture??null})
+      : new THREE.MeshToonMaterial({color:'white',map:texture??null});
+    finishSurface(material,kind,this.wind,this.windStrength);
+    return this.surface[kind]=this.material(material);
+  }
   box(p:THREE.Group,c:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {return this.part(p,"box",c,x,y,z,w,h,d,style);}
-  flat(c:string,x:number,z:number,w:number,d:number,rotation=0) {const m=this.box(this.group,c,x,-.465,z,w,.02,d,"glow");m.rotation.y=rotation;return m;}
+  flat(c:string,x:number,z:number,w:number,d:number,rotation=0,style:Style="glow") {const m=this.box(this.group,c,x,-.465,z,w,.02,d,style);m.rotation.y=rotation;return m;}
+  /** Continuous ground ribbon avoids coplanar overlaps between path sections. */
+  path(c:string, points: readonly (readonly [number,number])[], width:number, y:number, style:SurfaceKind) {
+    const vertices:number[]=[],uv:number[]=[];
+    for(let i=0;i<points.length-1;i++){
+      // Shared cross-sections use averaged adjacent direction at bends.
+      const edge=(j:number,sign:number)=>{const prev=points[Math.max(0,j-1)],next=points[Math.min(points.length-1,j+1)],ex=next[0]-prev[0],ez=next[1]-prev[1],l=Math.hypot(ex,ez)||1;return [points[j][0]-ez/l*width/2*sign,y,points[j][1]+ex/l*width/2*sign];};
+      const corners=[edge(i,1),edge(i+1,1),edge(i+1,-1),edge(i,-1)];
+      for(const k of [0,1,2,0,2,3]){vertices.push(...corners[k]);uv.push(corners[k][0],corners[k][2]);}
+    }
+    const geo=this.geo(new THREE.BufferGeometry());geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.computeVertexNormals();
+    const mesh=new THREE.Mesh(geo,this.surfaceMaterial(style));mesh.userData.color=c;this.group.add(mesh);return mesh;
+  }
   disk(c:string,x:number,z:number,r:number,y=-.48) {const m=this.part(this.group,"disk",c,x,y,z,r,r,1,"glow");m.rotation.x=-Math.PI/2;return m;}
   landmark(name:string,x:number,z:number,rotation=0):THREE.Group {
     const g=new THREE.Group();g.name=name;g.position.set(x,0,z);g.rotation.y=rotation;g.userData.decorative=true;this.group.add(g);this.landmarks.push(g);return g;
@@ -97,7 +134,7 @@ export class WorldBuilder {
     const index=this.signCount++,col=index%4,row=Math.floor(index/4),cw=this.detail.atlas/4,ch=this.detail.atlas/16,c=this.signContext;
     if(c){c.fillStyle="#202b3d";c.fillRect(col*cw,row*ch,cw,ch);c.strokeStyle=color;c.lineWidth=2;c.strokeRect(col*cw+2,row*ch+2,cw-4,ch-4);c.fillStyle=color;c.textAlign="center";c.textBaseline="middle";c.font=`bold ${Math.round(ch*.5)}px sans-serif`;c.fillText(text,col*cw+cw/2,row*ch+ch/2,cw-12);}
     const geo=this.geo(new THREE.PlaneGeometry(w,h)),uv=geo.attributes.uv;
-    for(let i=0;i<uv.count;i++)uv.setXY(i,(col+uv.getX(i))/4,1-(row+1-uv.getY(i))/16);
+    for(let i=0;i<uv.count;i++)uv.setXY(i,(col*cw+3+uv.getX(i)*(cw-6))/this.detail.atlas,1-(row*ch+3+(1-uv.getY(i))*(ch-6))/this.detail.atlas);
     const mesh=new THREE.Mesh(geo,this.signMaterial);mesh.position.set(x,y,z);mesh.userData.color="#ffffff";g.add(mesh);return mesh;
   }
   animateSigns(time:number,reduced:boolean) {
@@ -121,8 +158,11 @@ export class WorldBuilder {
       const a=i*2.1;const m=this.part(g,"ball",["#6e9665","#8aaa70","#527e5d"][i%3],x+Math.sin(a)*2*scale,(palm?8:7+i*.6)*scale,z+Math.cos(a)*scale,(palm?1:3)*scale,.8*scale+(palm?0:2*scale),(palm?4:3)*scale,"foliage");if(palm)m.rotation.y=a;
     }this.shadow(g,x,z,5*scale,3*scale);
   }
-  roof(g:THREE.Group,c:string,w:number,y:number,d:number) {const m=this.part(g,"cone",c,0,y,0,w*.73,6,d*.73);m.rotation.y=Math.PI/4;return m;}
-  ground(c:string,outside:string) {this.box(this.group,outside,0,-.7,0,4000,.05,4000,"glow");const floor=this.part(this.group,"disk",c,0,-.5,0,RADIUS+.08,RADIUS+.08,1,"glow");floor.geometry=this.geo(new THREE.CircleGeometry(1,96));floor.rotation.x=-Math.PI/2;}
+  roof(g:THREE.Group,c:string,w:number,y:number,d:number) {const m=this.part(g,"cone",c,0,y,0,w*.73,6,d*.73,"roof");m.rotation.y=Math.PI/4;return m;}
+  gableRoof(g:THREE.Group,c:string,w:number,eaveY:number,d:number,rise=3.2) {
+    return this.part(g,"gable",c,0,eaveY,0,w,rise,d,"roof");
+  }
+  ground(c:string,outside:string,style:SurfaceKind="stone") {this.box(this.group,outside,0,-.7,0,4000,.05,4000,"glow");const floor=this.part(this.group,"disk",c,0,-.5,0,RADIUS+.08,RADIUS+.08,1,style);floor.geometry=this.geo(new THREE.CircleGeometry(1,96));floor.rotation.x=-Math.PI/2;}
   finish() {
     this.atlas.needsUpdate=true;
     this.group.updateMatrixWorld(true);

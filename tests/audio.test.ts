@@ -46,6 +46,7 @@ class Node {
 }
 class Context {
   currentTime = 1;
+  sampleRate = 44100;
   destination = {};
   state = "suspended";
   sources: Node[] = [];
@@ -66,6 +67,8 @@ class Context {
     this.oscillators.push(n);
     return n;
   }
+  createBiquadFilter() { return new Node(); }
+  createBuffer(_channels: number, length: number) { const data = new Float32Array(length); return { getChannelData: () => data }; }
   async decodeAudioData(_b: ArrayBuffer) {
     return { duration: 1 };
   }
@@ -219,4 +222,67 @@ test("all six Japanese callouts bundle cleanly", () => {
     assert.ok(peak > 500 && peak < 32767, `${clip}: audible without clipping`);
     assert.ok(data.length / bytesPerSecond > 0.4);
   }
+});
+test('boost wind starts once, reuses its loop on quick restart, and stops after release', async () => {
+  const { a, ctx } = engine(); a.unlock(); await flush();
+  a.setBoost(true, false, .4);
+  const first = ctx.sources.find(s => s.loop)!;
+  assert.ok(first.started);
+  a.setBoost(true, false, 1);
+  assert.equal(ctx.sources.filter(s => s.loop).length, 1);
+  a.setBoost(false, false, 0);
+  ctx.currentTime += .1;
+  a.setBoost(true, true, 1);
+  assert.equal(ctx.sources.filter(s => s.loop).length, 1);
+  a.setBoost(false, false, 0);
+  ctx.currentTime += .31;
+  a.setBoost(false, false, 0);
+  assert.equal(first.stopped, true);
+  assert.equal(first.disconnected, true);
+  a.setBoost(true, true, 1);
+  assert.equal(ctx.sources.filter(s => s.loop).length, 2);
+  a.resetTransient();
+  assert.ok(ctx.sources.filter(s => s.loop).every(s => s.stopped));
+});
+test('boost audio obeys mute, effects volume, and hidden-tab lifecycle', async () => {
+  const { a, ctx } = engine(); a.unlock(); await flush();
+  a.setBoost(true, false, 1);
+  a.enabled = false;
+  assert.ok(ctx.sources.find(s => s.loop)!.stopped);
+  a.enabled = true;
+  a.setBoost(true, true, 1);
+  a.setVolume('effects', 0);
+  assert.ok(ctx.sources.filter(s => s.loop).every(s => s.stopped));
+  a.setVolume('effects', .65);
+  a.setBoost(true, false, 1);
+  a.setHidden(true);
+  assert.ok(ctx.sources.filter(s => s.loop).every(s => s.stopped));
+  assert.equal(ctx.state, 'suspended');
+  a.setHidden(false);
+  assert.equal(ctx.state, 'running');
+});
+test('elimination impact coalesces multi-kills and respects effects controls', async () => {
+  const { a, ctx } = engine(); a.unlock(); await flush();
+  a.elimination(20);
+  assert.equal(ctx.oscillators.length, 3);
+  a.elimination(1);
+  assert.equal(ctx.oscillators.length, 3);
+  ctx.currentTime += .1;
+  a.elimination(1);
+  assert.equal(ctx.oscillators.length, 6);
+  a.setVolume('effects', 0);
+  ctx.currentTime += .1;
+  a.elimination(1);
+  assert.equal(ctx.oscillators.length, 6);
+  a.setVolume('effects', .65);
+  a.enabled = false;
+  a.elimination(1);
+  assert.equal(ctx.oscillators.length, 6);
+  a.enabled = true;
+  a.setHidden(true);
+  a.elimination(1);
+  assert.equal(ctx.oscillators.length, 6);
+  a.setHidden(false);
+  a.elimination(0);
+  assert.equal(ctx.oscillators.length, 6);
 });

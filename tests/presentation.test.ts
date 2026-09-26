@@ -2,12 +2,45 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Arena, HEAD_RADIUS, RADIUS, STEP, serpentScale, type GameEvent } from '../src/simulation.ts';
 import { COMPASS_THEMES, CompassState, SpiritCompass, edgeWarning, projectMarker } from '../src/minimap.ts';
-import { HudMotion, MotionPreference, breathing } from '../src/presentation.ts';
+import { BoostMotion, boostKind, boostStatus, HudMotion, MotionPreference, breathing } from '../src/presentation.ts';
 import { HudChanges, Leaderboard } from '../src/hud-feedback.ts';
 import { LifeReactions } from '../src/life-reactions.ts';
 import { VisualClock } from '../src/worlds/types.ts';
 
 const frame = (time = 0, reducedMotion = false, paused = false) => ({ time, dt: paused ? 0 : STEP, reducedMotion, paused });
+
+test('boost and Fox Rush share eased presentation strength without mutating gameplay', () => {
+  const arena = new Arena('ember', () => .5, 0, 0), motion = new BoostMotion();
+  assert.equal(boostStatus(arena.player), 'unavailable');
+  arena.player.mass = 24; assert.equal(boostStatus(arena.player), 'ready');
+  arena.player.boosting = true;
+  assert.equal(boostStatus(arena.player), 'boosting');
+  assert.equal(boostKind(arena.player, true, false), 'normal');
+  const normalState = JSON.stringify(arena.player);
+  motion.update('normal', .5);
+  assert.equal(JSON.stringify(arena.player), normalState);
+  assert.ok(motion.fov(false) > 47 && motion.fov(false) < 48);
+  assert.ok(motion.fov(true) < 45);
+  assert.ok(motion.cameraOffset(true) < motion.cameraOffset(false));
+  arena.player.active = 3;
+  assert.equal(boostKind(arena.player, true, false), 'fox');
+  const foxState = JSON.stringify(arena.player);
+  motion.update('fox', .5);
+  assert.equal(JSON.stringify(arena.player), foxState);
+  assert.ok(motion.fov(false) > 49 && motion.fov(false) <= 50);
+  assert.ok(motion.lean(false) > .15);
+  assert.equal(motion.lean(true), 0);
+  assert.equal(boostKind(arena.player, true, true), 'none');
+  assert.equal(boostKind(arena.player, false, false), 'none');
+  const held = motion.intensity;
+  motion.update('none', 0); assert.equal(motion.intensity, held);
+  motion.update('none', 1); assert.ok(motion.intensity < held);
+  motion.reset(); assert.equal(motion.fov(false), 43);
+  assert.equal(motion.cameraOffset(false), 0);
+  arena.player.boosting = false; arena.player.mass = 18;
+  assert.equal(boostStatus(arena.player), 'ready'); // Fox Rush is free at minimum mass.
+  arena.player.active = 0; assert.equal(boostStatus(arena.player), 'unavailable');
+});
 
 test('compass themes are distinct and boundary warning uses the growing head safe radius', () => {
   assert.deepEqual(Object.keys(COMPASS_THEMES), ['shibuya', 'leaf', 'tournament', 'harbor']);
@@ -62,7 +95,7 @@ test('compass redraws at no more than 30 Hz, freezes while paused, and handles l
   for (let i = 0; i < 10; i++) compass.draw(frame(143 / 144, false, true), 0);
   assert.equal(fake.draws(), draws);
   compass.draw(frame(143 / 144, true, true), 0); assert.equal(fake.draws(), draws + 1);
-  assert.equal(fake.arcs.at(-1)![2], 9); // Static player halo.
+  assert.equal(fake.arcs.at(-1)![2], 9.5); // Static player halo.
   for (const map of Object.keys(COMPASS_THEMES) as (keyof typeof COMPASS_THEMES)[]) { compass.setMap(map); compass.draw(frame(1, true, true), 0); }
   a.player.alive = false; compass.state.sync(a); compass.draw(frame(1, true, true), 0);
   assert.equal(compass.state.markers.size, 0);
