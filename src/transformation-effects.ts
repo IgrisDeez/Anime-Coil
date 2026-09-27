@@ -127,12 +127,12 @@ export class TransformationEffects {
     if (form.kind === "nine-tail") {
       this.tails.count = this.tailInk.count = 11;
       for (let i = 0; i < 9; i++) {
-        const layer = i % 3, offset = (i - 4) * .25;
+        const layer = i % 3, offset = (i - 4) * .32;
         const sway = Math.sin(time * 2 + i * .8) * .08 * tailMotion;
         const angle = headAngle + Math.PI + offset + sway;
-        dummy.position.set(headX-Math.cos(headAngle)*clearance*.8-Math.sin(headAngle)*(i-4)*.24, headY+.75+layer*.14, headZ-Math.sin(headAngle)*clearance*.8+Math.cos(headAngle)*(i-4)*.24);
-        dummy.rotation.set(-.58+layer*.07, Math.PI/2-angle, (i-4)*.075);
-        dummy.scale.set((.9+layer*.08)*scale, (.88+layer*.07)*scale, (1.7+layer*.08)*scale);
+        dummy.position.set(headX-Math.cos(headAngle)*clearance*.8-Math.sin(headAngle)*(i-4)*.24, headY+1.15+layer*.14, headZ-Math.sin(headAngle)*clearance*.8+Math.cos(headAngle)*(i-4)*.24);
+        dummy.rotation.set(-.72+layer*.07, Math.PI/2-angle, (i-4)*.075);
+        dummy.scale.set((.9+layer*.08)*scale, (.88+layer*.07)*scale, (2.2+layer*.08)*scale);
         dummy.updateMatrix();
         this.tails.setMatrixAt(i, dummy.matrix);
         dummy.scale.multiplyScalar(1.035);dummy.updateMatrix();this.tailInk.setMatrixAt(i,dummy.matrix);
