@@ -67,3 +67,16 @@ test('many confirmed form contacts never exceed pooled geometry or draw budgets'
     effects.dispose();
   }
 });
+
+test('Skybreaker impact dents are local, pooled, and disappear after recovery',()=>{
+  const arena=new Arena('cloud',()=>.5,0,0),effects=new TransformationEffects('mobile');
+  arena.activateNuke(arena.player);
+  effects.ingest([{type:'transform-hit',id:0,targetId:3,ultimate:'skybreaker',x:7,z:-2}],1);
+  effects.update(arena,1,false);
+  const dent=effects.group.children.find(child=>child instanceof THREE.InstancedMesh&&child.geometry instanceof THREE.RingGeometry) as THREE.InstancedMesh;
+  assert.equal(dent.count,1);
+  const matrix=new THREE.Matrix4(),position=new THREE.Vector3();dent.getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
+  assert.equal(position.x,7);assert.equal(position.z,-2);
+  effects.update(arena,1.5,false);assert.equal(dent.count,0);
+  effects.dispose();
+});

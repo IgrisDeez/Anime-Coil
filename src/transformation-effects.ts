@@ -33,6 +33,7 @@ export class TransformationEffects {
   private impactStars: THREE.InstancedMesh;
   private impactSlashes: THREE.InstancedMesh;
   private comic: THREE.InstancedMesh;
+  private dents: THREE.InstancedMesh;
   private hits: Array<{x:number;z:number;at:number;kind:'nine-tail'|'skybreaker'}> = [];
   private profile: DetailProfile;
   private maxPunches: number;
@@ -68,8 +69,9 @@ export class TransformationEffects {
     this.impactStars=new THREE.InstancedMesh(impactStarGeometry(),new THREE.MeshBasicMaterial({color:'#fff1be',transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}),12);
     this.impactSlashes=new THREE.InstancedMesh(taperedSlashGeometry(),new THREE.MeshBasicMaterial({color:'#ffde8d',transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false}),24);
     this.comic=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:comicTexture(),transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}),12);
-    for(const mesh of [this.smoke,this.worldInk,this.impactStars,this.impactSlashes,this.comic]) {mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);}
-    this.group.add(this.tailInk, this.tails, this.fistInk, this.fists, this.ribbons, this.ring,this.smoke,this.worldInk,this.impactStars,this.impactSlashes,this.comic);
+    this.dents=new THREE.InstancedMesh(new THREE.RingGeometry(.65,.79,20),new THREE.MeshBasicMaterial({color:'#77617e',transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false}),12);
+    for(const mesh of [this.smoke,this.worldInk,this.impactStars,this.impactSlashes,this.comic,this.dents]) {mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);}
+    this.group.add(this.tailInk, this.tails, this.fistInk, this.fists, this.ribbons, this.ring,this.smoke,this.worldInk,this.impactStars,this.impactSlashes,this.comic,this.dents);
   }
 
   setProfile(profile: DetailProfile) {
@@ -79,7 +81,7 @@ export class TransformationEffects {
 
   clear() {
     this.tails.count = this.tailInk.count = this.fists.count = this.fistInk.count = 0;
-    this.smoke.count=this.worldInk.count=this.impactStars.count=this.impactSlashes.count=this.comic.count=0;
+    this.smoke.count=this.worldInk.count=this.impactStars.count=this.impactSlashes.count=this.comic.count=this.dents.count=0;
     this.hits.length=0;
     this.ribbons.geometry.setDrawRange(0, 0);
     this.ring.visible = false;
@@ -98,7 +100,7 @@ export class TransformationEffects {
 
   update(arena: Arena | undefined, time: number, reducedMotion: boolean, anchors?: ReadonlyMap<number, RenderAnchor>,mapId:MapId='shibuya') {
     this.tails.count=this.tailInk.count=this.fists.count=this.fistInk.count=0;
-    this.smoke.count=this.worldInk.count=this.impactStars.count=this.impactSlashes.count=this.comic.count=0;
+    this.smoke.count=this.worldInk.count=this.impactStars.count=this.impactSlashes.count=this.comic.count=this.dents.count=0;
     this.ribbons.geometry.setDrawRange(0,0);this.ring.visible=false;
     const form = arena?.transformation;
     if (!arena || !form || !arena.player.alive) {this.hits.length=0;return;}
@@ -111,7 +113,7 @@ export class TransformationEffects {
     const clearance = anchor?.clearance ?? 1.35 * scale;
     const tailMotion = reducedMotion ? 0 : 1;
     for(let i=this.hits.length-1;i>=0;i--)if(time-this.hits[i].at>=.42)this.hits.splice(i,1);
-    let starCount=0,slashCount=0,comicCount=0;
+    let starCount=0,slashCount=0,comicCount=0,dentCount=0;
     for(const hit of this.hits) {
       const age=Math.max(0,time-hit.at),fade=1-age/.42;
       dummy.position.set(hit.x,.12,hit.z);dummy.rotation.set(0,0,0);dummy.scale.setScalar((.6+age*2)*fade);dummy.updateMatrix();this.impactStars.setMatrixAt(starCount++,dummy.matrix);
@@ -121,9 +123,13 @@ export class TransformationEffects {
       if(!reducedMotion&&comicCount<(this.profile==='mobile'?6:12)){
         dummy.position.set(hit.x,1.9+age*1.4,hit.z);dummy.rotation.set(-.48,0,0);dummy.scale.set(1.9*fade,.95*fade,1);dummy.updateMatrix();this.comic.setMatrixAt(comicCount++,dummy.matrix);
       }
+      if(hit.kind==='skybreaker'&&dentCount<12){
+        const rebound=reducedMotion?1:1+Math.sin(Math.min(1,age/.42)*Math.PI)*.42;
+        dummy.position.set(hit.x,-.39,hit.z);dummy.rotation.set(-Math.PI/2,0,0);dummy.scale.setScalar((.8+age*2)*rebound);dummy.updateMatrix();this.dents.setMatrixAt(dentCount++,dummy.matrix);
+      }
     }
-    this.impactStars.count=starCount;this.impactSlashes.count=slashCount;this.comic.count=comicCount;
-    this.impactStars.instanceMatrix.needsUpdate=this.impactSlashes.instanceMatrix.needsUpdate=this.comic.instanceMatrix.needsUpdate=true;
+    this.impactStars.count=starCount;this.impactSlashes.count=slashCount;this.comic.count=comicCount;this.dents.count=dentCount;
+    this.impactStars.instanceMatrix.needsUpdate=this.impactSlashes.instanceMatrix.needsUpdate=this.comic.instanceMatrix.needsUpdate=this.dents.instanceMatrix.needsUpdate=true;
     if (form.kind === "nine-tail") {
       this.tails.count = this.tailInk.count = 11;
       for (let i = 0; i < 9; i++) {
@@ -234,7 +240,7 @@ export class TransformationEffects {
     (this.fistInk.material as THREE.Material).dispose();
     this.ribbons.geometry.dispose(); (this.ribbons.material as THREE.Material).dispose();
     this.ring.geometry.dispose(); (this.ring.material as THREE.Material).dispose();
-    for(const mesh of [this.smoke,this.worldInk,this.impactStars,this.impactSlashes]) {mesh.dispose();mesh.geometry.dispose();(mesh.material as THREE.Material).dispose();}
+    for(const mesh of [this.smoke,this.worldInk,this.impactStars,this.impactSlashes,this.dents]) {mesh.dispose();mesh.geometry.dispose();(mesh.material as THREE.Material).dispose();}
     (this.comic.material as THREE.MeshBasicMaterial).map?.dispose();this.comic.dispose();this.comic.geometry.dispose();(this.comic.material as THREE.Material).dispose();
     this.group.removeFromParent();
   }

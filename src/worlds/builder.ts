@@ -24,6 +24,7 @@ export class WorldBuilder {
   backgroundActors = 0;
   readonly detail;
   private purpleTint = new THREE.Color("#aa65ff");
+  private cartoonTint = new THREE.Color('#fff2de');
   private lampBreath = {value:1};
   private wind = {value:0};
   private windStrength = {value:1};
@@ -95,13 +96,13 @@ export class WorldBuilder {
   }
   update(frame:EnvironmentFrame){
     this.lampBreath.value = frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .7) * .02;
-    this.wind.value=frame.time;this.windStrength.value=frame.reducedMotion?0:1;
+    this.wind.value=frame.time;this.windStrength.value=frame.reducedMotion?0:1+(frame.transformation?.kind==='skybreaker'?frame.transformation.intensity*.08:0);
     const form=frame.transformation;
     this.cartoon.center.set(form?.kind==='skybreaker'?form.origin.x:10000,form?.kind==='skybreaker'?form.origin.z:10000);
     this.cartoon.time.value=frame.reducedMotion?0:frame.time;
     this.cartoon.intensity.value=form?.kind==='skybreaker'&&!frame.reducedMotion?form.intensity:0;
     const response=reaction(frame.ultimate,frame.reducedMotion);
-    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(this.purpleTint,response.tint).multiplyScalar(response.light);
+    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(this.purpleTint,response.tint).lerp(this.cartoonTint,this.cartoon.intensity.value*.08).multiplyScalar(response.light);
     this.signMaterial.color.copy((this.surface.glow as THREE.MeshBasicMaterial).color).multiplyScalar(frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .45) * .02);
   }
   geo<T extends THREE.BufferGeometry>(g:T):T {this.geometries.add(g);return g;}
