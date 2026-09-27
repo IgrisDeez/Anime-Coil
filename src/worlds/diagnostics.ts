@@ -33,7 +33,7 @@ export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, sel
       output.textContent="Warming up for 1 second…";
       if(!await visibleInterval(1000)){output.textContent="Profile interrupted.";return;}
       view.resetMeasurements();
-      output.textContent="Sampling for 5 seconds. Activate an ultimate to capture its own phase.";
+      output.textContent="Sampling for 5 seconds. Press V during the sample to capture its current form or cinematic phase.";
       if(!await visibleInterval(5000)){output.textContent="Profile interrupted; partial samples follow.\n"+JSON.stringify(view.diagnostics(),null,2);return;}
       show();
     }finally{profile.disabled=false;}

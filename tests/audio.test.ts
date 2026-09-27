@@ -128,6 +128,40 @@ test("audio unlock creates no background playback", async () => {
   assert.equal(ctx.sources.length, 0);
   assert.equal(a.missingClips.size, 0);
 });
+test('death and recovery cues use Effects volume and respect mute', () => {
+  const { a, ctx } = engine();
+  a.unlock();
+  a.play('death');
+  a.play('respawn');
+  assert.equal(ctx.oscillators.length, 3);
+  a.setVolume('effects', 0);
+  a.play('death');
+  a.play('respawn');
+  assert.equal(ctx.oscillators.length, 3);
+  a.setVolume('effects', .5);
+  a.enabled = false;
+  a.play('respawn');
+  assert.equal(ctx.oscillators.length, 3);
+  a.enabled = true;
+  a.play('respawn');
+  assert.equal(ctx.oscillators.length, 5);
+});
+test("new form cues synthesize through Effects, coalesce impacts, and add no voice clips", () => {
+  const { a, ctx } = engine();
+  a.unlock();
+  a.transformation("nine-tail", "start");
+  assert.equal(ctx.oscillators.length, 2);
+  a.transformation("skybreaker", "launch");
+  assert.equal(ctx.oscillators.length, 3);
+  a.transformation("skybreaker", "impact");
+  const impactCount = ctx.oscillators.length;
+  a.transformation("skybreaker", "impact");
+  assert.equal(ctx.oscillators.length, impactCount, "simultaneous impact duplicates are coalesced");
+  a.setVolume("effects", 0);
+  a.transformation("nine-tail", "end");
+  assert.equal(ctx.oscillators.length, impactCount);
+  assert.equal(ctx.sources.length, 0, "forms do not load or play voice clips");
+});
 test("skill voices replace one another without overlapping", async () => {
   const { a, ctx } = engine();
   a.unlock();
@@ -284,5 +318,21 @@ test('elimination impact coalesces multi-kills and respects effects controls', a
   assert.equal(ctx.oscillators.length, 6);
   a.setHidden(false);
   a.elimination(0);
+  assert.equal(ctx.oscillators.length, 6);
+});
+test('ultimate transition cues use Effects and stop cleanly with pause or mute', async () => {
+  const { a, ctx } = engine(); a.unlock(); await flush();
+  a.ultimateCue('purple', 'converge');
+  a.ultimateCue('purple', 'compress');
+  a.ultimateCue('spirit', 'throw');
+  assert.equal(ctx.oscillators.length, 6);
+  a.resetTransient();
+  assert.ok(ctx.oscillators.every(oscillator => oscillator.stopped));
+  a.setVolume('effects', 0);
+  a.ultimateCue('spirit', 'throw');
+  assert.equal(ctx.oscillators.length, 6);
+  a.setVolume('effects', .65);
+  a.setHidden(true);
+  a.ultimateCue('purple', 'converge');
   assert.equal(ctx.oscillators.length, 6);
 });

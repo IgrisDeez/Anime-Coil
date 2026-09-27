@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { WorldBuilder } from "./builder";
 import { lantern, cable } from "./architecture";
+import { addWorldLife } from "./life";
 export function shibuya(b:WorldBuilder) {
   b.motions.push(f=>b.animateSigns(f.time,f.reducedMotion));
   b.ground("#303544","#202638","asphalt");
@@ -63,4 +64,5 @@ export function shibuya(b:WorldBuilder) {
     for(const side of [-1,1]){b.box(g,"#9f9392",side*16,1.2,0,6,.3,.4);for(const z of [-2,2])b.part(g,"cylinder","#a0a2a2",side*16,1,z,.14,2,.14);}
     cable(b,g,new THREE.Vector3(-17,9,-3),new THREE.Vector3(17,9,-3));
   }
+  addWorldLife(b,"shibuya");
 }

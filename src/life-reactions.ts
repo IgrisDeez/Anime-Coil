@@ -21,13 +21,14 @@ export class LifeReactions {
     for (const e of events) {
       if (e.type === 'collect') this.emit('pickup', e.x, e.z, boosted, direction);
       if (e.type === 'death') this.emit('death', e.x, e.z);
+      if (e.type === 'player-respawn') this.emit('spawn', e.x, e.z);
     }
   }
-  update(snakes: readonly Living[], dt: number, quiet: boolean) {
-    if (quiet) this.clear();
+  update(snakes: readonly Living[], dt: number, reduced: boolean) {
+    if (reduced) for (const s of this.slots) if (s.kind === 'pickup') s.active = false;
     for (const slot of this.slots) if (slot.active) { slot.age += dt; if (slot.age >= .45) slot.active = false; }
     for (const s of snakes) if (s.alive && !this.known.has(s.id)) {
-      if (this.seeded && !quiet && s.id !== 0) this.emit('spawn', s.x, s.z);
+      if (this.seeded && !reduced && s.id !== 0) this.emit('spawn', s.x, s.z);
       this.known.add(s.id);
     }
     for (const id of this.known) if (!snakes.some(s => s.id === id && s.alive)) this.known.delete(id);

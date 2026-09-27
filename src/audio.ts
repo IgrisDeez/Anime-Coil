@@ -1,4 +1,5 @@
 import type { CharacterId } from "./simulation";
+import type { UltimateCue, UltimateKind } from './ultimate-presentation';
 import {
   DEFAULT_AUDIO,
   volume,
@@ -21,6 +22,7 @@ export class AudioEngine {
   private whooshes = new Set<AudioBufferSourceNode>();
   private boostActive = false;
   private windReleaseAt = 0;
+  private lastFormImpact = 0;
   private voiceToken = 0;
   private hidden = false;
   private lastCollect = -1;
@@ -261,6 +263,19 @@ export class AudioEngine {
       );
     }
   }
+  ultimateCue(kind: UltimateKind, cue: UltimateCue) {
+    if (!this.ctx || !this.enabled || this.hidden || this.prefs.effects === 0) return;
+    if (kind === 'purple' && cue === 'converge') {
+      this.tone(260, 740, .5, .055, 'sine');
+      this.tone(520, 160, .5, .047, 'triangle', .06);
+    } else if (kind === 'purple' && cue === 'compress') {
+      this.tone(250, 52, .52, .07, 'triangle');
+      this.tone(1150, 390, .36, .025, 'sine', .04);
+    } else if (kind === 'spirit' && cue === 'throw') {
+      this.tone(460, 80, .55, .075, 'triangle');
+      this.tone(820, 270, .4, .025, 'sine', .08);
+    }
+  }
   cannon(stage: "fire" | "impact") {
     if (!this.ctx || !this.enabled || this.hidden) return;
     if (stage === "fire") {
@@ -269,6 +284,28 @@ export class AudioEngine {
     } else {
       this.tone(240, 55, .22, .12, "triangle");
       this.tone(850, 230, .12, .04, "sine");
+    }
+  }
+  transformation(kind: "nine-tail" | "skybreaker", stage: "start" | "launch" | "impact" | "end") {
+    if (!this.ctx || !this.enabled || this.hidden || this.prefs.effects === 0) return;
+    const now = this.ctx.currentTime;
+    if (stage === "impact") {
+      if (now - this.lastFormImpact < .12) return;
+      this.lastFormImpact = now;
+    }
+    if (stage === "start" && kind === "nine-tail") {
+      this.tone(210, 660, .38, .075, "sine");
+      this.tone(520, 1180, .24, .04, "triangle", .06);
+    } else if (stage === "start") {
+      this.tone(150, 440, .28, .08, "triangle");
+      this.tone(720, 260, .22, .035, "sine", .04);
+    } else if (stage === "launch") {
+      this.tone(kind === "skybreaker" ? 620 : 440, 150, .12, .045, "triangle");
+    } else if (stage === "impact") {
+      this.tone(kind === "nine-tail" ? 190 : 145, 52, .18, .075, "triangle");
+      this.tone(820, 310, .1, .034, "sine", .025);
+    } else {
+      this.tone(kind === "nine-tail" ? 540 : 420, 220, .22, .035, "sine");
     }
   }
   elimination(count: number) {
@@ -281,7 +318,7 @@ export class AudioEngine {
     this.tone(760, 290, .09, .042, "triangle");
     this.tone(1040, 1320, .14, .021, "sine", .035);
   }
-  play(type: "collect" | "death" | "select" | "blast", ultimate?: "purple" | "spirit") {
+  play(type: "collect" | "death" | "respawn" | "select" | "blast", ultimate?: "purple" | "spirit") {
     if (!this.ctx || !this.enabled || this.hidden) return;
     const t = this.ctx.currentTime;
     if (type === "collect") {
@@ -291,13 +328,19 @@ export class AudioEngine {
     }
     if (type === "select") this.tone(520, 680, 0.08, 0.06);
     if (type === "death") this.tone(220, 90, 0.5, 0.08, "triangle");
+    if (type === "respawn") {
+      this.tone(520, 880, .24, .043, "sine");
+      this.tone(780, 1170, .28, .026, "sine", .045);
+    }
     if (type === "blast" && ultimate === "spirit") {
       this.tone(180, 34, 1.5, .2, "triangle");
       this.tone(440, 110, .7, .09, "sine");
+      this.tone(85, 42, 1.1, .055, 'sine', .15);
       [523, 659, 784].forEach((f, i) => this.tone(f, f * .75, 1.4, .04, "sine", .25 + i * .12));
     } else if (type === "blast") {
       this.tone(120, 24, 1.8, 0.18, "triangle");
       this.tone(62, 28, 1.7, 0.17);
+      this.tone(980, 150, .28, .05, 'triangle');
     }
   }
   private tone(

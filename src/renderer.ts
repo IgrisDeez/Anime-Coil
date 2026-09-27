@@ -1,5 +1,5 @@
 import { BoostMotion, boostKind, breathing, PreviewMotion, previewBlink, type PresentationFrame } from './presentation';
-import type { TrailId } from './progression';
+import type { BodySkinId, TrailId } from './progression';
 import * as THREE from "three";
 import {
   Arena,
@@ -13,26 +13,53 @@ import {
   type CharacterId,
 } from "./simulation";
 import { SkillEffects } from "./skill-effects";
-import { createHead, createHeadOutline } from "./models";
+import { createHead, createHeadOutline, createTransformedHead, createTransformedHeadOutline } from "./models";
 import { SpiritCinematic } from "./spirit";
 import { PurpleCinematic } from "./purple";
+import { TransformationEffects } from "./transformation-effects";
+import { renderAnchor, updateRenderAnchor, type RenderAnchor } from './vfx-anchors';
 import { MAPS, getMap, type MapId } from "./maps";
 import { buildEnvironment, type Environment } from "./environments";
-import { profileFor, VisualClock, reaction, type EnvironmentFrame } from "./worlds/types";
+import { profileFor, VisualClock, reaction, formVisualIntensity, type EnvironmentFrame } from "./worlds/types";
+import { bodySkinAppearance, BOT_OUTLINE_COLOR, createSpiritweavePixels, isPlayerMarkSegment, PLAYER_MARK_INTERVAL, PLAYER_OUTLINE_COLOR, SPIRITWEAVE_SIZE, transformationCoilFinish } from "./coil-skins";
 const bodyGeo = new THREE.SphereGeometry(1, 11, 7),
   dummy = new THREE.Object3D();
+const playerMarkGeo = new THREE.BufferGeometry();
+const markPoints = [[0, .25], [-.055, .065], [-.18, 0], [-.055, -.065],
+  [0, -.25], [.055, -.065], [.18, 0], [.055, .065]];
+const markVertices: number[] = [];
+for (let i = 0; i < markPoints.length; i++) {
+  const point = markPoints[i], next = markPoints[(i + 1) % markPoints.length];
+  markVertices.push(0, 0, 0, point[0], 0, point[1], next[0], 0, next[1]);
+}
+playerMarkGeo.setAttribute('position', new THREE.Float32BufferAttribute(markVertices, 3));
+function createPlayerMarks(capacity: number) {
+  const mesh = new THREE.InstancedMesh(playerMarkGeo, new THREE.MeshBasicMaterial({
+    color: '#fff1d9', side: THREE.DoubleSide, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2,
+  }), capacity);
+  mesh.count = 0;
+  mesh.frustumCulled = false;
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  return mesh;
+}
 interface SnakeVisual {
+  character: CharacterId;
   head: THREE.Group;
   headOutline: THREE.Mesh;
+  formHead?: THREE.Group;
+  formOutline?: THREE.Mesh;
   body: THREE.InstancedMesh;
   aura: THREE.Mesh;
   outline: THREE.InstancedMesh;
   shadow: THREE.InstancedMesh;
+  marks?: THREE.InstancedMesh;
   colorKey: string;
   coloredCount: number;
+  formKind?: 'nine-tail' | 'skybreaker';
 }
 type FrameSample = { ms: number; calls: number; triangles: number; snakes: number };
-type SamplePhase = "normal" | "hollow-purple" | "spirit-bomb";
+type SamplePhase = "normal" | "hollow-purple" | "spirit-bomb" | "nine-tail" | "skybreaker";
 function summarizeSamples(samples: readonly FrameSample[]) {
   const times = samples.map(sample => sample.ms).sort((a, b) => a - b);
   const median = (values: number[]) => values[Math.floor(values.length * .5)] ?? 0;
@@ -50,6 +77,7 @@ export class GameRenderer {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(43, 1, 0.1, 600);
   visuals = new Map<number, SnakeVisual>();
+  private effectAnchors = new Map<number, RenderAnchor>();
   food: THREE.InstancedMesh;
   hero = new THREE.Group();
   heroHead: THREE.Group | null = null;
@@ -59,8 +87,8 @@ export class GameRenderer {
   heroId: CharacterId = "ember";
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
-  handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
-  clearEffects() { this.skillEffects.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); this.transformations.ingest(events,this.visualClock.time); }
+  clearEffects() { this.skillEffects.clear(); this.transformations.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
   readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
   private focusTarget = new THREE.Vector3();
@@ -85,11 +113,28 @@ export class GameRenderer {
     CHARACTERS.map(c => [c.id, [new THREE.Color(c.color), new THREE.Color(c.secondary)]]),
   );
   private frozenColor = new THREE.Color('#bdeeff');
+  private foxFormColors: readonly [THREE.Color, THREE.Color] = [new THREE.Color(transformationCoilFinish('nine-tail').base),new THREE.Color(transformationCoilFinish('nine-tail').accent)];
+  private cloudFormColors: readonly [THREE.Color, THREE.Color] = [new THREE.Color(transformationCoilFinish('skybreaker').base),new THREE.Color(transformationCoilFinish('skybreaker').accent)];
+  private bodySkin: BodySkinId = 'original';
+  private menuSkinPreview: BodySkinId | null = null;
+  private spiritweaveTexture = (() => {
+    const texture = new THREE.DataTexture(
+      createSpiritweavePixels(),
+      SPIRITWEAVE_SIZE,
+      SPIRITWEAVE_SIZE,
+      THREE.RGBAFormat,
+    );
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = true;
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  })();
   private profile = profileFor(innerWidth, matchMedia("(pointer:coarse)").matches);
-  private samples: Record<SamplePhase, FrameSample[]> = { normal: [], "hollow-purple": [], "spirit-bomb": [] };
+  private samples: Record<SamplePhase, FrameSample[]> = { normal: [], "hollow-purple": [], "spirit-bomb": [], "nine-tail": [], skybreaker: [] };
   private frameStamp = 0;
-  private playerPalette?: readonly [THREE.Color, THREE.Color];
-  private paletteKey = "default";
   private environment?: Environment;
   private hemisphere = new THREE.HemisphereLight("#dde7ff", "#394354", 2.5);
   private sunlight = new THREE.DirectionalLight("#fff1d9", 3);
@@ -97,19 +142,45 @@ export class GameRenderer {
   mapId: MapId = "shibuya";
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
-  setCosmetics(palette?: { primary: string; secondary: string }, trail: TrailId = 'original') {
-    this.playerPalette = palette ? [new THREE.Color(palette.primary), new THREE.Color(palette.secondary)] : undefined;
-    this.paletteKey = palette ? `${palette.primary}:${palette.secondary}` : "default";
+  private transformations: TransformationEffects;
+  setCosmetics(skin: BodySkinId = 'original', trail: TrailId = 'original') {
+    this.bodySkin = skin;
     this.skillEffects.setBoostTrail(trail);
     const previewCoil = this.hero.children.find(child => child instanceof THREE.InstancedMesh && child.userData.previewCoil);
     if (previewCoil instanceof THREE.InstancedMesh) {
-      const colors = this.playerColors(this.heroId);
-      for (let i = 0; i < previewCoil.count; i++) previewCoil.setColorAt(i, colors[i % 5 === 0 ? 1 : 0]);
-      if (previewCoil.instanceColor) previewCoil.instanceColor.needsUpdate = true;
+      this.applySkin(previewCoil, previewCoil.userData.previewOutline as THREE.InstancedMesh, this.heroId, this.menuSkinPreview ?? skin);
+    }
+    const playerVisual = this.visuals.get(0);
+    if (playerVisual) {
+      this.applySkin(playerVisual.body, playerVisual.outline, playerVisual.character);
+      if (playerVisual.formKind) this.applyFormFinish(playerVisual,playerVisual.formKind);
+      playerVisual.colorKey = '';
     }
   }
-  private playerColors(id: CharacterId): readonly [THREE.Color, THREE.Color] {
-    return this.playerPalette ?? this.coilColors.get(id)!;
+  setMenuSkinPreview(skin: BodySkinId | null) {
+    this.menuSkinPreview = skin;
+    const coil = this.hero.children.find(child => child instanceof THREE.InstancedMesh && child.userData.previewCoil);
+    if (coil instanceof THREE.InstancedMesh)
+      this.applySkin(coil, coil.userData.previewOutline as THREE.InstancedMesh, this.heroId, skin ?? this.bodySkin);
+  }
+  private applySkin(body: THREE.InstancedMesh, outline: THREE.InstancedMesh, character: CharacterId, skin = this.bodySkin) {
+    const characterColor = CHARACTERS.find(item => item.id === character)!.color;
+    const appearance = bodySkinAppearance(skin, characterColor);
+    const material = body.material as THREE.MeshToonMaterial;
+    material.map = appearance.texture === 'spiritweave' ? this.spiritweaveTexture : null;
+    material.emissive.set(appearance.emissiveColor);
+    material.emissiveIntensity = appearance.emissiveIntensity;
+    material.needsUpdate = true;
+    (outline.material as THREE.MeshBasicMaterial).color.set(appearance.outlineColor);
+  }
+  private applyFormFinish(v: SnakeVisual, kind: 'nine-tail' | 'skybreaker') {
+    const finish=transformationCoilFinish(kind);
+    const material = v.body.material as THREE.MeshToonMaterial;
+    material.map = null;
+    material.emissive.set(finish.emissive);
+    material.emissiveIntensity = finish.emissiveIntensity;
+    material.needsUpdate = true;
+    (v.outline.material as THREE.MeshBasicMaterial).color.set(finish.outline);
   }
   constructor(public canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({
@@ -160,8 +231,10 @@ export class GameRenderer {
     this.food.frustumCulled = false;
     this.scene.add(this.food);
     this.scene.add(this.hero);
-    this.purple = new PurpleCinematic(this.scene);
-    this.spirit = new SpiritCinematic(this.scene);
+    this.purple = new PurpleCinematic(this.scene, this.profile);
+    this.spirit = new SpiritCinematic(this.scene, this.profile);
+    this.transformations = new TransformationEffects(this.profile);
+    this.scene.add(this.transformations.group);
     this.setHero("ember");
     this.setMap("shibuya");
     this.resize();
@@ -251,11 +324,13 @@ export class GameRenderer {
         normal,
         hollowPurple: summarizeSamples(this.samples["hollow-purple"]),
         spiritBomb: summarizeSamples(this.samples["spirit-bomb"]),
+        nineTail: summarizeSamples(this.samples["nine-tail"]),
+        skybreaker: summarizeSamples(this.samples.skybreaker),
       },
       memory: { ...info.memory, programs: info.programs?.length ?? 0 }, snakes: this.visuals.size,
     };
   }
-  resetMeasurements(){this.samples = { normal: [], "hollow-purple": [], "spirit-bomb": [] }; this.frameStamp = 0;}
+  resetMeasurements(){this.samples = { normal: [], "hollow-purple": [], "spirit-bomb": [], "nine-tail": [], skybreaker: [] }; this.frameStamp = 0;}
   setHero(id: CharacterId) {
     this.previewMotion.reset();
     this.previewEyes.length = 0;
@@ -280,9 +355,13 @@ export class GameRenderer {
     body.userData.previewCoil = true;
     const bodyOutline = new THREE.InstancedMesh(
       bodyGeo,
-      new THREE.MeshBasicMaterial({ color: "#25232c", side: THREE.BackSide }),
+      new THREE.MeshBasicMaterial({ color: PLAYER_OUTLINE_COLOR, side: THREE.BackSide }),
       70,
     );
+    const marks = createPlayerMarks(Math.ceil(70 / PLAYER_MARK_INTERVAL));
+    body.userData.previewOutline = bodyOutline;
+    this.applySkin(body, bodyOutline, id, this.menuSkinPreview ?? this.bodySkin);
+    let markCount = 0;
     for (let i = 0; i < 70; i++) {
       const t = i / 69;
       const a = t * Math.PI * 2.05;
@@ -298,9 +377,17 @@ export class GameRenderer {
       dummy.scale.multiplyScalar(1.06);
       dummy.updateMatrix();
       bodyOutline.setMatrixAt(i, dummy.matrix);
-      body.setColorAt(i, this.playerColors(id)[i % 5 === 0 ? 1 : 0]);
+      if (isPlayerMarkSegment(i + 1)) {
+        dummy.position.y += s * .8 * .97;
+        dummy.scale.setScalar(s);
+        dummy.updateMatrix();
+        marks.setMatrixAt(markCount++, dummy.matrix);
+      }
+      const colors = this.coilColors.get(id)!;
+      body.setColorAt(i, colors[i % 5 === 0 ? 1 : 0]);
     }
-    this.hero.add(bodyOutline, body);
+    marks.count = markCount;
+    this.hero.add(bodyOutline, body, marks);
     this.heroHead = createHead(id);
     this.heroHead.traverse(node => { if (node.userData.previewEye) this.previewEyes.push(node); });
     this.heroHead.position.set(3, 1.0, 6.6);
@@ -328,7 +415,7 @@ export class GameRenderer {
     const w = innerWidth,
       h = innerHeight;
     const profile = profileFor(w, matchMedia("(pointer:coarse)").matches);
-    if (this.profile !== profile) { this.profile = profile; this.setMap(this.mapId); }
+    if (this.profile !== profile) { this.profile = profile; this.spirit.setProfile(profile); this.purple.setProfile(profile); this.transformations.setProfile(profile); this.setMap(this.mapId); }
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.75));
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
@@ -351,6 +438,9 @@ export class GameRenderer {
     this.skillEffects.seed(arena);
     for (const v of this.visuals.values()) {
       this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
+      if(v.formHead)this.scene.remove(v.formHead);
+      if(v.formOutline)this.scene.remove(v.formOutline);
+      if (v.marks) { this.scene.remove(v.marks); v.marks.dispose(); (v.marks.material as THREE.Material).dispose(); }
       v.outline.dispose(); (v.outline.material as THREE.Material).dispose();
       v.shadow.dispose(); v.shadow.geometry.dispose(); (v.shadow.material as THREE.Material).dispose();
       v.body.dispose();
@@ -368,8 +458,7 @@ export class GameRenderer {
     time = this.visualClock.advance(dt, paused, document.hidden);
     this.visualFrame.time = time; this.visualFrame.dt = paused ? 0 : Math.min(dt, .1);
     this.visualFrame.paused = paused; this.visualFrame.reducedMotion = reducedMotion;
-    this.boostMotion.update(!menu && arena ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic) : 'none', this.visualFrame.dt);
-    this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId);
+    this.boostMotion.update(!menu && arena ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic, arena.transformation?.kind === 'nine-tail') : 'none', this.visualFrame.dt);
     const stamp = performance.now();
     const frameInterval = this.frameStamp ? stamp - this.frameStamp : 0;
     this.frameStamp=stamp;
@@ -385,9 +474,12 @@ export class GameRenderer {
     if (menu) {
       for (const v of this.visuals.values()) {
         v.head.visible = false;
+        if(v.formHead)v.formHead.visible=false;
+        if(v.formOutline)v.formOutline.visible=false;
         v.body.visible = false;
         v.aura.visible = false;
         v.outline.visible = v.headOutline.visible = v.shadow.visible = false;
+        if (v.marks) v.marks.visible = false;
       }
       const narrow = innerWidth < 760;
       this.hero.scale.setScalar(narrow ? 0.8 : 1.23);
@@ -434,6 +526,9 @@ export class GameRenderer {
       for (const [id, v] of this.visuals)
         if (!ids.has(id)) {
           this.scene.remove(v.head, v.headOutline, v.body, v.aura, v.outline, v.shadow);
+          if (v.formHead) this.scene.remove(v.formHead);
+          if (v.formOutline) this.scene.remove(v.formOutline);
+          if (v.marks) { this.scene.remove(v.marks); v.marks.dispose(); (v.marks.material as THREE.Material).dispose(); }
       v.outline.dispose(); (v.outline.material as THREE.Material).dispose();
       v.shadow.dispose(); v.shadow.geometry.dispose(); (v.shadow.material as THREE.Material).dispose();
           v.body.dispose();
@@ -441,6 +536,7 @@ export class GameRenderer {
           v.aura.geometry.dispose();
           (v.aura.material as THREE.Material).dispose();
           this.visuals.delete(id);
+          this.effectAnchors.delete(id);
         }
       for (const s of arena.snakes) {
         if (!s.alive) continue;
@@ -467,18 +563,44 @@ export class GameRenderer {
             }),
           );
           aura.rotation.x = -Math.PI / 2;
-          const outline = new THREE.InstancedMesh(bodyGeo, new THREE.MeshBasicMaterial({color:"#25232c", side:THREE.BackSide}), 360);
+          const outline = new THREE.InstancedMesh(
+            bodyGeo,
+            new THREE.MeshBasicMaterial({
+              color: s.id === 0 ? PLAYER_OUTLINE_COLOR : BOT_OUTLINE_COLOR,
+              side: THREE.BackSide,
+            }),
+            360,
+          );
           const shadow = new THREE.InstancedMesh(new THREE.CircleGeometry(1,16),new THREE.MeshBasicMaterial({color:"#635c67",transparent:true,opacity:.14,depthWrite:false}),360);
+          const marks = s.id === 0 ? createPlayerMarks(Math.ceil(360 / PLAYER_MARK_INTERVAL)) : undefined;
           outline.frustumCulled = shadow.frustumCulled = false;
-          v = { head, headOutline, body, aura, outline, shadow, colorKey: "", coloredCount: 0 };
+          v = { character: s.character, head, headOutline, body, aura, outline, shadow, marks, colorKey: "", coloredCount: 0 };
+          if (s.id === 0 && (s.character === 'ember' || s.character === 'cloud')) {
+            v.formHead = createTransformedHead(s.character);
+            v.formOutline = createTransformedHeadOutline(s.character);
+            v.formHead.visible = v.formOutline.visible = false;
+            this.scene.add(v.formOutline, v.formHead);
+          }
+          if (s.id === 0) this.applySkin(body, outline, s.character);
           this.visuals.set(s.id, v);
           this.scene.add(outline, headOutline, head, body, aura, shadow);
+          if (marks) this.scene.add(marks);
         }
-        v.head.visible = true;
+        const formKind = s.id === 0 && arena.transformation && ((arena.transformation.kind === 'nine-tail' && s.character === 'ember') || (arena.transformation.kind === 'skybreaker' && s.character === 'cloud')) ? arena.transformation.kind : undefined;
+        if (v.formKind !== formKind) {
+          if (formKind) this.applyFormFinish(v, formKind);
+          else if (s.id === 0) this.applySkin(v.body,v.outline,s.character);
+          v.formKind = formKind;
+          v.colorKey = '';
+        }
+        v.head.visible = !formKind;
+        if (v.formHead) v.formHead.visible = !!formKind;
         v.body.visible = true;
         v.outline.visible = true;
-        v.headOutline.visible = true;
+        v.headOutline.visible = !formKind;
+        if (v.formOutline) v.formOutline.visible = !!formKind;
         v.shadow.visible = true;
+        if (v.marks) v.marks.visible = true;
         v.aura.visible = s.id === 0 || s.active > 0 || s.frozen || s.slowed;
         (v.aura.material as THREE.MeshBasicMaterial).color.set(
           s.frozen ? "#547a8e" : s.slowed ? "#ad8bcf" : c.color,
@@ -501,6 +623,12 @@ export class GameRenderer {
         v.headOutline.scale.copy(v.head.scale).multiplyScalar(1.006);
         v.headOutline.position.copy(v.head.position);
         v.headOutline.rotation.copy(v.head.rotation);
+        if (v.formHead && v.formOutline) {
+          v.formHead.position.copy(v.head.position); v.formHead.rotation.copy(v.head.rotation); v.formHead.scale.copy(v.head.scale);
+          v.formOutline.position.copy(v.headOutline.position); v.formOutline.rotation.copy(v.headOutline.rotation); v.formOutline.scale.copy(v.headOutline.scale);
+        }
+        const cachedAnchor=this.effectAnchors.get(s.id);
+        this.effectAnchors.set(s.id,cachedAnchor?updateRenderAnchor(cachedAnchor,s.character,v.head.position.x,v.head.position.y,v.head.position.z,s.angle,size):renderAnchor(s.character,v.head.position.x,v.head.position.y,v.head.position.z,s.angle,size));
         v.aura.position.set(hx, -0.35, hz);
         v.aura.rotation.z = s.frozen || reducedMotion ? 0 : time * 0.8;
         const a =
@@ -515,28 +643,40 @@ export class GameRenderer {
         v.body.count = s.body.length - 1;
         v.outline.count = v.body.count;
         v.shadow.count = s.body.length;
-        const colorKey = s.frozen ? "frozen" : s.id === 0 ? `${s.character}:${this.paletteKey}` : s.character;
+        const colorKey = s.frozen ? "frozen" : s.id === 0 ? `${s.character}:${formKind ?? this.bodySkin}` : s.character;
         const repaint = v.colorKey !== colorKey;
         const firstUncolored = repaint ? 0 : v.coloredCount;
-        const colors = s.id === 0 ? this.playerColors(s.character) : this.coilColors.get(s.character)!;
+        const colors = formKind === 'nine-tail' ? this.foxFormColors : formKind === 'skybreaker' ? this.cloudFormColors : this.coilColors.get(s.character)!;
         dummy.position.set(hx, -.37, hz); dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(size*1.25,size*1.05,1); dummy.updateMatrix(); v.shadow.setMatrixAt(0,dummy.matrix);
+        let markCount = 0;
         for (let i = 1; i < s.body.length; i++) {
           const b = s.body[i];
           const scale = bodyRadiusAt(i, s.body.length, s.mass);
+          const segmentY = (0.5 + breathing(time - i * .15, s.id, s.boosting, still)) * size;
+          const segmentHeight = scale * .85 * compression * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1);
           dummy.position.set(
             b.x,
-            (0.5 + breathing(time - i * .15, s.id, s.boosting, still)) * size,
+            segmentY,
             b.z,
           );
-          dummy.scale.set(scale, scale * .85 * compression * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1), scale);
+          dummy.scale.set(scale, segmentHeight, scale);
           dummy.rotation.set(0, 0, 0);
           dummy.updateMatrix();
           v.body.setMatrixAt(i - 1, dummy.matrix);
           dummy.scale.multiplyScalar(s.frozen ? 1.08 : 1.06); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
           dummy.position.y = -.37; dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(scale*1.25,scale*1.25,1); dummy.updateMatrix(); v.shadow.setMatrixAt(i,dummy.matrix);
-          if (i - 1 >= firstUncolored)
+          if (v.marks && isPlayerMarkSegment(i)) {
+            dummy.position.set(b.x, segmentY + segmentHeight * .97, b.z);
+            dummy.rotation.set(0, 0, 0);
+            dummy.scale.setScalar(scale);
+            dummy.updateMatrix();
+            v.marks.setMatrixAt(markCount++, dummy.matrix);
+          }
+          if (i - 1 >= firstUncolored) {
             v.body.setColorAt(i - 1, s.frozen ? this.frozenColor : colors[i % 5 === 0 ? 1 : 0]);
+          }
         }
+        if (v.marks) { v.marks.count = markCount; v.marks.instanceMatrix.needsUpdate = true; }
         v.colorKey = colorKey;
         v.coloredCount = repaint ? v.body.count : Math.max(v.coloredCount, v.body.count);
         v.body.instanceMatrix.needsUpdate = true;
@@ -556,11 +696,15 @@ export class GameRenderer {
       this.food.instanceMatrix.needsUpdate = true;
       if (this.food.instanceColor) this.food.instanceColor.needsUpdate = true;
     }
+    this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId, this.effectAnchors);
+    this.transformations.update(menu ? undefined : arena, time, reducedMotion, this.effectAnchors,this.mapId);
     this.purple.update(arena, this.camera, menu, reducedMotion);
     this.spirit.update(arena, this.camera, menu, reducedMotion);
     const shot = menu ? undefined : arena?.cinematic;
+    const form = menu ? undefined : arena?.transformation;
     const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,
-      ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
+      ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined,
+      transformation:form&&arena?{kind:form.kind,elapsed:form.elapsed,origin:{x:arena.player.x,z:arena.player.z},intensity:formVisualIntensity(form.elapsed)}:undefined};
     this.environment?.update(frame);
     const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
     this.hemisphere.intensity=base.intensity*response.light;
@@ -569,7 +713,7 @@ export class GameRenderer {
     this.rimLight.intensity=base.rimIntensity+response.tint;
     this.renderer.render(this.scene, this.camera);
     if (!paused && !menu && arena && frameInterval > 0 && frameInterval < 200) {
-      const phase: SamplePhase = arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal";
+      const phase: SamplePhase = arena.transformation?.kind ?? (arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal");
       const samples = this.samples[phase];
       samples.push({ ms: frameInterval, calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles,
         snakes: arena.snakes.filter(s => s.alive).length });

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CHALLENGES, PALETTES, PROGRESSION_KEY, Progression, TRAILS,
+  BODY_SKINS, CHALLENGES, PROGRESSION_KEY, Progression, TRAILS,
   type ProgressionStorage,
 } from '../src/progression.ts';
 import { MAPS } from '../src/maps.ts';
@@ -22,9 +22,9 @@ function memoryStorage() {
 test('four fixed challenges have unique rewards and original cosmetics stay available', () => {
   assert.deepEqual(CHALLENGES.map((c) => c.target), [100, 600, 10, 4]);
   assert.equal(new Set(CHALLENGES.map((c) => c.id)).size, 4);
-  assert.equal(PALETTES.length, 3);
+  assert.deepEqual(BODY_SKINS.map((skin) => skin.id), ['original', 'neon', 'spiritweave']);
   assert.equal(TRAILS.length, 3);
-  assert.deepEqual(new Progression().state.unlocked, { palettes: ['original'], trails: ['original'] });
+  assert.deepEqual(new Progression().state.unlocked, { skins: ['original'], trails: ['original'] });
 });
 
 test('only player pickups and unique credited eliminations advance eligible matches', () => {
@@ -36,8 +36,8 @@ test('only player pickups and unique credited eliminations advance eligible matc
   assert.equal(progression.state.progress.survivedSeconds, 2);
   progression.recordStep(Array.from({ length: 100 }, () => collect()), 0, true);
   assert.equal(progression.state.progress.collectedOrbs, 100);
-  assert.equal(progression.isUnlocked('palette', 'sunset'), true);
-  assert.equal(progression.equipPalette('sunset'), true);
+  assert.equal(progression.isUnlocked('skin', 'neon'), true);
+  assert.equal(progression.equipSkin('neon'), true);
   assert.equal(progression.equipTrail('petals'), false);
   progression.finishMatch('leaf', false);
   progression.recordStep([collect(), kill(4, 3)], 10, true);
@@ -49,11 +49,11 @@ test('survival time, kill reward, and completed sprints unlock each reward once'
   progression.beginMatch('sprint');
   progression.recordStep(Array.from({ length: 10 }, (_, index) => kill(index + 1, index + 1)), 599, true);
   assert.equal(progression.isUnlocked('trail', 'petals'), true);
-  assert.equal(progression.isUnlocked('palette', 'moonlit'), false);
+  assert.equal(progression.isUnlocked('skin', 'spiritweave'), false);
   progression.recordStep([], 1, true);
   progression.recordStep([], 500, true);
   assert.equal(progression.state.progress.survivedSeconds, 600);
-  assert.equal(progression.isUnlocked('palette', 'moonlit'), true);
+  assert.equal(progression.isUnlocked('skin', 'spiritweave'), true);
   progression.finishMatch('shibuya', false);
   assert.deepEqual(progression.state.progress.completedSprintMaps, []);
   for (const map of MAPS) {
@@ -88,11 +88,11 @@ test('saved data roundtrips, validates corruption, and keeps unlocked choices', 
   progression.beginMatch('endless');
   progression.recordStep(Array.from({ length: 100 }, () => collect()), 600, true);
   progression.finishMatch('leaf', false);
-  assert.equal(progression.equipPalette('moonlit'), true);
+  assert.equal(progression.equipSkin('spiritweave'), true);
   assert.equal(progression.equipTrail('petals'), false);
   assert.equal(values.has(PROGRESSION_KEY), true);
   const restored = new Progression(storage);
-  assert.equal(restored.state.cosmetics.palette, 'moonlit');
+  assert.equal(restored.state.cosmetics.skin, 'spiritweave');
   assert.equal(restored.state.progress.collectedOrbs, 100);
   values.set(PROGRESSION_KEY, JSON.stringify({ version: 1, progress: {
     collectedOrbs: -5, survivedSeconds: Infinity, creditedEliminations: 3,
@@ -102,7 +102,7 @@ test('saved data roundtrips, validates corruption, and keeps unlocked choices', 
   assert.deepEqual(validated.state.progress.completedSprintMaps, ['shibuya', 'harbor']);
   assert.equal(validated.state.progress.collectedOrbs, 0);
   assert.equal(validated.state.progress.survivedSeconds, 0);
-  assert.equal(validated.state.cosmetics.palette, 'original');
+  assert.equal(validated.state.cosmetics.skin, 'original');
   assert.equal(validated.state.cosmetics.trail, 'original');
   values.set(PROGRESSION_KEY, '{bad-json');
   assert.equal(new Progression(storage).state.progress.collectedOrbs, 0);
@@ -116,11 +116,28 @@ test('unavailable storage never blocks earning or equipping cosmetics', () => {
   const progression = new Progression(denied);
   progression.beginMatch('endless');
   assert.doesNotThrow(() => progression.recordStep(Array.from({ length: 100 }, () => collect()), 1, true));
-  assert.equal(progression.equipPalette('sunset'), true);
-  assert.equal(progression.state.cosmetics.palette, 'sunset');
+  assert.equal(progression.equipSkin('neon'), true);
+  assert.equal(progression.state.cosmetics.skin, 'neon');
   const leaked = progression.state;
   leaked.progress.completedSprintMaps.push('harbor');
-  leaked.cosmetics.palette = 'original';
-  assert.equal(progression.state.cosmetics.palette, 'sunset');
+  leaked.cosmetics.skin = 'original';
+  assert.equal(progression.state.cosmetics.skin, 'neon');
   assert.deepEqual(progression.state.progress.completedSprintMaps, []);
+});
+
+test('version-one color cosmetics migrate to their matching skins without losing challenge progress', () => {
+  const { storage, values } = memoryStorage();
+  values.set(PROGRESSION_KEY, JSON.stringify({
+    version: 1,
+    progress: { collectedOrbs: 100, survivedSeconds: 600, creditedEliminations: 10, completedSprintMaps: ['leaf'] },
+    cosmetics: { palette: 'moonlit', trail: 'petals' },
+  }));
+  const progression = new Progression(storage);
+  assert.equal(progression.state.cosmetics.skin, 'spiritweave');
+  assert.equal(progression.state.cosmetics.trail, 'petals');
+  assert.equal(progression.state.progress.collectedOrbs, 100);
+  assert.equal(progression.state.progress.survivedSeconds, 600);
+  assert.equal(progression.state.progress.creditedEliminations, 10);
+  assert.equal(progression.equipSkin('neon'), true);
+  assert.equal(JSON.parse(values.get(PROGRESSION_KEY)!).version, 2);
 });

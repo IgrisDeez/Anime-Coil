@@ -42,12 +42,14 @@ export function createSurfaceTexture(kind: SurfaceKind, profile: DetailProfile, 
   } catch { return undefined; }
 }
 /** Object-space metre mapping survives batching, scaled props and ship animation. */
-export function finishSurface(material: THREE.MeshToonMaterial | THREE.MeshBasicMaterial, kind: SurfaceKind, wind?: {value:number}, strength?: {value:number}) {
+export function finishSurface(material: THREE.MeshToonMaterial | THREE.MeshBasicMaterial, kind: SurfaceKind, wind?: {value:number}, strength?: {value:number}, cartoon?: {center: THREE.Vector2; time:{value:number}; intensity:{value:number}}) {
+  const ground = ['asphalt','grass','stone','sand'].includes(kind);
   material.name = `surface-${kind}`;
   material.customProgramCacheKey = () => `world-surface-${kind}`;
   material.onBeforeCompile = shader => {
     if (kind === 'fabric' && wind && strength) { shader.uniforms.surfaceWind=wind;shader.uniforms.surfaceWindStrength=strength; }
-    shader.vertexShader = 'uniform float surfaceWind; uniform float surfaceWindStrength; varying vec3 surfacePosition; varying vec3 surfaceNormal;\n' + shader.vertexShader;
+    if (ground && cartoon) { shader.uniforms.cartoonCenter={value:cartoon.center};shader.uniforms.cartoonTime=cartoon.time;shader.uniforms.cartoonIntensity=cartoon.intensity; }
+    shader.vertexShader = 'uniform float surfaceWind; uniform float surfaceWindStrength; varying vec3 surfacePosition; varying vec3 surfaceNormal; varying vec3 surfaceWorldPos;\n' + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
       vec4 surfacePoint = vec4(position, 1.0);
       surfaceNormal = normal;
@@ -59,13 +61,19 @@ export function finishSurface(material: THREE.MeshToonMaterial | THREE.MeshBasic
         surfaceNormal = surfaceMatrix * (normal / max(lengths, vec3(.000001)));
       #endif
       surfacePosition = surfacePoint.xyz;
+      surfaceWorldPos = (modelMatrix * surfacePoint).xyz;
       ${kind === 'fabric' && wind && strength ? 'transformed.z += sin(surfaceWind * .7 + position.y * .3) * surfaceWindStrength * .08;' : ''}`);
-    shader.fragmentShader = 'varying vec3 surfacePosition; varying vec3 surfaceNormal;\n' + shader.fragmentShader;
+    shader.fragmentShader = `${ground && cartoon ? 'uniform vec2 cartoonCenter; uniform float cartoonTime; uniform float cartoonIntensity;' : ''} varying vec3 surfacePosition; varying vec3 surfaceNormal; varying vec3 surfaceWorldPos;\n` + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `
       #ifdef USE_MAP
         vec3 face = abs(normalize(surfaceNormal));
         vec2 surfaceUV = face.y >= face.x && face.y >= face.z ? surfacePosition.xz : (face.x > face.z ? surfacePosition.zy : surfacePosition.xy);
+        ${ground && cartoon ? `float cartoonDistance = length(surfaceWorldPos.xz-cartoonCenter);
+        float cartoonFalloff = 1.0-smoothstep(20.0,24.0,cartoonDistance);
+        float cartoonRipple = cartoonIntensity*cartoonFalloff;
+        surfaceUV += cartoonRipple * vec2(sin(cartoonDistance*.65-cartoonTime*2.0+surfaceWorldPos.z*.17),cos(cartoonDistance*.6-cartoonTime*1.7+surfaceWorldPos.x*.13))*.23;` : ''}
         diffuseColor *= texture2D(map, surfaceUV / ${SURFACE_SCALE[kind].toFixed(1)});
+        ${ground && cartoon ? 'diffuseColor.rgb *= 1.0 + cartoonRipple*.06;' : ''}
       #endif`);
   };
 }

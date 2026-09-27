@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { WorldBuilder } from "./builder";
 import { shop, cable, flag } from "./architecture";
+import { addWorldLife } from "./life";
 export function harbor(b:WorldBuilder) {
   b.ground("#cbbb98","#538e99","sand");
   // A continuous crescent quay anchors the waterfront facades to land.
@@ -57,4 +58,5 @@ export function harbor(b:WorldBuilder) {
     b.part(g,"pebble","#719b92",0,2,0,s,8,s*.48);b.part(g,"pebble","#6f9087",0,11,-4,s*.45,21,s*.25);
     b.tree(g,-s*.36,s*.29,1,true);if(b.detail.secondary)b.tree(g,s*.3,s*.25,.85,true);
   }
+  addWorldLife(b,"harbor");
 }

@@ -21,11 +21,13 @@ export class WorldBuilder {
   readonly materials = new Set<THREE.Material>();
   readonly textures = new Set<THREE.Texture>();
   readonly motions: ((f: EnvironmentFrame) => void)[] = [];
+  backgroundActors = 0;
   readonly detail;
   private purpleTint = new THREE.Color("#aa65ff");
   private lampBreath = {value:1};
   private wind = {value:0};
   private windStrength = {value:1};
+  private cartoon = {center:new THREE.Vector2(10000,10000),time:{value:0},intensity:{value:0}};
   private shapes: Record<Shape, THREE.BufferGeometry>;
   private surface: Record<string, THREE.Material>;
   private atlas: THREE.Texture;
@@ -48,13 +50,20 @@ export class WorldBuilder {
     const glow = this.surface.glow as THREE.MeshBasicMaterial;
     glow.onBeforeCompile = shader => {
       shader.uniforms.lampBreath = this.lampBreath;
-      shader.vertexShader = 'varying float lampHeight;\n' + shader.vertexShader;
+      shader.uniforms.cartoonCenter={value:this.cartoon.center};
+      shader.uniforms.cartoonTime=this.cartoon.time;
+      shader.uniforms.cartoonIntensity=this.cartoon.intensity;
+      shader.vertexShader = 'uniform vec2 cartoonCenter; uniform float cartoonTime; uniform float cartoonIntensity; varying float lampHeight;\n' + shader.vertexShader;
       shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
         vec4 lampPosition = vec4(position,1.0);
         #ifdef USE_INSTANCING
         lampPosition = instanceMatrix * lampPosition;
         #endif
-        lampHeight = lampPosition.y;`);
+        lampHeight = lampPosition.y;
+        vec3 cartoonWorld = (modelMatrix * lampPosition).xyz;
+        float cartoonNear = (1.0-smoothstep(20.0,24.0,length(cartoonWorld.xz-cartoonCenter)))*cartoonIntensity*step(cartoonWorld.y,-.30);
+        transformed.x += cartoonNear*sin(cartoonTime*2.0+cartoonWorld.z*.35)*.12;
+        transformed.z += cartoonNear*cos(cartoonTime*1.7+cartoonWorld.x*.35)*.12;`);
       shader.fragmentShader = 'uniform float lampBreath; varying float lampHeight;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `outgoingLight *= mix(1.0, lampBreath, step(1.0, lampHeight));
         #include <opaque_fragment>`);
@@ -79,7 +88,7 @@ export class WorldBuilder {
       shader.uniforms.worldWind=this.wind;shader.uniforms.windStrength=this.windStrength;
       shader.vertexShader="uniform float worldWind; uniform float windStrength;\n"+shader.vertexShader;
       shader.vertexShader=shader.vertexShader.replace("#include <begin_vertex>",`#include <begin_vertex>
-        transformed.${crowd?"y":"x"} += sin(worldWind * ${crowd?"1.15":".7"} + position.y * 1.6 + instanceMatrix[3].x) * windStrength * ${crowd?".07":".035"} * max(0.0,position.y);`);
+        transformed.${crowd?"y":"x"} += sin(worldWind * ${crowd?"1.15":".7"} + position.y * 1.6 + instanceMatrix[3].x) * windStrength * ${crowd?".13":".035"} * max(0.0,position.y);`);
     };
     material.customProgramCacheKey=()=>crowd?"world-crowd":"world-wind";
     return material;
@@ -87,6 +96,10 @@ export class WorldBuilder {
   update(frame:EnvironmentFrame){
     this.lampBreath.value = frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .7) * .02;
     this.wind.value=frame.time;this.windStrength.value=frame.reducedMotion?0:1;
+    const form=frame.transformation;
+    this.cartoon.center.set(form?.kind==='skybreaker'?form.origin.x:10000,form?.kind==='skybreaker'?form.origin.z:10000);
+    this.cartoon.time.value=frame.reducedMotion?0:frame.time;
+    this.cartoon.intensity.value=form?.kind==='skybreaker'&&!frame.reducedMotion?form.intensity:0;
     const response=reaction(frame.ultimate,frame.reducedMotion);
     (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(this.purpleTint,response.tint).multiplyScalar(response.light);
     this.signMaterial.color.copy((this.surface.glow as THREE.MeshBasicMaterial).color).multiplyScalar(frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .45) * .02);
@@ -104,7 +117,7 @@ export class WorldBuilder {
     const material=['asphalt','sand','grass','stone'].includes(kind)
       ? new THREE.MeshBasicMaterial({color:'white',map:texture??null})
       : new THREE.MeshToonMaterial({color:'white',map:texture??null});
-    finishSurface(material,kind,this.wind,this.windStrength);
+    finishSurface(material,kind,this.wind,this.windStrength,this.cartoon);
     return this.surface[kind]=this.material(material);
   }
   box(p:THREE.Group,c:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {return this.part(p,"box",c,x,y,z,w,h,d,style);}
@@ -178,9 +191,17 @@ export class WorldBuilder {
   }
   private batch(root:THREE.Group,global:boolean) {
     root.updateMatrixWorld(true);
-    const inverse=root.matrixWorld.clone().invert(),batches=new Map<string,{geo:THREE.BufferGeometry;mat:THREE.Material;items:THREE.Mesh[]}>(),keep:THREE.Group[]=[];
-    const visit=(o:THREE.Object3D)=>{if(o!==root&&this.dynamic.has(o)){this.batch(o as THREE.Group,false);keep.push(o as THREE.Group);return;}if(o instanceof THREE.Mesh){const key=o.geometry.uuid+o.material.uuid;let bucket=batches.get(key);if(!bucket){bucket={geo:o.geometry,mat:o.material,items:[]};batches.set(key,bucket);}bucket.items.push(o);}else for(const child of o.children)visit(child);};visit(root);
-    const result:THREE.Object3D[]=[];
+    const inverse=root.matrixWorld.clone().invert(),batches=new Map<string,{geo:THREE.BufferGeometry;mat:THREE.Material;items:THREE.Mesh[]}>(),keep:THREE.Group[]=[],result:THREE.Object3D[]=[];
+    const visit=(o:THREE.Object3D)=>{
+      if(o!==root&&this.dynamic.has(o)){this.batch(o as THREE.Group,false);keep.push(o as THREE.Group);return;}
+      if(o instanceof THREE.InstancedMesh){
+        // Preserve authored instance transforms instead of collapsing an instanced pool to one object.
+        const base=inverse.clone().multiply(o.matrixWorld),matrix=new THREE.Matrix4();
+        for(let i=0;i<o.count;i++){matrix.fromArray(o.instanceMatrix.array,i*16).premultiply(base).toArray(o.instanceMatrix.array,i*16);}
+        o.instanceMatrix.needsUpdate=true;result.push(o);return;
+      }
+      if(o instanceof THREE.Mesh){const key=o.geometry.uuid+o.material.uuid;let bucket=batches.get(key);if(!bucket){bucket={geo:o.geometry,mat:o.material,items:[]};batches.set(key,bucket);}bucket.items.push(o);}else for(const child of o.children)visit(child);
+    };visit(root);
     // Sign panels use one merged geometry/atlas despite distinct UV rectangles.
     const signVertices:number[]=[],signUV:number[]=[];
     for(const bucket of batches.values()){
@@ -195,7 +216,7 @@ export class WorldBuilder {
   }
   stats(particles=0):WorldStats {
     let drawCalls=0,triangles=0;this.group.traverse(o=>{if(o instanceof THREE.Mesh&&o.visible){drawCalls++;triangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3*(o instanceof THREE.InstancedMesh?o.count:1);}else if(o instanceof THREE.Points||o instanceof THREE.LineSegments)drawCalls++;});
-    return {drawCalls,triangles:Math.ceil(triangles),materials:this.materials.size,textures:this.textures.size,particles};
+    return {drawCalls,triangles:Math.ceil(triangles),materials:this.materials.size,textures:this.textures.size,particles,actors:this.backgroundActors};
   }
   dispose(){this.group.traverse(o=>{if(o instanceof THREE.InstancedMesh)o.dispose();});this.textures.forEach(t=>t.dispose());this.geometries.forEach(g=>g.dispose());this.materials.forEach(m=>m.dispose());this.motions.length=0;this.group.clear();}
 }

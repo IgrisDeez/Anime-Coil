@@ -2,12 +2,12 @@ import { MAPS, type MapId } from './maps';
 import type { GameEvent } from './simulation';
 
 export type ProgressMode = 'endless' | 'sprint' | 'practice';
-export type PaletteId = 'original' | 'sunset' | 'moonlit';
+export type BodySkinId = 'original' | 'neon' | 'spiritweave';
 export type TrailId = 'original' | 'petals' | 'starlight';
 export type ChallengeId = 'orbs' | 'survival' | 'eliminations' | 'sprint-maps';
 
 export interface CosmeticSelection {
-  palette: PaletteId;
+  skin: BodySkinId;
   trail: TrailId;
 }
 export interface ChallengeProgress {
@@ -19,7 +19,7 @@ export interface ChallengeProgress {
 export interface ProgressionState {
   progress: ChallengeProgress;
   cosmetics: CosmeticSelection;
-  unlocked: { palettes: PaletteId[]; trails: TrailId[] };
+  unlocked: { skins: BodySkinId[]; trails: TrailId[] };
 }
 export interface ProgressionStorage {
   getItem(key: string): string | null;
@@ -27,10 +27,10 @@ export interface ProgressionStorage {
 }
 
 export const PROGRESSION_KEY = 'anime-coil-progression-v1';
-export const PALETTES = [
-  { id: 'original', name: 'Original', primary: null, secondary: null, challenge: null },
-  { id: 'sunset', name: 'Sunset', primary: '#ed8d79', secondary: '#ffcb91', challenge: 'orbs' },
-  { id: 'moonlit', name: 'Moonlit', primary: '#7e98d7', secondary: '#b8dce8', challenge: 'survival' },
+export const BODY_SKINS = [
+  { id: 'original', name: 'Original', description: 'Classic matte finish', style: 'original', challenge: null },
+  { id: 'neon', name: 'Neon Spirit', description: 'Soft character-colored radiance', style: 'neon', challenge: 'orbs' },
+  { id: 'spiritweave', name: 'Spiritweave', description: 'Fine repeating scale texture', style: 'texture', challenge: 'survival' },
 ] as const;
 export const TRAILS = [
   { id: 'original', name: 'Original', color: null, secondary: null, challenge: null },
@@ -38,8 +38,8 @@ export const TRAILS = [
   { id: 'starlight', name: 'Starlight', color: '#9bd8ef', secondary: '#e6f9ff', challenge: 'sprint-maps' },
 ] as const;
 export const CHALLENGES = [
-  { id: 'orbs', name: 'Spirit Gatherer', description: 'Collect 100 energy orbs', target: 100, reward: 'Sunset coil palette' },
-  { id: 'survival', name: 'Steady Spirit', description: 'Survive 10 total minutes', target: 600, reward: 'Moonlit coil palette' },
+  { id: 'orbs', name: 'Spirit Gatherer', description: 'Collect 100 energy orbs', target: 100, reward: 'Neon Spirit body skin' },
+  { id: 'survival', name: 'Steady Spirit', description: 'Survive 10 total minutes', target: 600, reward: 'Spiritweave body skin' },
   { id: 'eliminations', name: 'Coil Champion', description: 'Earn 10 credited eliminations', target: 10, reward: 'Petal Drift boost trail' },
   { id: 'sprint-maps', name: 'World Sprinter', description: 'Finish a sprint on each map', target: 4, reward: 'Starlight boost trail' },
 ] as const;
@@ -60,14 +60,14 @@ const emptyProgress = (): ChallengeProgress => ({
 /** Offline lifetime challenges. Gameplay events are accepted only in an active eligible match. */
 export class Progression {
   private progress = emptyProgress();
-  private cosmetics: CosmeticSelection = { palette: 'original', trail: 'original' };
+  private cosmetics: CosmeticSelection = { skin: 'original', trail: 'original' };
   private activeMode: ProgressMode | undefined;
   private seenEliminations = new Set<number>();
 
   constructor(private storage?: ProgressionStorage) {
     try {
       const saved = JSON.parse(storage?.getItem(PROGRESSION_KEY) ?? 'null');
-      if (!saved || saved.version !== 1 || typeof saved !== 'object') return;
+      if (!saved || (saved.version !== 1 && saved.version !== 2) || typeof saved !== 'object') return;
       const incoming = saved.progress;
       if (incoming && typeof incoming === 'object') {
         this.progress.collectedOrbs = cleanCount(incoming.collectedOrbs, 100);
@@ -78,8 +78,15 @@ export class Progression {
       }
       const choice = saved.cosmetics;
       if (choice && typeof choice === 'object') {
-        if (PALETTES.some((palette) => palette.id === choice.palette) && this.isUnlocked('palette', choice.palette))
-          this.cosmetics.palette = choice.palette;
+        const legacySkin: BodySkinId | undefined = choice.palette === 'sunset'
+          ? 'neon'
+          : choice.palette === 'moonlit'
+            ? 'spiritweave'
+            : choice.palette === 'original' ? 'original' : undefined;
+        const skin = BODY_SKINS.some((item) => item.id === choice.skin)
+          ? choice.skin as BodySkinId
+          : legacySkin;
+        if (skin && this.isUnlocked('skin', skin)) this.cosmetics.skin = skin;
         if (TRAILS.some((trail) => trail.id === choice.trail) && this.isUnlocked('trail', choice.trail))
           this.cosmetics.trail = choice.trail;
       }
@@ -93,28 +100,28 @@ export class Progression {
       progress: { ...this.progress, completedSprintMaps: [...this.progress.completedSprintMaps] },
       cosmetics: { ...this.cosmetics },
       unlocked: {
-        palettes: PALETTES.filter((palette) => this.isUnlocked('palette', palette.id)).map((palette) => palette.id),
+        skins: BODY_SKINS.filter((skin) => this.isUnlocked('skin', skin.id)).map((skin) => skin.id),
         trails: TRAILS.filter((trail) => this.isUnlocked('trail', trail.id)).map((trail) => trail.id),
       },
     };
   }
 
-  isUnlocked(kind: 'palette', id: PaletteId): boolean;
+  isUnlocked(kind: 'skin', id: BodySkinId): boolean;
   isUnlocked(kind: 'trail', id: TrailId): boolean;
-  isUnlocked(kind: 'palette' | 'trail', id: PaletteId | TrailId): boolean {
-    if (kind === 'palette') {
+  isUnlocked(kind: 'skin' | 'trail', id: BodySkinId | TrailId): boolean {
+    if (kind === 'skin') {
       if (id === 'original') return true;
-      if (id === 'sunset') return this.progress.collectedOrbs >= 100;
-      return id === 'moonlit' && this.progress.survivedSeconds >= 600;
+      if (id === 'neon') return this.progress.collectedOrbs >= 100;
+      return id === 'spiritweave' && this.progress.survivedSeconds >= 600;
     }
     if (id === 'original') return true;
     if (id === 'petals') return this.progress.creditedEliminations >= 10;
     return id === 'starlight' && this.progress.completedSprintMaps.length === MAPS.length;
   }
 
-  equipPalette(id: PaletteId): boolean {
-    if (!PALETTES.some((palette) => palette.id === id) || !this.isUnlocked('palette', id)) return false;
-    this.cosmetics.palette = id;
+  equipSkin(id: BodySkinId): boolean {
+    if (!BODY_SKINS.some((skin) => skin.id === id) || !this.isUnlocked('skin', id)) return false;
+    this.cosmetics.skin = id;
     this.save();
     return true;
   }
@@ -168,7 +175,7 @@ export class Progression {
 
   private save(): void {
     try {
-      this.storage?.setItem(PROGRESSION_KEY, JSON.stringify({ version: 1, progress: this.progress, cosmetics: this.cosmetics }));
+      this.storage?.setItem(PROGRESSION_KEY, JSON.stringify({ version: 2, progress: this.progress, cosmetics: this.cosmetics }));
     } catch {
       // Keep unlocked rewards usable for the current session when storage is unavailable.
     }

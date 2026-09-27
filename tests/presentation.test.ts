@@ -40,6 +40,7 @@ test('boost and Fox Rush share eased presentation strength without mutating game
   arena.player.boosting = false; arena.player.mass = 18;
   assert.equal(boostStatus(arena.player), 'ready'); // Fox Rush is free at minimum mass.
   arena.player.active = 0; assert.equal(boostStatus(arena.player), 'unavailable');
+  arena.player.alive = false; assert.equal(boostStatus(arena.player), 'respawning');
 });
 
 test('compass themes are distinct and boundary warning uses the growing head safe radius', () => {
@@ -157,7 +158,9 @@ test('life reactions coalesce pickups, bound spawns and deaths, freeze with dt z
   const snapshot = JSON.stringify(fx.slots); fx.update(a.snakes, 0, false); assert.equal(JSON.stringify(fx.slots), snapshot);
   fx.ingest([...a.snakes.map(s => ({ type: 'death', id: s.id, x: s.x, z: s.z } as GameEvent)), { type: 'blast', id: 0, x: 0, z: 0 }]);
   assert.equal(fx.slots.some(s => s.active), false);
-  fx.ingest([{ type: 'death', id: 1, x: 0, z: 0 }]); fx.update(a.snakes, .1, true); assert.equal(fx.slots.some(s => s.active), false);
+  fx.ingest([{ type: 'death', id: 1, x: 0, z: 0 }]); fx.update(a.snakes, .1, true); assert.equal(fx.slots.some(s => s.active && s.kind === 'death'), true);
+  fx.clear(); fx.ingest([{ type: 'player-respawn', id: 0, x: 2, z: 3 }]);
+  assert.equal(fx.slots.some(s => s.active && s.kind === 'spawn' && s.x === 2 && s.z === 3), true);
   for (let i = 0; i < 40; i++) { fx.reset(); fx.update(a.snakes, 0, false); assert.equal(fx.slots.some(s => s.active), false); }
 });
 

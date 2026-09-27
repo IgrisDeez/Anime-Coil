@@ -1,12 +1,14 @@
 import { LifeReactions } from './life-reactions';
 import * as THREE from 'three';
-import { CHARACTERS, HEAD_HIT_RADIUS, KI_CHARGE, KI_RADIUS, KI_RANGE, VEIL_RADIUS, bodyRadiusAt, serpentScale, type Arena, type GameEvent } from './simulation';
+import { CHARACTERS, HEAD_HIT_RADIUS, KI_CHARGE, KI_RADIUS, KI_RANGE, VEIL_RADIUS, bodyRadiusAt, serpentScale, type Arena, type GameEvent, type CharacterId } from './simulation';
 import { BoostMotion } from './presentation';
 import type { MapId } from './maps';
 import type { TrailId } from './progression';
+import type { RenderAnchor } from './vfx-anchors';
+import { impactStarGeometry, taperedSlashGeometry } from './vfx-geometry';
 
 const BOOST_MAP_COLOR: Record<MapId,string> = { shibuya:'#e1b5fb', leaf:'#d6aa6c', tournament:'#dcc9a4', harbor:'#b9edf2' };
-interface Burst { x: number; z: number; direction: number; color: string; age: number; impact: boolean; fox: boolean }
+interface Burst { x: number; z: number; direction: number; color: string; age: number; impact: boolean; fox: boolean; character?: CharacterId }
 interface Trail { x: number; z: number; color: string; age: number; elastic: boolean; scale: number }
 interface BoostMark { x: number; z: number; angle: number; radius: number; scale: number; age: number; style: TrailId; color: string }
 export const BOOST_MARK_LIFETIME = .65;
@@ -40,6 +42,9 @@ export class SkillEffects {
   private sparks = this.pool(new THREE.OctahedronGeometry(1), 768, .75);
   private ribbons = this.pool(new THREE.TorusGeometry(1,.035,5,28,Math.PI*1.65), 160, .5);
   private aims = this.pool(new THREE.BoxGeometry(1,1,1), 96, .56);
+  private slashes = this.pool(taperedSlashGeometry(), 192, .78);
+  private stars = this.pool(impactStarGeometry(), 48, .72);
+  private meshes = [this.cores,this.sparks,this.ribbons,this.aims,this.slashes,this.stars];
 
   private pool(geometry: THREE.BufferGeometry, count: number, opacity: number) {
     const mesh = new THREE.InstancedMesh(geometry, new THREE.MeshBasicMaterial({color:'white',transparent:opacity<1,opacity,depthWrite:opacity===1}), count);
@@ -48,14 +53,20 @@ export class SkillEffects {
     this.group.add(mesh);
     return mesh;
   }
-  clear() { this.life.reset(); this.bursts=[]; this.trails=[]; this.trailClock=0; this.boostMarks.length=0; this.boostMarkClock=0; for(const m of [this.cores,this.sparks,this.ribbons,this.aims]) m.count=0; }
+  clear() { this.life.reset(); this.bursts=[]; this.trails=[]; this.trailClock=0; this.boostMarks.length=0; this.boostMarkClock=0; for(const m of this.meshes) m.count=0; }
   ingest(events: readonly GameEvent[], boosted = false, direction = 0) {
     this.life.ingest(events, boosted, direction);
     for(const e of events) {
       if(e.type==='nuke') { this.clear(); continue; }
+      if(e.type==='transform-start') { this.clear(); continue; }
+      if(e.type==='transform-hit') {
+        const color=e.ultimate==='nine-tail'?'#ff9a43':'#ffb28d';
+        this.bursts.push({x:e.x,z:e.z,direction:e.direction??0,color,age:0,impact:true,fox:e.ultimate==='nine-tail',character:e.ultimate==='nine-tail'?'ember':'cloud'});
+        continue;
+      }
       if(e.type!=='ability' && e.type!=='ki-impact' && e.type!=='ki-launch') continue;
       const color=CHARACTERS.find(c=>c.id===e.character)?.color ?? '#58caff';
-      this.bursts.push({x:e.x,z:e.z,direction:e.direction??0,color,age:0,impact:e.type==='ki-impact',fox:e.type==='ability'&&e.character==='ember'});
+      this.bursts.push({x:e.x,z:e.z,direction:e.direction??0,color,age:0,impact:e.type==='ki-impact',fox:e.type==='ability'&&e.character==='ember',character:e.character});
     }
     if(this.bursts.length>64) this.bursts.splice(0,this.bursts.length-64);
   }
@@ -66,11 +77,11 @@ export class SkillEffects {
     if(!this.colors.has(color)) this.colors.set(color,new THREE.Color(color));
     mesh.setColorAt(mesh.count,this.colors.get(color)!); mesh.count++;
   }
-  update(arena: Arena|undefined, time:number, dt:number, reduced:boolean, boost: BoostMotion = this.idleBoost, mapId: MapId = 'shibuya') {
+  update(arena: Arena|undefined, time:number, dt:number, reduced:boolean, boost: BoostMotion = this.idleBoost, mapId: MapId = 'shibuya', anchors?: ReadonlyMap<number, RenderAnchor>) {
     this.group.visible=!!arena && !arena.cinematic;
     if(!arena || arena.cinematic) { this.clear(); if(arena) this.seed(arena); return; }
     this.life.update(arena.snakes, dt, reduced);
-    for(const mesh of [this.cores,this.sparks,this.ribbons,this.aims]) mesh.count=0;
+    for(const mesh of this.meshes) mesh.count=0;
     for(const b of this.bursts) b.age+=dt;
     for(const t of this.trails) t.age+=dt;
     for(const mark of this.boostMarks) mark.age+=dt;
@@ -86,24 +97,38 @@ export class SkillEffects {
     for(const s of arena.snakes) {
       if(!s.alive) continue;
       const size=serpentScale(s.mass), c=CHARACTERS.find(c=>c.id===s.character)!;
+      const anchor=anchors?.get(s.id), hx=anchor?.x??s.x, hz=anchor?.z??s.z, hy=anchor?.y??1;
       if(s.charge) {
         const d=s.charge.direction, r=HEAD_HIT_RADIUS*size+KI_RADIUS+.1;
-        const x=s.x+Math.cos(d)*r,z=s.z+Math.sin(d)*r;
+        const x=hx+Math.cos(d)*r,z=hz+Math.sin(d)*r;
         const progress=1-s.charge.remaining/KI_CHARGE, scale=.18+progress*.42;
-        this.put(this.cores,x,1,z,scale,scale,scale,'#bcefff');
-        this.put(this.aims,x+Math.cos(d)*KI_RANGE/2,-.29,z+Math.sin(d)*KI_RANGE/2,KI_RANGE,.035,.16,'#58caff',-d);
-        if(!reduced) for(let i=0;i<6;i++) {
-          const a=time*8+i*Math.PI/3, orbit=(1-progress)*1.5+.3;
-          this.put(this.sparks,x+Math.cos(a)*orbit,1+Math.sin(a*2)*.3,z+Math.sin(a)*orbit,.09,.09,.09,c.color);
+        this.put(this.cores,x,hy,z,scale,scale,scale,'#e5faff');
+        this.put(this.aims,x+Math.cos(d)*KI_RANGE/2,-.29,z+Math.sin(d)*KI_RANGE/2,KI_RANGE,.035,.075,'#58caff',-d);
+        const strokes=s.id===0?6:arena.snakes.length>12?2:4;
+        if(!reduced) for(let i=0;i<strokes;i++) {
+          const a=i*Math.PI*2/strokes, orbit=(1-progress)*1.5+.35;
+          this.put(this.slashes,x+Math.cos(a)*orbit,hy+Math.sin(a*2)*.2,z+Math.sin(a)*orbit,.48*(1-progress*.5),1,.13,'#8be4ff',-a);
         }
       }
       if(s.active>0 && !s.frozen) {
-        if(emit && (s.character==='ember'||s.character==='cloud')) {
+        if(emit && (s.id===0 || arena.snakes.length<=8) && (s.character==='ember'||s.character==='cloud')) {
           this.trails.push({x:s.x,z:s.z,color:s.id===0 && this.boostTrail!=='original' ? TRAIL_COLORS[this.boostTrail][0] : c.color,age:0,elastic:s.character==='cloud',scale:size});
         }
         if(s.character==='eclipse' && !reduced) {
-          const radius=2+(time*.35%1)*(VEIL_RADIUS-2);
-          this.put(this.ribbons,s.x,-.27,s.z,radius,radius,radius,c.color,time*.1,Math.PI/2);
+          for(let wave=0;wave<2;wave++) {
+            const radius=2+((time*.28+wave*.5)%1)*(VEIL_RADIUS-2);
+            this.put(this.ribbons,hx,-.27,hz,radius,radius,radius,wave?'#d4bcff':c.color,time*.08,Math.PI/2);
+          }
+          for(let arc=0;arc<3;arc++) {
+            const a=arc*2.09+time*.25;
+            this.put(this.slashes,hx+Math.cos(a)*VEIL_RADIUS,-.22,hz+Math.sin(a)*VEIL_RADIUS,.65,1,.16,'#e5cbff',-a);
+          }
+        }
+        if(s.character==='cloud' && !reduced && s.id===0) {
+          for(let side of [-1,1]) {
+            const a=s.angle+side*1.15;
+            this.put(this.ribbons,hx+Math.cos(a)*(anchor?.clearance??1.4),hy,hz+Math.sin(a)*(anchor?.clearance??1.4),.65*size,.65*size,.65*size,'#ffd1bc',-a,Math.PI/2);
+          }
         }
       }
       if(s.slowed) this.put(this.ribbons,s.x,.15,s.z,1.3*size,1.3*size,1.3*size,'#ad8bcf',reduced?0:time*.3,Math.PI/2);
@@ -160,40 +185,61 @@ export class SkillEffects {
     }
     for(const b of this.bursts) {
       const life=1-b.age/.45, count=reduced?3:b.fox?14:10;
+      if(b.impact || b.character==='cloud') this.put(this.stars,b.x,.68,b.z,(b.impact?1.45:.85)*life,.14,(b.impact?1.45:.85)*life,b.impact?'#fff8ec':b.color,-b.direction);
+      if(b.fox && !b.impact) {
+        // Two pointed ears and a forward snout read as a fox even in a single frame.
+        for(let ear of [-1,1]) this.put(this.slashes,b.x-Math.sin(b.direction)*ear*.52,.9,b.z+Math.cos(b.direction)*ear*.52,.72*life,1,.28,'#ffcf88',-b.direction+ear*.46);
+        this.put(this.slashes,b.x+Math.cos(b.direction)*.55,.77,b.z+Math.sin(b.direction)*.55,1.15*life,1,.28,'#fff0c2',-b.direction);
+      }
       for(let i=0;i<count;i++) {
         const a=b.direction+(i/count)*Math.PI*2;
         const distance=(reduced?.35:b.age*(b.impact?9:5));
         const size=(b.impact?.2:b.fox?.18:.12)*life;
         this.put(this.sparks,b.x+Math.cos(a)*distance+(b.impact?Math.cos(b.direction)*b.age*4:0),.6+(reduced?0:b.age*1.5),b.z+Math.sin(a)*distance+(b.impact?Math.sin(b.direction)*b.age*4:0),size,size,size,b.color);
       }
+      if(b.fox&&!reduced)for(let claw=0;claw<3;claw++){
+        const side=claw-1,angle=b.direction+side*.16,reach=.35+b.age*1.7;
+        this.put(this.slashes,b.x+Math.cos(angle)*reach,.72,b.z+Math.sin(angle)*reach,1.35*(1-b.age/.6),1,.14,b.color,-angle);
+      }
     }
     for (const r of this.life.slots) {
       if (!r.active) continue;
       const life = 1 - r.age / .45;
       if (r.kind === 'spawn') {
-        const radius = 1 + r.age * 5;
+        const radius = reduced ? 1.35 : 1 + r.age * 5;
         this.put(this.ribbons, r.x, -.26, r.z, radius, radius, radius, '#a7cbb3', 0, Math.PI / 2);
-      } else {
-        const count = r.kind === 'pickup' ? (r.boosted?5:3) : 6;
+      } else if (r.kind === 'death') {
+        const radius = reduced ? 1.05 : .6 + r.age * 2.8;
+        this.put(this.ribbons, r.x, -.26, r.z, radius, radius, radius, '#e7a17c', 0, Math.PI / 2);
+        if (reduced) continue;
+        const count = 6;
         for (let i = 0; i < count; i++) {
-          const a = i * Math.PI * 2 / count, distance = .2 + r.age * (r.kind === 'pickup' ? 1.2 : 3);
-          const size = (r.kind === 'pickup' ? (r.boosted?.24:.18) : .32) * life;
-          const streak=r.boosted&&r.kind==='pickup'?r.age*3+i*.13:0;
-          this.put(this.sparks, r.x + Math.cos(a) * distance-Math.cos(r.direction)*streak, .4 + r.age * 1.5, r.z + Math.sin(a) * distance-Math.sin(r.direction)*streak, size, size, size, r.kind === 'pickup' ? '#f4dca3' : '#ddd3c2');
+          const a = i * Math.PI * 2 / count, distance = .2 + r.age * 3;
+          const size = .32 * life;
+          this.put(this.sparks, r.x + Math.cos(a) * distance, .4 + r.age * 1.5, r.z + Math.sin(a) * distance, size, size, size, '#ddd3c2');
         }
-        if(r.kind==='pickup'&&r.boosted&&!reduced) this.put(this.cores,r.x,.45,r.z,.28*life,.28*life,.28*life,'#fff7d6');
+      } else if (!reduced) {
+        const count = r.boosted?5:3;
+        for (let i = 0; i < count; i++) {
+          const a = i * Math.PI * 2 / count, distance = .2 + r.age * 1.2;
+          const size = (r.boosted?.24:.18) * life;
+          const streak=r.boosted?r.age*3+i*.13:0;
+          this.put(this.sparks, r.x + Math.cos(a) * distance-Math.cos(r.direction)*streak, .4 + r.age * 1.5, r.z + Math.sin(a) * distance-Math.sin(r.direction)*streak, size, size, size, '#f4dca3');
+        }
+        if(r.boosted) this.put(this.cores,r.x,.45,r.z,.28*life,.28*life,.28*life,'#fff7d6');
       }
     }
     for(const p of arena.projectiles) {
       // The solid core is exactly the simulation hit radius; glow never claims a larger hitbox.
       this.put(this.cores,p.x,.75,p.z,p.radius,p.radius,p.radius,'#79d7ff');
       this.put(this.sparks,p.x,.8,p.z,p.radius*.65,p.radius*.65,p.radius*.65,'#f0ffff');
+      this.put(this.slashes,p.x-Math.cos(p.direction)*.42,.76,p.z-Math.sin(p.direction)*.42,1.25,1,.33,'#b9edff',-p.direction);
       if(!reduced) for(let i=1;i<=4;i++) {
         const fade=1-i/5;
         this.put(this.sparks,p.x-Math.cos(p.direction)*i*.42,.75,p.z-Math.sin(p.direction)*i*.42,.35*fade,.35*fade,.35*fade,'#58caff');
       }
     }
-    for(const mesh of [this.cores,this.sparks,this.ribbons,this.aims]) { mesh.instanceMatrix.needsUpdate=true; if(mesh.instanceColor) mesh.instanceColor.needsUpdate=true; }
+    for(const mesh of this.meshes) { mesh.instanceMatrix.needsUpdate=true; if(mesh.instanceColor) mesh.instanceColor.needsUpdate=true; }
   }
-  dispose() { if(this.disposed) return; this.disposed=true; for(const mesh of [this.cores,this.sparks,this.ribbons,this.aims]) { mesh.dispose(); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose(); } this.group.removeFromParent(); }
+  dispose() { if(this.disposed) return; this.disposed=true; for(const mesh of this.meshes) { mesh.dispose(); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose(); } this.group.removeFromParent(); }
 }

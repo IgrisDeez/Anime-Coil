@@ -51,13 +51,14 @@ export interface PresentationFrame {
 }
 
 export type BoostKind = 'none' | 'normal' | 'fox';
-export function boostStatus(player: Readonly<{ boosting: boolean; mass: number; character: string; active: number }>): 'boosting' | 'unavailable' | 'ready' {
+export function boostStatus(player: Readonly<{ alive: boolean; boosting: boolean; mass: number; character: string; active: number }>, formBoost = false): 'boosting' | 'unavailable' | 'ready' | 'respawning' {
+  if (!player.alive) return 'respawning';
   if (player.boosting) return 'boosting';
-  return player.mass <= MIN_MASS + .05 && !(player.character === 'ember' && player.active > 0) ? 'unavailable' : 'ready';
+  return player.mass <= MIN_MASS + .05 && !(player.character === 'ember' && player.active > 0) && !formBoost ? 'unavailable' : 'ready';
 }
-export function boostKind(player: Readonly<{ alive: boolean; boosting: boolean; character: string; active: number }>, playing: boolean, cinematic: boolean): BoostKind {
+export function boostKind(player: Readonly<{ alive: boolean; boosting: boolean; character: string; active: number }>, playing: boolean, cinematic: boolean, foxForm = false): BoostKind {
   if (!playing || cinematic || !player.alive || !player.boosting) return 'none';
-  return player.character === 'ember' && player.active > 0 ? 'fox' : 'normal';
+  return foxForm || (player.character === 'ember' && player.active > 0) ? 'fox' : 'normal';
 }
 
 /** Visual strength follows the shared pause-aware clock; no gameplay state is changed. */

@@ -9,23 +9,24 @@ export function atmosphere(b:WorldBuilder,id:MapId) {
   const geo=b.geo(new THREE.BufferGeometry());geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
   const material=b.material(id==="shibuya"?new THREE.LineBasicMaterial({color:particleColor[id],transparent:true,opacity:.28,depthWrite:false}):new THREE.PointsMaterial({color:particleColor[id],size:id==="leaf"?.46:id==="tournament"?.23:.2,transparent:true,opacity:id==="leaf"?.74:.68,depthWrite:false}));
   const particles=id==="shibuya"?new THREE.LineSegments(geo,material as THREE.LineBasicMaterial):new THREE.Points(geo,material as THREE.PointsMaterial);particles.frustumCulled=false;particles.name="ambient-particles";b.group.add(particles);
-  const waterUniforms={time:{value:0},pulse:{value:0},light:{value:1},tint:{value:0}};
+  const waterUniforms={time:{value:0},pulse:{value:0},light:{value:1},tint:{value:0},cartoonCenter:{value:new THREE.Vector2(10000,10000)},cartoonIntensity:{value:0}};
   let waveMarks:THREE.InstancedMesh|undefined;
   if(id==="harbor") {
     const water=b.material(new THREE.ShaderMaterial({uniforms:waterUniforms,vertexShader:`varying vec3 location; uniform float time; void main(){vec3 p=position; p.y+=sin(p.x*.09+time*.7)*.035+cos(p.z*.13+time*.5)*.025;location=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,fragmentShader:`
-      varying vec3 location; uniform float time; uniform float pulse; uniform float light; uniform float tint;
+      varying vec3 location; uniform float time; uniform float pulse; uniform float light; uniform float tint; uniform vec2 cartoonCenter; uniform float cartoonIntensity;
       void main(){
-        float broad=sin(location.x*.036+location.z*.028+time*.28);
+        float cartoon=(1.-smoothstep(20.,24.,length(location.xz-cartoonCenter)))*cartoonIntensity;
+        float broad=sin(location.x*.036+location.z*.028+time*.28+cartoon*sin(time*1.5+location.x*.3)*.45);
         float ripple=sin(location.x*.13-location.z*.09+time*.55+broad*.8);
         float detail=sin(location.x*.24+location.z*.17-time*.4);
         float v=clamp(.5+broad*.25+ripple*.16+detail*.06,0.,1.);
         vec3 c=mix(vec3(.17,.38,.47),vec3(.36,.59,.61),v);
-        float foam=1.-smoothstep(0.,3.5,abs(length(location.xz)-${RADIUS+11.5}.));
+        float foam=1.-smoothstep(0.,3.5,abs(length(location.xz)-${(RADIUS+11.5).toFixed(1)}));
         float glint=pow(max(0.,ripple*.5+.5),16.);
         c+=vec3(.45,.43,.31)*glint*.09;
         c=mix(c,vec3(.76,.84,.75),foam*.38);
         c=mix(c,c*vec3(.72,.44,1.),tint)*light;
-        c+=pulse*.06;gl_FragColor=vec4(c,1.);
+        c+=pulse*.06+cartoon*vec3(.035,.025,.05);gl_FragColor=vec4(c,1.);
       }`}));
     const grid=b.geo(new THREE.PlaneGeometry(4000,4000,b.profile==="mobile"?20:48,b.profile==="mobile"?20:48));grid.rotateX(-Math.PI/2);const mesh=new THREE.Mesh(grid,water);mesh.position.y=-.59;mesh.name="ocean";b.group.add(mesh);
     waveMarks=new THREE.InstancedMesh(b.geo(new THREE.RingGeometry(1,1.12,12,1,0,Math.PI)),b.material(new THREE.MeshBasicMaterial({color:"#c9e8e0",transparent:true,opacity:.32,depthWrite:false,side:THREE.DoubleSide})),b.profile==="mobile"?18:36);
@@ -44,6 +45,9 @@ export function atmosphere(b:WorldBuilder,id:MapId) {
   return (f:EnvironmentFrame)=>{
     const t=f.reducedMotion?0:f.time,fx=f.mode==="menu"?0:f.focus.x,fz=f.mode==="menu"?0:f.focus.z,rx=reaction(f.ultimate,f.reducedMotion);
     waterUniforms.time.value=t;waterUniforms.pulse.value=rx.pulse;waterUniforms.light.value=rx.light;waterUniforms.tint.value=rx.tint;
+    const cartoon=f.transformation?.kind==='skybreaker'?f.transformation:undefined;
+    waterUniforms.cartoonCenter.value.set(cartoon?.origin.x??10000,cartoon?.origin.z??10000);
+    waterUniforms.cartoonIntensity.value=cartoon&&!f.reducedMotion?cartoon.intensity:0;
     for(let i=0;i<count;i++){
       const a=i*2.39996,rad=10+(i*17%65),drift=Math.sin(t*(id==="leaf"?.28:.17)+i)*(id==="leaf"?4.2:3);
       let x=fx+Math.cos(a)*rad+drift,z=fz+Math.sin(a)*rad+(id==="leaf"?Math.cos(t*.42+i)*2.4:0),y=id==="shibuya"?((i*.71-t*6.5)%22+22)%22:1+((i*.53+t*(id==="leaf"?-.75:.12))%9+9)%9;

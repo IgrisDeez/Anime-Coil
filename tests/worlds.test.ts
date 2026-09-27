@@ -9,7 +9,47 @@ import { RADIUS } from "../src/simulation.ts";
 
 const frame:EnvironmentFrame={time:0,dt:1/60,camera:{x:0,y:50,z:30},focus:{x:0,z:0},mode:"game",paused:false,reducedMotion:false};
 const shot=(kind:"spirit"|"purple",time=2):NonNullable<EnvironmentFrame["ultimate"]>=>({kind,time,origin:{x:90,z:10},impact:{x:95,z:12}});
-function snapshot(group:THREE.Group) {
+test("Harbor water shader has a valid generated shoreline radius",()=>{
+  const world=buildEnvironment("harbor","desktop");
+  const ocean=world.group.getObjectByName("ocean") as THREE.Mesh<THREE.BufferGeometry,THREE.ShaderMaterial>;
+  assert.ok(ocean);
+  assert.match(ocean.material.fragmentShader,/length\(location\.xz\)-126\.5\)/);
+  assert.doesNotMatch(ocean.material.fragmentShader,/\d+\.\d+\./);
+  world.dispose();
+});
+test("Hidden Leaf bridges face radially, span both banks, and overlap their road endpoints",()=>{
+  const world=buildEnvironment("leaf","desktop");
+  for(let i=0;i<4;i++){
+    const bridge=world.landmarks.find(g=>g.name===`canal-bridge-${i}`)!;
+    const bounds=new THREE.Box3().setFromObject(bridge),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+    const a=i*Math.PI/2;
+    assert.ok(size.x>30||size.z>30,"deck's long axis follows the canal radius");
+    assert.ok(size.x>15&&size.z>15,"walking width and bank span are both present");
+    const radialLength=Math.abs(Math.cos(a))*size.x+Math.abs(Math.sin(a))*size.z;
+    assert.ok(radialLength>30,"deck spans the water plus both banks");
+    assert.ok(Math.hypot(center.x,center.z)>125&&Math.hypot(center.x,center.z)<155);
+  }
+  world.dispose();
+});
+test("background actor pools are bounded, deterministic, outside the arena, and static in reduced motion",()=>{
+  const safeRadius:Record<string,number>={shibuya:127,leaf:127,tournament:127,harbor:127};
+  for(const id of ["shibuya","leaf","tournament","harbor"] as const){
+    const world=buildEnvironment(id,"desktop"),group=world.group.getObjectByName(`${id}-background-actors`)!;
+    assert.ok(world.stats.actors<=32);
+    const actors=group.children.filter((o):o is THREE.InstancedMesh=>o instanceof THREE.InstancedMesh);
+    assert.equal(actors.length,2);
+    const count=actors[0].count;assert.ok(count>0&&count<=32);
+    for(let i=0;i<count;i++){
+      const m=new THREE.Matrix4().fromArray(actors[0].instanceMatrix.array,i*16),p=new THREE.Vector3().setFromMatrixPosition(m);
+      assert.ok(Math.hypot(p.x,p.z)>safeRadius[id],`${id} actor ${i} at ${p.x.toFixed(1)},${p.z.toFixed(1)} was too close`);
+    }
+    world.update({...frame,time:20,reducedMotion:true});const frozen=snapshot(group);
+    world.update({...frame,time:200,reducedMotion:true});assert.equal(snapshot(group),frozen);
+    world.update({...frame,time:20,reducedMotion:false});assert.notEqual(snapshot(group),frozen);
+    world.dispose();
+  }
+});
+function snapshot(group:THREE.Object3D) {
   const state:unknown[]=[];
   group.updateMatrixWorld(true);
   group.traverse(o=>{
@@ -40,6 +80,7 @@ for(const profile of ["desktop","mobile"] as const)for(const map of MAPS){
     const a=buildEnvironment(map.id,profile),b=buildEnvironment(map.id,profile);
     assert.equal(snapshot(a.group),snapshot(b.group));
     assert.ok(a.stats.drawCalls<=PROFILES[profile].maxCalls);assert.ok(a.stats.triangles<=PROFILES[profile].maxTriangles);assert.ok(a.stats.materials<=32);
+    assert.ok(a.stats.actors<=(profile==="mobile"?12:32));
     for(const landmark of a.landmarks){const bounds=new THREE.Box3().setFromObject(landmark);assert.ok(Math.hypot(Math.max(bounds.min.x,Math.min(0,bounds.max.x)),Math.max(bounds.min.z,Math.min(0,bounds.max.z)))>RADIUS+5);}
     a.dispose();b.dispose();
   });

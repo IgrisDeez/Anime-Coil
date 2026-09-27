@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { WorldBuilder } from "./builder";
 import { flag } from "./architecture";
 import { RADIUS } from "../simulation";
+import { addWorldLife } from "./life";
 export function tournament(b:WorldBuilder) {
   b.ground("#c7c1a5","#77917a");
   // Joined concourses make the stands feel like one stadium rather than islands.
@@ -50,6 +51,7 @@ export function tournament(b:WorldBuilder) {
     b.box(g,"#7c6454",0,14,0,32,.8,1);b.shadow(g,0,2,25,12);
   }
   for(const x of [-145,145]){const g=b.landmark(`scoreboard-${x}`,x,-144,x<0?.6:-.6);for(const side of [-1,1])b.box(g,"#65717a",side*14,18,0,2,36,2);b.box(g,"#4e6475",0,31,0,40,19,3);b.sign(g,"COIL WORLD CUP", "#f5c682",0,35,1.6,35,5);b.sign(g,"SPIRIT / POWER / GLORY", "#b4ddd3",0,28,1.6,35,4);}
+  addWorldLife(b,"tournament");
 }
 
 

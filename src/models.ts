@@ -216,6 +216,79 @@ function buildHead(id: CharacterId) {
 const rawHeads = new Map<CharacterId, THREE.Group>();
 const templates = new Map<CharacterId, THREE.Group>();
 const silhouettes = new Map<CharacterId, THREE.BufferGeometry>();
+export type FormCharacter = 'ember' | 'cloud';
+const formSources = new Map<FormCharacter, THREE.Group>();
+const formTemplates = new Map<FormCharacter, THREE.Group>();
+const formSilhouettes = new Map<FormCharacter, THREE.BufferGeometry>();
+
+/** Separate, code-sculpted form heads. Normal cached heads and materials are never edited. */
+function buildFormHead(id: FormCharacter) {
+  const g = new THREE.Group();
+  const fox = id === 'ember';
+  const skin = '#ffd5b4';
+  part(g, sphere, fox ? '#f8c85d' : '#f7f3ec', [0,.25,-.18], [.94,.58,.84]);
+  part(g, sphere, skin, [0,1.15,0], [.98,.99,.82]);
+  const eyes = new THREE.Group(); eyes.position.y=1.3; eyes.userData.previewEye=true; g.add(eyes);
+  for (const side of [-1,1]) {
+    part(g,sphere,'#eeb08b',[side*.93,1.13,0],[.19,.3,.21]);
+    part(eyes,sphere,'#fffdf4',[side*.36,0,.73],[.255,.3,.13]);
+    part(eyes,sphere,fox?'#d27f2e':'#d26778',[side*.36,-.02,.845],[.13,.2,.045]);
+    part(eyes,sphere,'#ffffff',[side*.32,.06,.882],[.043,.06,.025]);
+    part(g,sphere,'#ef998a',[side*.66,.92,.68],[.18,.07,.04]);
+  }
+  part(g,sphere,'#edb08e',[0,1,.83],[.12,.1,.12]);
+  if (fox) {
+    // A high flame crown and short luminous hair leave the face unobstructed.
+    part(g,sphere,'#ffe384',[0,1.9,-.16],[1.04,.48,.85],undefined,true);
+    for(let i=0;i<11;i++) {
+      const a=i/11*Math.PI*2;
+      part(g,cone,i%3?'#ffcc5e':'#fff0af',[Math.sin(a)*.72,2.12+Math.cos(a)*.08,Math.cos(a)*.5],[.36,.92+(i%3)*.11,.36],[Math.cos(a)*.4,0,-Math.sin(a)*.55],true);
+    }
+    part(g,sphere,'#ffe6a1',[0,.39,.17],[1.04,.35,.75],undefined,true);
+    part(g,box,'#33313d',[0,.39,.91],[.19,.43,.065]);
+    for(const side of [-1,1]) {
+      part(g,box,'#423437',[side*.63,1.03,.72],[.22,.035,.045],[0,0,side*.15]);
+      part(g,sphere,'#454047',[side*.55,.36,.78],[.1,.14,.045]);
+      part(g,cone,'#fff0af',[side*.82,2.29,-.18],[.32,.88,.32],[0,0,-side*.26],true);
+    }
+    part(g,sphere,'#85533d',[0,.74,.75],[.17,.04,.045]);
+  } else {
+    // Curled white crown, spiral brows, and a broad chibi grin.
+    part(g,sphere,'#f8f8ef',[0,1.94,-.19],[1.06,.48,.86],undefined,true);
+    for(let i=0;i<13;i++) {
+      const a=i/13*Math.PI*2;
+      part(g,sphere,i%3?'#fffef4':'#dedbe8',[Math.sin(a)*.79,2.04+Math.cos(a)*.16,Math.cos(a)*.58],[.33,.37,.33],undefined,true);
+    }
+    for(let i=0;i<5;i++) part(g,sphere,'#fffef4',[(i-2)*.36,2.36+Math.sin(i*1.7)*.08,.4],[.28,.34,.3],undefined,true);
+    for(const side of [-1,1]) {
+      part(g,sphere,'#d9d0e7',[side*.35,1.66,.77],[.22,.055,.05],[0,0,side*.24]);
+      part(g,sphere,'#765c78',[side*.53,.7,.64],[.045,.06,.04]);
+      const points:THREE.Vector3[]=[];
+      for(let j=0;j<=18;j++) {const t=j/18,a=t*Math.PI*3.2,r=.12*(1-t);points.push(new THREE.Vector3(side*.35+Math.cos(a)*r,1.65+Math.sin(a)*r,.86));}
+      part(g,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),24,.019,4,false),'#79627e',[0,0,0],[1,1,1]);
+    }
+    part(g,sphere,'#4a3342',[0,.75,.735],[.49,.19,.07]);
+    part(g,box,'#fff9e9',[0,.8,.802],[.62,.075,.022]);
+    for(let i=-2;i<=2;i++) part(g,box,'#b99193',[i*.11,.8,.817],[.014,.07,.012]);
+    part(g,sphere,'#f7f3ec',[0,.34,.15],[.93,.34,.8],undefined,true);
+    part(g,box,'#9776c2',[0,.39,.84],[1.25,.2,.14],[0,0,-.08]);
+    part(g,sphere,'#ad90d4',[.72,.2,.2],[.32,.11,.2],[0,0,-.25]);
+    // Hat is carried behind the transformed head, not on top of its new hair.
+    const brim=part(g,new THREE.CylinderGeometry(1.2,1.2,.1,24),'#e7bf78',[0,1.36,-.91],[.72,.72,.72],[.46,0,0],true);
+    brim.userData.silhouette=true;
+    part(g,new THREE.CylinderGeometry(.73,.85,.42,20),'#f3d18f',[0,1.51,-1.04],[.72,.72,.72],[.46,0,0],true);
+  }
+  return g;
+}
+
+function formSource(id: FormCharacter) {
+  if(!formSources.has(id)) formSources.set(id,buildFormHead(id));
+  return formSources.get(id)!;
+}
+export function createTransformedHead(id: FormCharacter) {
+  if(!formTemplates.has(id)) formTemplates.set(id,compactHead(formSource(id)));
+  return formTemplates.get(id)!.clone(true);
+}
 const silhouetteMaterial = new THREE.MeshBasicMaterial({
   color: "#25232c",
   side: THREE.BackSide,
@@ -261,11 +334,12 @@ function compactHead(source: THREE.Group) {
   return head;
 }
 
-function silhouetteGeometry(id: CharacterId) {
-  let geometry = silhouettes.get(id);
+function silhouetteGeometry(id: CharacterId, transformed = false) {
+  const cache = transformed ? formSilhouettes : silhouettes;
+  let geometry = cache.get(id as FormCharacter);
   if (geometry) return geometry;
 
-  const template = sourceHead(id);
+  const template = transformed ? formSource(id as FormCharacter) : sourceHead(id);
   template.updateMatrixWorld(true);
   const shells: THREE.BufferGeometry[] = [];
   template.traverse((object) => {
@@ -293,13 +367,18 @@ function silhouetteGeometry(id: CharacterId) {
   geometry = mergeGeometries(shells, false)!;
   for (const shell of shells) shell.dispose();
   geometry.computeBoundingSphere();
-  silhouettes.set(id, geometry);
+  cache.set(id as FormCharacter, geometry);
   return geometry;
 }
 
 // Instances share cached silhouette geometry/material, so callers only detach them.
 export function createHeadOutline(id: CharacterId) {
   const outline = new THREE.Mesh(silhouetteGeometry(id), silhouetteMaterial);
+  outline.userData.sharedSilhouette = true;
+  return outline;
+}
+export function createTransformedHeadOutline(id: FormCharacter) {
+  const outline = new THREE.Mesh(silhouetteGeometry(id, true), silhouetteMaterial);
   outline.userData.sharedSilhouette = true;
   return outline;
 }

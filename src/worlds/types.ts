@@ -10,8 +10,17 @@ export interface EnvironmentFrame {
   readonly paused: boolean;
   readonly reducedMotion: boolean;
   readonly ultimate?: Readonly<{ kind: "purple" | "spirit"; time: number; origin: VisualPoint; impact: VisualPoint }>;
+  readonly transformation?: Readonly<{ kind: 'nine-tail' | 'skybreaker'; elapsed: number; origin: VisualPoint; intensity: number }>;
 }
-export interface WorldStats { drawCalls: number; triangles: number; materials: number; textures: number; particles: number }
+/** Cosmetic radius with a soft four-unit rim; no simulation state reads this. */
+export function cartoonInfluence(distance: number, radius = 24): number {
+  const t = Math.max(0, Math.min(1, (radius - distance) / 4));
+  return t * t * (3 - 2 * t);
+}
+export function formVisualIntensity(elapsed: number, duration = 8): number {
+  return Math.max(0, Math.min(1, elapsed / .25, (duration - elapsed) / .35));
+}
+export interface WorldStats { drawCalls: number; triangles: number; materials: number; textures: number; particles: number; actors: number }
 export const PROFILES = {
   desktop: { particles: 220, atlas: 1024, secondary: true, crowdStep: 1, maxCalls: 120, maxTriangles: 150000 },
   mobile: { particles: 72, atlas: 512, secondary: false, crowdStep: 2, maxCalls: 80, maxTriangles: 75000 },

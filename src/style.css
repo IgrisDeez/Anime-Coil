@@ -241,7 +241,8 @@ nav,
   font-weight: 800;
 }
 .skill-badge.purple {
-  background: #e6ddf2;
+  background: var(--spirit-wash);
+  color: var(--spirit-ink);
   margin-left: 4px;
 }
 kbd {
@@ -365,6 +366,26 @@ kbd {
   color: #70a789;
   font-size: 25px;
 }
+.skin-preview-controls {
+  position: absolute;
+  z-index: 4;
+  right: 5vw;
+  top: 0;
+  width: min(270px, 24vw);
+  padding: 13px 15px;
+  border: 2px solid #fffdf2;
+  border-radius: 22px;
+  background: #fffbe8f2;
+  color: #574d3f;
+  box-shadow: 0 7px 0 #514b3020;
+}
+.skin-preview-controls[hidden] { display: none; }
+.skin-preview-controls strong { display: block; font-size: 17px; }
+.skin-preview-controls p { margin: 4px 0 10px; font-size: 11px; line-height: 1.35; }
+.skin-preview-controls > div { display: flex; gap: 8px; }
+.skin-preview-controls button { min-height: 44px; flex: 1; padding: 7px; font-size: 11px; }
+.skin-preview-controls button:focus-visible { outline: 3px solid #388565; outline-offset: 2px; }
+#menu.previewing-skin .preview-label { display: none; }
 .menu-footer {
   display: flex;
   justify-content: flex-end;
@@ -597,18 +618,52 @@ kbd {
   z-index: 7;
   top: 46%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: min(90vw, 420px);
-  padding: 13px 20px;
+  transform: translate(-50%, -50%) translateY(8px);
+  width: min(286px, calc(100vw - 36px));
+  padding: 15px 20px 17px;
   border: 2px solid #fffdf4;
-  border-radius: 24px;
+  border-radius: 26px;
   background: var(--cream);
   color: var(--ink);
   box-shadow: var(--shadow);
-  font-size: 14px;
-  font-weight: 800;
   text-align: center;
   pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+.respawn-notice.visible { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+.respawn-notice.leaving { opacity: 0; transform: translate(-50%, -50%) translateY(-5px); }
+.resting-flower { display: grid; place-items: center; width: 32px; height: 32px; margin: 0 auto 5px; border-radius: 50%; background: #e7edda; color: #78ae91; font-size: 19px; }
+.respawn-notice h2 { margin: 0; font-size: 18px; line-height: 1.25; }
+.respawn-notice p { min-height: 1.2em; margin: 4px 0 8px; color: var(--muted); font-size: 11px; font-weight: 750; }
+.respawn-count-label, .respawn-seconds { display: block; color: var(--muted); font-size: 10px; font-weight: 800; }
+.respawn-notice #respawn-count { display: block; margin: -2px 0; color: var(--spirit-ink); font-size: 42px; font-variant-numeric: tabular-nums; font-weight: 1000; line-height: 1.05; }
+.respawn-notice #respawn-count.tick { animation: respawn-count-pop .18s ease-out; }
+@keyframes respawn-count-pop { 50% { transform: scale(1.1); } }
+#death-wash { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, #1b1b2570 100%); transition: none; }
+body.player-dead #death-wash { opacity: calc(var(--death-flash, 0) * .58); }
+body.player-dead #world { filter: saturate(.83); }
+body.player-dead .leaderboard,
+body.player-dead .mini-wrap,
+body.player-dead .hud-actions,
+body.player-dead .abilities { opacity: .62; }
+body.player-dead .leaderboard,
+body.player-dead .mini-wrap,
+body.player-dead .hud-actions,
+body.player-dead .abilities { transition: opacity .22s ease; }
+body.player-dead #pause { opacity: 1; }
+body.player-dead .ability-button[data-state="respawning"] { color: var(--muted); background: #e9e5d9; border-color: #d8d2c0; box-shadow: none; }
+body.player-dead .ability-button[data-state="respawning"] small { color: var(--muted); }
+body.player-dead .ability-button[data-state="respawning"] .cool-fill { opacity: 0; }
+:root[data-theme="dark"] body.player-dead .ability-button[data-state="respawning"] { color: #d2c9b6; background: #343d4d; border-color: #4b5568; }
+:root[data-theme="dark"] body.player-dead .ability-button[data-state="respawning"] small { color: #c1b8a7; }
+:root[data-theme="dark"] .resting-flower { color: #a4d0b4; background: #39473f; }
+body.player-dead #ability,
+body.player-dead #nuke { opacity: .78; }
+@media (prefers-reduced-motion: reduce) {
+  .respawn-notice { transform: translate(-50%, -50%); }
+  .respawn-notice.visible, .respawn-notice.leaving { transform: translate(-50%, -50%); }
+  .respawn-notice #respawn-count.tick { animation: none; }
 }
 .modal {
   position: fixed;
@@ -814,12 +869,13 @@ kbd {
   z-index: 5;
   pointer-events: none;
 }
+.cinema-dim { position:absolute; inset:0; background:#0f1025; opacity:var(--cinema-darken,0); }
 .cinema-top,
 .cinema-bottom {
   position: absolute;
   left: 0;
   right: 0;
-  height: 9vh;
+  height: calc(8vh * var(--cinema-bars, 0));
   background: #1b1523;
 }
 .cinema-top {
@@ -837,6 +893,7 @@ kbd {
   text-shadow:
     0 2px 20px #120020,
     0 0 40px #7e27cf;
+  pointer-events:none;
 }
 .cinema-title small,
 .cinema-title span {
@@ -850,7 +907,10 @@ kbd {
   font-weight: 900;
   letter-spacing: -2px;
   margin: 8px 0;
+  opacity:var(--cinema-title,0);
+  transform:translateY(calc((1 - var(--cinema-title,0)) * 15px));
 }
+.cinema-title span { font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo",sans-serif; font-weight:1000; font-size:clamp(28px,5vw,55px); opacity:var(--cinema-impact,0); }
 .purple-flare {
   position: absolute;
   inset: 0;
@@ -974,6 +1034,15 @@ kbd {
   }
   .preview-label > span:first-child {
     font-size: 20px;
+  }
+  .skin-preview-controls {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    padding: 10px 12px;
   }
   .menu-footer {
     padding: 0 22px 20px;
@@ -1175,6 +1244,9 @@ kbd {
 /* Ink-colored captions stay readable against the pastel Spirit Bomb and maps. */
 #cinematic.spirit .cinema-title strong { color: #42667b; text-shadow: 0 2px 0 #fff6d9, 0 0 22px #e7faff; }
 #cinematic.spirit .cinema-title small, #cinematic.spirit .cinema-title span { color: #40576a; text-shadow: 0 1px 3px #fff8e7; }
+@media (max-width:760px) { .cinema-title { bottom: calc(17vh + env(safe-area-inset-bottom)); } .cinema-top,.cinema-bottom { max-height:36px; } }
+@media (prefers-reduced-motion:reduce) { .cinema-title strong { transform:none; } }
+.reduced-motion .cinema-title strong { transform:none; }
 
 /* Compact ability feedback: an active duration takes precedence over cooldown fill. */
 .ability-button[data-state="ready"] { border-color:var(--spirit-fill); box-shadow:0 4px 0 #514b3020; }
@@ -1229,6 +1301,13 @@ kbd {
 .cosmetic-choice[aria-pressed="true"] { border-color: #7ab498; background: #e9f4e7; }
 .cosmetic-choice:disabled { opacity: .56; cursor: not-allowed; }
 .cosmetic-swatch { display: block; width: 34px; height: 20px; margin: 0 auto 4px; border: 2px solid #594938; border-radius: 99px; background: repeating-linear-gradient(90deg, var(--swatch) 0 10px, var(--swatch-second) 10px 14px); }
+.skin-choice { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.skin-choice .body-skin-swatch { flex: none; width: 39px; height: 17px; margin: 0 0 2px; }
+.skin-choice strong { line-height: 1.1; }
+.skin-choice small { max-width: 100%; color: #827763; font-size: 8px; font-weight: 650; line-height: 1.15; }
+.body-skin-swatch[data-skin-preview="original"] { background: linear-gradient(90deg, #ff9352 0 48%, #ffc75d 50% 56%, #ff9352 58%); }
+.body-skin-swatch[data-skin-preview="neon"] { border-color: #48aba8; background: linear-gradient(90deg, #ff9352, #72f5dd 48%, #ffc75d); box-shadow: 0 0 7px #5ed8c9aa; }
+.body-skin-swatch[data-skin-preview="spiritweave"] { background-color: #66bbd4; background-image: repeating-linear-gradient(135deg, #fff1cf55 0 2px, transparent 2px 6px), repeating-linear-gradient(45deg, transparent 0 3px, #253e4644 3px 4px, transparent 4px 8px); }
 .trail-swatch { height: 8px; margin-top: 6px; margin-bottom: 10px; border: 0; box-shadow: 0 2px 5px var(--swatch); }
 @media (max-height: 740px) and (min-width: 761px) { .mode-picker { margin-bottom: 8px; } .mode-choice { min-height: 35px; } }
 @media (max-width: 760px) { .mode-picker { margin-top: -5px; margin-bottom: 12px; } .mode-choice { min-height: 44px; } #practice-guide { top: 120px; left: auto; right: 10px; transform: none; width: min(55vw, 245px); padding: 9px; } #practice-guide div { flex-wrap: wrap; } }
@@ -1256,6 +1335,7 @@ kbd {
 :root[data-theme="dark"] .icon-button,
 :root[data-theme="dark"] .selection-panel,
 :root[data-theme="dark"] .preview-label,
+:root[data-theme="dark"] .skin-preview-controls,
 :root[data-theme="dark"] .hud-score,
 :root[data-theme="dark"] .leaderboard,
 :root[data-theme="dark"] .ability-button,
@@ -1281,7 +1361,7 @@ kbd {
 :root[data-theme="dark"] .help-skills h3 span { color: #c2baa8; }
 :root[data-theme="dark"] .character { background: #414b5d; box-shadow: inset 0 -3px 0 #060b1690; }
 :root[data-theme="dark"] .skill-badge { background: #3d4b48; color: #d9eadb; }
-:root[data-theme="dark"] .skill-badge.purple { background: #463b55; color: #eee0ff; }
+:root[data-theme="dark"] .skill-badge.purple { background: var(--spirit-wash); color: var(--spirit-ink); }
 :root[data-theme="dark"] kbd,
 :root[data-theme="dark"] .map-card,
 :root[data-theme="dark"] .mode-choice,
@@ -1332,7 +1412,7 @@ kbd {
 :root[data-theme="dark"] .sheet { border-color: #455065; }
 :root[data-theme="dark"] .modal-flower,
 :root[data-theme="dark"] .sheet-icon { color: #a4d0b4; background: #34443f; }
-:root[data-theme="dark"] .modal-flower { display: inline-grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; color: #a4d0b4; background: #111722; }
+:root[data-theme="dark"] .modal-flower { display: inline-grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; color: #a4d0b4; background: var(--cream); }
 :root[data-theme="dark"] .control-guide kbd { background: #414b5e; }
 :root[data-theme="dark"] .help-skills article { border-color: #505a6d; }
 :root[data-theme="dark"] #practice-guide { color: #f4ecd8; background: #293244ed; border-color: #536078; box-shadow: var(--shadow); }
@@ -1342,6 +1422,7 @@ kbd {
 :root[data-theme="dark"] .challenge-item em { color: #c2baa8; }
 :root[data-theme="dark"] .challenge-item progress::-webkit-progress-bar { background: #485265; }
 :root[data-theme="dark"] .cosmetic-swatch { border-color: #d6cbb6; }
+:root[data-theme="dark"] .skin-choice small { color: #c2baa8; }
 :root[data-theme="dark"] .settings-sheet input { accent-color: #85c6a8; }
 :root[data-theme="dark"] button:focus-visible,
 :root[data-theme="dark"] input:focus-visible { outline-color: #9bd9bb; }

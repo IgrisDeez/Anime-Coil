@@ -17,7 +17,9 @@ test('HUD distinguishes ready, charge, duration, cooldown and disabled states',(
   const active=abilityFeedback(a.player,false,true);
   assert.equal(active.label,'Active 1.5s'); assert.equal(active.progress,.5);
   for(const [cinematic,playing] of [[true,true],[false,false]]) assert.equal(abilityFeedback(a.player,cinematic,playing).state,'disabled');
-  a.player.alive=false; assert.equal(abilityFeedback(a.player,false,true).state,'disabled');
+  a.player.alive=false; assert.equal(abilityFeedback(a.player,false,true).state,'respawning');
+  assert.equal(abilityFeedback(a.player,false,true).label,'Respawning…');
+  assert.equal(abilityFeedback(a.player,false,true).disabled,true);
 });
 
 test('skill effect pools are bounded, freeze with pause, and never mutate gameplay',()=>{
@@ -40,7 +42,7 @@ test('skill effect pools are bounded, freeze with pause, and never mutate gamepl
     assert.equal(meshes.reduce((n,m)=>n+m.count,0),0);
     let disposals=0;
     for(const m of meshes) { m.geometry.addEventListener('dispose',()=>disposals++); (m.material as THREE.Material).addEventListener('dispose',()=>disposals++); }
-    fx.dispose(); fx.dispose(); assert.equal(disposals,8);
+    fx.dispose(); fx.dispose(); assert.equal(disposals,meshes.length*2);
   }
 });
 

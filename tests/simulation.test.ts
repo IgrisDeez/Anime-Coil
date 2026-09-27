@@ -73,6 +73,7 @@ test("sprint continues after death, pauses the respawn timer, and respawns witho
   assert.equal(a.endReason, undefined);
   assert.equal(a.player.alive, false);
   assert.equal(a.playerRespawnRemaining, RESPAWN_DELAY);
+  assert.equal(a.events.filter(event => event.type === 'player-respawn').length, 0);
   assert.equal(a.elapsed, 50);
   a.step(STEP, input);
   const remaining = a.playerRespawnRemaining;
@@ -82,6 +83,8 @@ test("sprint continues after death, pauses the respawn timer, and respawns witho
   a.state = "playing";
   for (let i = 0; i < Math.ceil(RESPAWN_DELAY / STEP); i++) a.step(STEP, input);
   assert.equal(a.player.alive, true);
+  assert.equal(a.events.filter(event => event.type === 'player-respawn' && event.id === 0).length, 1);
+  assert.ok(Number.isFinite(a.events.find(event => event.type === 'player-respawn')?.x));
   assert.equal(a.state, "playing");
   assert.equal(a.player.mass, MIN_MASS);
   assert.equal(a.player.peak, 40);

@@ -1,5 +1,13 @@
 import * as THREE from "three";
 import { Arena, NUKE_BLAST, NUKE_DURATION, serpentScale } from "./simulation";
+import { ultimateFrame } from './ultimate-presentation';
+import type { DetailProfile } from './worlds/types';
+
+export function spiritEffectCounts(profile: DetailProfile) {
+  return profile === 'mobile'
+    ? { clouds: 24, petals: 24, motes: 60, ribbonsPerColor: 3, rays: 20 }
+    : { clouds: 36, petals: 48, motes: 100, ribbonsPerColor: 5, rays: 32 };
+}
 
 // Spirit Bomb owns an independent, pooled effect. No Gojo meshes or animation paths.
 export class SpiritCinematic {
@@ -7,31 +15,36 @@ export class SpiritCinematic {
   private orb = new THREE.Group();
   private arms = new THREE.Group();
   private shoulders: THREE.Group[] = [];
-  private shell: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
+  private shell: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
+  private halo: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
   private cloud: THREE.InstancedMesh;
   private petals: THREE.InstancedMesh;
   private motes: THREE.InstancedMesh;
-  private ribbons: THREE.Line[] = [];
+  private ribbons: THREE.LineSegments[] = [];
   private rays: THREE.LineSegments;
   private shadow: THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial>;
   private marker: THREE.Mesh;
   private wave: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>;
+  private shock: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>[] = [];
+  private wake: THREE.InstancedMesh;
   private dummy = new THREE.Object3D();
-  constructor(scene: THREE.Scene) {
+  private basePosition = new THREE.Vector3();
+  private targetPosition = new THREE.Vector3();
+  private baseQuaternion = new THREE.Quaternion();
+  private targetQuaternion = new THREE.Quaternion();
+  private profile: DetailProfile;
+  constructor(scene: THREE.Scene, profile: DetailProfile = 'desktop') {
+    this.profile = profile;
     const sphere = new THREE.SphereGeometry(1, 24, 16);
     const basic = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false});
-    this.shell = new THREE.Mesh(sphere, basic("#e4fcff", .94));
-    this.shell.material.opacity = 1; this.shell.material.transparent = false; this.shell.material.depthWrite = true;
-    this.orb.add(this.shell);
-    // Organic patches on the sphere give it a flowing, cloud-like surface.
-    for (let i = 0; i < 24; i++) {
-      const a = i * 2.39996, y = 1 - 2 * (i + .5) / 24, r = Math.sqrt(1 - y*y);
-      const patch = new THREE.Mesh(sphere, basic(i % 2 ? "#83d6f4" : "#b5edff", .6));
-      patch.position.set(Math.cos(a)*r*1.008,y*1.008,Math.sin(a)*r*1.008);
-      patch.scale.set(.25+(i%3)*.08,.14,.035);
-      patch.lookAt(patch.position.clone().multiplyScalar(2));
-      this.orb.add(patch);
-    }
+    this.shell = new THREE.Mesh(sphere, new THREE.ShaderMaterial({
+      uniforms: { time: { value: 0 } },
+      vertexShader: `varying vec3 vPos; varying vec3 vNormal; void main(){vPos=position;vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader: `uniform float time; varying vec3 vPos; varying vec3 vNormal; void main(){vec3 n=normalize(vNormal);float latitude=atan(vPos.z,vPos.x);float stream=sin(latitude*7.+vPos.y*9.-time*1.7)+.42*sin(latitude*13.-vPos.y*6.+time*1.1);float band=smoothstep(.1,.85,stream*.42+.5);float rim=pow(1.-max(0.,n.z),2.2);vec3 color=mix(vec3(.24,.59,.84),vec3(.91,.98,1.),band);color=mix(color,vec3(.98,.99,1.),rim*.8);gl_FragColor=vec4(color,1.);}`,
+    }));
+    this.halo = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color:'#94dcff',transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.BackSide}));
+    this.halo.scale.setScalar(1.11);
+    this.orb.add(this.shell,this.halo);
     for (const side of [-1, 1]) {
       const pivot = new THREE.Group(); pivot.position.set(0, .5, side * .8);
       const sleeve = new THREE.Mesh(new THREE.CapsuleGeometry(.3,.65,4,8), new THREE.MeshToonMaterial({color:"#f7a248"}));
@@ -44,9 +57,9 @@ export class SpiritCinematic {
     this.petals = new THREE.InstancedMesh(sphere,basic("#e7cfa4",.75),48);
     this.motes = new THREE.InstancedMesh(sphere,basic("#89def7"),100);
     for(const mesh of [this.cloud,this.petals,this.motes]) { mesh.frustumCulled=false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); }
-    for(let i=0;i<10;i++) {
-      const geo = new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.BufferAttribute(new Float32Array(32*3),3));
-      const line = new THREE.Line(geo,new THREE.LineBasicMaterial({color:i%2?"#c6f6ff":"#69cbed",transparent:true,opacity:.8}));
+    for(let parity=0;parity<2;parity++) {
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(5*31*2*3),3));
+      const line = new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:parity?'#c6f6ff':'#69cbed',transparent:true,opacity:.8}));
       line.frustumCulled=false; this.ribbons.push(line); this.root.add(line);
     }
     const rayGeo = new THREE.BufferGeometry(); rayGeo.setAttribute("position",new THREE.BufferAttribute(new Float32Array(32*6),3));
@@ -55,62 +68,98 @@ export class SpiritCinematic {
     this.shadow.rotation.x=-Math.PI/2;
     this.marker = new THREE.Mesh(new THREE.RingGeometry(2.8,3.1,48),basic("#69a9bd",.65)); this.marker.rotation.x=-Math.PI/2;
     this.wave = new THREE.Mesh(new THREE.RingGeometry(.91,1,96),basic("#ffe3a4",.75)); this.wave.rotation.x=-Math.PI/2;
-    this.root.add(this.orb,this.arms,this.cloud,this.petals,this.motes,this.shadow,this.marker,this.wave,this.rays);
+    for(let i=0;i<2;i++){const ring=new THREE.Mesh(new THREE.RingGeometry(.93,1,72),basic(i?'#b1eeff':'#fff3c6',.65));ring.rotation.x=-Math.PI/2;this.shock.push(ring);this.root.add(ring);}
+    this.wake=new THREE.InstancedMesh(new THREE.ConeGeometry(1,2.6,8),basic('#a8e9ff',.28),10);this.wake.frustumCulled=false;this.wake.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.root.add(this.orb,this.arms,this.cloud,this.petals,this.motes,this.shadow,this.marker,this.wave,this.rays,this.wake);
     this.root.visible=false; scene.add(this.root);
   }
+  setProfile(profile: DetailProfile) { this.profile = profile; }
   update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false) {
     const shot = arena?.cinematic;
     this.root.visible = !menu && shot?.kind === "spirit";
     if (!this.root.visible || !shot || !arena) return;
-    const p=arena.player, t=shot.time, impact=shot.impact;
+    const p=arena.player, t=shot.time, impact=shot.impact, frame=ultimateFrame('spirit',t,reduced);
     const charge=Math.min(1,t/2.4), flight=Math.max(0,Math.min(1,(t-2.4)/(NUKE_BLAST-2.4)));
     const blast=Math.max(0,t-NUKE_BLAST), detonated=shot.detonated;
     const fade=Math.max(0,1-blast/(NUKE_DURATION-NUKE_BLAST));
     const x=THREE.MathUtils.lerp(p.x,impact.x,flight*flight), z=THREE.MathUtils.lerp(p.z,impact.z,flight*flight);
-    const y=26*(1-flight*flight)+2;
+    // Rise above Kairo during charge so the first frames stay inside the
+    // gameplay camera before the cinematic camera blend has finished.
+    const y=(8+charge*18)*(1-flight*flight)+2;
     this.orb.visible=!detonated; this.orb.position.set(x,y,z); this.orb.scale.setScalar(1+charge*11);
+    this.orb.scale.y *= 1 + flight * .16;
     this.orb.rotation.y=reduced?0:t*.35;
+    this.shell.material.uniforms.time.value = reduced ? 0 : t;
+    this.halo.visible=this.profile==='desktop' && !reduced;
     this.arms.visible=!detonated; this.arms.position.set(p.x,.65*serpentScale(p.mass),p.z);
     this.arms.scale.setScalar(serpentScale(p.mass)); this.arms.rotation.y=-p.angle;
     this.shoulders.forEach((arm,i)=>{arm.rotation.z= flight*-1.9; arm.rotation.x=(i?1:-1)*(.35-charge*.25);});
-    this.shadow.visible=!detonated; this.shadow.position.set(x,-.36,z); this.shadow.scale.setScalar(3+charge*9+flight*5); this.shadow.material.opacity=.1+flight*.2;
+    this.shadow.visible=!detonated; this.shadow.position.set(x,-.36,z); this.shadow.scale.setScalar(3+charge*9+flight*6); this.shadow.material.opacity=.12+flight*.25;
     this.marker.visible=!detonated; this.marker.position.set(impact.x,-.34,impact.z);
     this.wave.visible=detonated; this.wave.position.set(impact.x,-.32,impact.z); this.wave.scale.setScalar(1+blast*150); this.wave.material.opacity=fade*.6;
-    this.cloud.visible=this.petals.visible=this.rays.visible=detonated;
-    for(let i=0;i<36;i++) {
-      const a=i*2.39996, elevation=(i%6)/6*Math.PI/2, r=5+blast*24;
-      this.dummy.position.set(impact.x+Math.cos(a)*r*Math.cos(elevation),Math.sin(elevation)*r*.65+2,impact.z+Math.sin(a)*r*Math.cos(elevation));
-      this.dummy.scale.setScalar((3+(i%4))*Math.max(.05,fade)); this.dummy.updateMatrix(); this.cloud.setMatrixAt(i,this.dummy.matrix);
+    this.shock.forEach((ring,i)=>{ring.visible=detonated&&(i===0||this.profile==='desktop')&&!reduced;ring.position.set(impact.x,-.3+i*.012,impact.z);ring.scale.setScalar(2+Math.max(0,blast-i*.12)*(104+i*28));ring.material.opacity=Math.max(0,1-(blast-i*.12)/1.1)*.55;});
+    this.cloud.visible=detonated;
+    this.petals.visible=detonated&&!reduced;
+    this.rays.visible=detonated&&this.profile==='desktop'&&!reduced;
+    this.wake.visible=t>=2.4&&!detonated&&!reduced;
+    this.wake.count=this.profile==='mobile'?6:10;
+    if(this.wake.visible) for(let i=0;i<this.wake.count;i++){
+      const trail=Math.max(0,flight-(i+1)*.052), trailX=THREE.MathUtils.lerp(p.x,impact.x,trail*trail), trailZ=THREE.MathUtils.lerp(p.z,impact.z,trail*trail);
+      this.dummy.position.set(trailX,26*(1-trail*trail)+2,trailZ);
+      this.dummy.rotation.set(0,0,-p.angle-.2);this.dummy.scale.setScalar((1+charge*11)*(.17-i*.011));this.dummy.updateMatrix();this.wake.setMatrixAt(i,this.dummy.matrix);
+    }
+    this.wake.instanceMatrix.needsUpdate=true;
+    const detail = spiritEffectCounts(this.profile);
+    this.cloud.count = reduced ? Math.min(12,detail.clouds) : detail.clouds;
+    this.petals.count = reduced ? 0 : detail.petals;
+    this.motes.count = reduced ? Math.min(18,detail.motes) : detail.motes;
+    for(let i=0;i<this.cloud.count;i++) {
+      const a=i*2.39996, elevation=.16+(i%6)/6*Math.PI*.49, r=5+blast*31;
+      this.dummy.position.set(impact.x+Math.cos(a)*r*Math.cos(elevation),Math.sin(elevation)*r*.68+2,impact.z+Math.sin(a)*r*Math.cos(elevation));
+      this.dummy.scale.setScalar((3.5+(i%4))*Math.max(.05,fade)); this.dummy.updateMatrix(); this.cloud.setMatrixAt(i,this.dummy.matrix);
     }
     (this.cloud.material as THREE.MeshBasicMaterial).opacity=fade*.8;
-    for(let i=0;i<48;i++) {
+    for(let i=0;i<this.petals.count;i++) {
       const a=i*Math.PI*2/48, r=5+blast*(20+i%5*4);
       this.dummy.position.set(impact.x+Math.cos(a)*r,1+Math.sin(Math.min(1,blast/2)*Math.PI)*(2+i%5),impact.z+Math.sin(a)*r);
       this.dummy.scale.set(1.8*fade,.4*fade,3*fade);this.dummy.rotation.set(0,-a,blast);this.dummy.updateMatrix();this.petals.setMatrixAt(i,this.dummy.matrix);
     }
-    for(let i=0;i<100;i++) {
-      const a=i*2.39996, phase=(t*.65+i/100)%1, r=detonated?10+blast*18:(1-phase)*60;
+    for(let i=0;i<this.motes.count;i++) {
+      const a=i*2.39996, phase=(t*.65+i/this.motes.count)%1, r=detonated?10+blast*18:(1-phase)*60;
       this.dummy.position.set((detonated?impact.x:x)+Math.cos(a)*r,detonated?2+blast*(8+i%6):y*phase,(detonated?impact.z:z)+Math.sin(a)*r);
       this.dummy.scale.setScalar((.15+(i%3)*.1)*(detonated?fade:1));this.dummy.rotation.set(0,0,0);this.dummy.updateMatrix();this.motes.setMatrixAt(i,this.dummy.matrix);
     }
     for(const mesh of [this.cloud,this.petals,this.motes]) mesh.instanceMatrix.needsUpdate=true;
-    this.ribbons.forEach((line,i)=>{
-      line.visible=t<2.4;
+    this.ribbons.forEach((line,parity)=>{
+      line.visible=t<2.4&&!reduced&&(this.profile==='desktop'||parity===0);
       const positions=line.geometry.attributes.position as THREE.BufferAttribute;
-      for(let j=0;j<32;j++) {const q=j/31, a=i*Math.PI/5+q*.8+(reduced?0:t*.25), r=(1-q)*65;positions.setXYZ(j,p.x+Math.cos(a)*r,1+q*27,p.z+Math.sin(a)*r);}
+      const perColor = detail.ribbonsPerColor;
+      line.geometry.setDrawRange(0, perColor * 31 * 2);
+      for(let n=0;n<perColor;n++) {
+        const i=n*2+parity;
+        for(let j=0;j<31;j++) {
+          const start=j/31, end=(j+1)/31;
+          const a0=i*Math.PI/5+start*.8+(reduced?0:t*.25), a1=i*Math.PI/5+end*.8+(reduced?0:t*.25);
+          const r0=(1-start)*65, r1=(1-end)*65, offset=(n*31+j)*2;
+          positions.setXYZ(offset,p.x+Math.cos(a0)*r0,1+start*27,p.z+Math.sin(a0)*r0);
+          positions.setXYZ(offset+1,p.x+Math.cos(a1)*r1,1+end*27,p.z+Math.sin(a1)*r1);
+        }
+      }
       positions.needsUpdate=true;
     });
     const rays=this.rays.geometry.attributes.position as THREE.BufferAttribute;
-    for(let i=0;i<32;i++){const a=i*Math.PI/16,r=12+blast*45;rays.setXYZ(i*2,impact.x,2,impact.z);rays.setXYZ(i*2+1,impact.x+Math.cos(a)*r,4+(i%4)*4,impact.z+Math.sin(a)*r);}rays.needsUpdate=true;
+    const rayCount=detail.rays;
+    this.rays.geometry.setDrawRange(0,rayCount*2);
+    for(let i=0;i<rayCount;i++){const a=i*Math.PI*2/rayCount,r=12+blast*45;rays.setXYZ(i*2,impact.x,2,impact.z);rays.setXYZ(i*2+1,impact.x+Math.cos(a)*r,4+(i%4)*4,impact.z+Math.sin(a)*r);}rays.needsUpdate=true;
     (this.rays.material as THREE.LineBasicMaterial).opacity=fade*.7;
-    if(!reduced){
-      const blend=Math.max(0,Math.min(1,t*3,(NUKE_DURATION-t)*2));
-      const width=Math.max(1,.85/camera.aspect), distance=detonated?100+blast*12:66+charge*20;
-      const target=new THREE.Vector3(x+Math.sin(p.angle+.7)*distance*.35,distance*width,z+Math.cos(p.angle+.7)*distance*.65);
-      if(blast>0&&blast<.3)target.x+=Math.sin(blast*70)*(1-blast/.3);
-      const baseRotation=camera.quaternion.clone();
-      camera.position.lerp(target,blend);camera.lookAt(x,detonated?0:y*.5,z);
-      camera.quaternion.copy(baseRotation.slerp(camera.quaternion.clone(),blend));
+    if(frame.cameraWeight>0){
+      const width=Math.max(1,.85/camera.aspect), distance=detonated?97+blast*9:t<2.4?54+charge*16:70+flight*17;
+      this.basePosition.copy(camera.position);this.baseQuaternion.copy(camera.quaternion);
+      this.targetPosition.set(x+Math.sin(p.angle+.7)*distance*.35,Math.max(31,distance*width),z+Math.cos(p.angle+.7)*distance*.65);
+      camera.position.lerpVectors(this.basePosition,this.targetPosition,frame.cameraWeight);
+      camera.lookAt(x,detonated?0:y*.5,z);
+      this.targetQuaternion.copy(camera.quaternion);
+      camera.quaternion.copy(this.baseQuaternion).slerp(this.targetQuaternion,frame.cameraWeight);
     }
   }
 }

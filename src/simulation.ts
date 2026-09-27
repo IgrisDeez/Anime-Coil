@@ -1,3 +1,9 @@
+import {
+  SKY_PUNCH_FIRST, SKY_PUNCH_INTERVAL, SKY_PUNCH_RANGE, SKY_PUNCH_RADIUS,
+  SKY_PUNCH_SPEED, TRANSFORMATION_DURATION, ultimateFor,
+  ULTIMATE_COOLDOWN, type UltimateId,
+} from "./ultimates";
+
 export type CharacterId = "ember" | "nova" | "cloud" | "eclipse";
 export interface Character {
   id: CharacterId;
@@ -76,7 +82,7 @@ export const HEAD_HIT_RADIUS = 0.78;
 export const VEIL_RADIUS = 12, VEIL_SPEED = 0.6;
 export const KI_CHARGE = 0.3, KI_RANGE = 24, KI_SPEED = 40, KI_RADIUS = 0.65;
 export const KI_IMPULSE = 20, KI_IMPULSE_DURATION = 0.4;
-export const NUKE_COOLDOWN = 30,
+export const NUKE_COOLDOWN = ULTIMATE_COOLDOWN,
   NUKE_BLAST = 3.4,
   NUKE_DURATION = 5.6;
 export const MAX_SIZE = 2.5;
@@ -134,6 +140,19 @@ export interface KiProjectile extends Point {
   radius: number;
   previous: Point;
 }
+export interface SkyPunch extends Point {
+  id: number;
+  direction: number;
+  remaining: number;
+  radius: number;
+  previous: Point;
+}
+export interface TransformationState {
+  kind: "nine-tail" | "skybreaker";
+  elapsed: number;
+  remaining: number;
+  nextAttack: number;
+}
 export interface Input {
   nuke?: boolean;
   angle: number;
@@ -156,8 +175,10 @@ export interface GameEvent {
   character?: CharacterId;
   targetId?: number;
   direction?: number;
-  type: "collect" | "ability" | "death" | "player-elimination" | "nuke" | "blast" | "ki-launch" | "ki-impact";
+  type: "collect" | "ability" | "death" | "player-respawn" | "player-elimination" | "nuke" | "blast" | "ki-launch" | "ki-impact" | "transform-start" | "transform-launch" | "transform-hit" | "transform-end";
   sequence?: number;
+  ultimate?: UltimateId;
+  reason?: string;
   id: number;
   x: number;
   z: number;
@@ -229,6 +250,9 @@ export class Arena {
   private eliminationSequence = 0;
   projectiles: KiProjectile[] = [];
   private projectileId = 0;
+  transformation: TransformationState | undefined;
+  skyPunches: SkyPunch[] = [];
+  private skyPunchId = 0;
   state: MatchState = "playing";
   elapsed = 0;
   endReason: MatchEndReason | undefined;
@@ -272,6 +296,7 @@ export class Arena {
     this.state = "over";
     this.endReason = "time";
     this.deathReason = "Time’s up!";
+    this.endTransformation("match-end");
   }
   createSnake(
     id: number,
@@ -345,6 +370,7 @@ export class Arena {
     this.playerRespawnRemaining = 0;
     this.deathReason = "";
     this.reindex();
+    this.events.push({ type: "player-respawn", id: 0, x: returned.x, z: returned.z });
   }
   private updateRespawns(dt: number) {
     if (this.playerRespawnRemaining > 0)
@@ -525,7 +551,7 @@ export class Arena {
     }
     // All snakes move together in short steps while forced motion is possible.
     // Timers, AI and casts still run exactly once per fixed simulation tick.
-    const forced = this.projectiles.length > 0 || this.snakes.some(s => s.knockback);
+    const forced = this.projectiles.length > 0 || this.skyPunches.length > 0 || this.snakes.some(s => s.knockback);
     const steps = forced ? Math.max(1, Math.ceil((BASE_SPEED * 1.7 + KI_IMPULSE) * dt / 0.2)) : 1;
     const h = dt / steps, consumed = new Set<number>();
     for (let tick = 0; tick < steps; tick++) {
@@ -535,7 +561,8 @@ export class Arena {
         const c = controls.get(s.id)!;
         const turn = 2.65 * (s.character === "cloud" && s.active > 0 ? 2 : 1) * h;
         s.angle += Math.max(-turn, Math.min(turn, angleDelta(s.angle, c.angle)));
-        const free = s.character === "ember" && s.active > 0;
+        const free = (s.character === "ember" && s.active > 0) ||
+          (s.id === 0 && this.transformation?.kind === "nine-tail");
         s.boosting = free || (c.boost && s.mass > MIN_MASS + 0.05);
         const speed = BASE_SPEED * (s.boosting ? 1.7 : 1) * (s.slowed ? VEIL_SPEED : 1);
         s.x += Math.cos(s.angle) * speed * h;
@@ -569,10 +596,12 @@ export class Arena {
         }
         this.followBody(s);
       }
+      this.advanceTransformation(h);
       this.reindex();
       this.resolveCollisions();
       if (this.state !== "playing") break;
       this.stepProjectiles(h);
+      this.stepSkyPunches(h);
     }
     this.updateSlows();
     this.food = this.food.filter(f => !consumed.has(f.id));
@@ -640,7 +669,8 @@ export class Arena {
       p.remaining -= travel;
       if (hit) {
         const target = this.snakes.find(s => s.id === hit!.owner)!;
-        target.knockback = { x: vx * KI_IMPULSE, z: vz * KI_IMPULSE, remaining: KI_IMPULSE_DURATION };
+        if (!(target.id === 0 && this.transformation))
+          target.knockback = { x: vx * KI_IMPULSE, z: vz * KI_IMPULSE, remaining: KI_IMPULSE_DURATION };
         this.events.push({ type: "ki-impact", id: p.ownerId, targetId: target.id, character: "nova", x: p.x, z: p.z, direction: p.direction });
       } else if (p.remaining > 1e-8 && travel < boundary - 1e-8) retained.push(p);
     }
@@ -655,50 +685,144 @@ export class Arena {
       for (let j = i + 1; j < living.length; j++) {
         const o = living[j];
         if (dist2(s, o) < (headRadius + HEAD_HIT_RADIUS * serpentScale(o.mass)) ** 2) {
-          dead.set(s.id, "Head-on clash. Both spirits fell.");
-          dead.set(o.id, "Head-on clash. Both spirits fell.");
+          if (this.transformation && (s.id === 0 || o.id === 0)) {
+            const rival = s.id === 0 ? o : s;
+            dead.set(rival.id, "A spirit form struck your coil.");
+            hitOwners.set(rival.id, 0);
+          } else {
+            dead.set(s.id, "Head-on clash. Both spirits fell.");
+            dead.set(o.id, "Head-on clash. Both spirits fell.");
+          }
         }
       }
       for (const b of this.bodyGrid.query(s, headRadius + BODY_RADIUS * MAX_SIZE)) {
         if (b.owner !== s.id && dist2(s, b) < (headRadius + b.radius) ** 2) {
-          if (!dead.has(s.id)) { dead.set(s.id, "Your head touched a rival’s coil."); hitOwners.set(s.id, b.owner); }
+          if (this.transformation && s.id === 0) {
+            if (this.transformation.kind === "nine-tail" && !dead.has(b.owner)) {
+              dead.set(b.owner, "Struck by the Nine-Tail Cloak."); hitOwners.set(b.owner, 0);
+            }
+          } else if (!dead.has(s.id)) { dead.set(s.id, "Your head touched a rival’s coil."); hitOwners.set(s.id, b.owner); }
           break;
         }
       }
     }
     for (const [id, reason] of dead) {
       const s = living.find(s => s.id === id)!;
-      s.alive = false;
-      s.charge = undefined;
-      s.knockback = undefined;
-      s.active = 0;
-      for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
-      this.events.push({ type: "death", id, x: s.x, z: s.z });
-      if (id === 0) { this.playerRespawnRemaining = RESPAWN_DELAY; this.deathReason = reason; }
-      else if (!dead.has(0) && hitOwners.get(id) === 0) {
-        this.player.kills++;
-        this.events.push({ type: "player-elimination", id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
-      }
+      this.eliminate(s, id !== 0 && !dead.has(0) && hitOwners.get(id) === 0, reason);
+      if (id === 0) this.endTransformation("death");
     }
   }
+  private eliminate(s: Serpent, credited: boolean, reason: string) {
+    if (!s.alive) return false;
+    s.alive = false;
+    s.charge = undefined;
+    s.knockback = undefined;
+    s.active = 0;
+    for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
+    this.events.push({ type: "death", id: s.id, x: s.x, z: s.z, reason });
+    if (s.id === 0) { this.playerRespawnRemaining = RESPAWN_DELAY; this.deathReason = reason; }
+    else if (credited) {
+      this.player.kills++;
+      this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
+      if (this.transformation?.kind === "nine-tail")
+        this.events.push({ type: "transform-hit", id: 0, targetId: s.id, character: "ember", ultimate: "nine-tail", x: s.x, z: s.z });
+    }
+    return true;
+  }
+  private advanceTransformation(dt: number) {
+    const form = this.transformation;
+    if (!form || !this.player.alive) return;
+    form.elapsed = Math.min(TRANSFORMATION_DURATION, form.elapsed + dt);
+    form.remaining = Math.max(0, TRANSFORMATION_DURATION - form.elapsed);
+    if (form.kind === "skybreaker") {
+      while (form.elapsed + 1e-8 >= form.nextAttack && form.nextAttack < TRANSFORMATION_DURATION) {
+        const direction = this.player.angle;
+        const offset = HEAD_HIT_RADIUS * serpentScale(this.player.mass) + SKY_PUNCH_RADIUS + .1;
+        const side = this.skyPunchId % 2 === 0 ? -1 : 1;
+        const x = this.player.x + Math.cos(direction) * offset - Math.sin(direction) * side * .34;
+        const z = this.player.z + Math.sin(direction) * offset + Math.cos(direction) * side * .34;
+        this.skyPunches.push({ id: this.skyPunchId++, x, z, previous: { x, z }, direction, remaining: SKY_PUNCH_RANGE, radius: SKY_PUNCH_RADIUS });
+        this.events.push({ type: "transform-launch", id: 0, character: "cloud", ultimate: "skybreaker", x, z, direction });
+        form.nextAttack += SKY_PUNCH_INTERVAL;
+      }
+    }
+    if (form.remaining <= 1e-8) this.endTransformation("expired");
+  }
+  private stepSkyPunches(dt: number) {
+    if (!this.skyPunches.length) return;
+    const targets = new SpatialGrid<BodyPoint>(5);
+    for (const s of this.snakes) {
+      if (!s.alive || s.id === 0) continue;
+      targets.add({ x: s.x, z: s.z, owner: s.id, radius: HEAD_HIT_RADIUS * serpentScale(s.mass) });
+      for (let i = 1; i < s.body.length; i++) targets.add({ ...s.body[i], owner: s.id, radius: bodyHitRadiusAt(i, s.body.length, s.mass) });
+    }
+    const retained: SkyPunch[] = [];
+    for (const p of this.skyPunches) {
+      const vx = Math.cos(p.direction), vz = Math.sin(p.direction), limit = RADIUS - p.radius;
+      if (Math.hypot(p.x, p.z) >= limit) continue;
+      const dot = p.x * vx + p.z * vz;
+      const boundary = -dot + Math.sqrt(dot * dot + limit * limit - p.x * p.x - p.z * p.z);
+      const travel = Math.min(SKY_PUNCH_SPEED * dt, p.remaining, boundary);
+      const midpoint = { x: p.x + vx * travel / 2, z: p.z + vz * travel / 2 };
+      let hit: BodyPoint | undefined, distance = Infinity;
+      for (const target of targets.query(midpoint, travel / 2 + HEAD_HIT_RADIUS * MAX_SIZE + p.radius)) {
+        const dx = target.x - p.x, dz = target.z - p.z;
+        const along = dx * vx + dz * vz, radius = target.radius + p.radius;
+        const perpendicular2 = Math.max(0, dx * dx + dz * dz - along * along);
+        if (perpendicular2 > radius * radius) continue;
+        const reach = Math.sqrt(radius * radius - perpendicular2);
+        if (along + reach < 0) continue;
+        const contact = Math.max(0, along - reach);
+        if (contact > travel) continue;
+        if (contact < distance - 1e-9 || (Math.abs(contact - distance) <= 1e-9 && target.owner < (hit?.owner ?? Infinity))) { hit = target; distance = contact; }
+      }
+      p.previous = { x: p.x, z: p.z };
+      p.x += vx * (hit ? distance : travel); p.z += vz * (hit ? distance : travel); p.remaining -= travel;
+      if (hit) {
+        const victim = this.snakes.find(s => s.id === hit!.owner);
+        if (victim && this.eliminate(victim, true, "Struck by Skybreaker Barrage."))
+          this.events.push({ type: "transform-hit", id: 0, targetId: victim.id, character: "cloud", ultimate: "skybreaker", x: p.x, z: p.z, direction: p.direction });
+      } else if (p.remaining > 1e-8 && travel < boundary - 1e-8) retained.push(p);
+    }
+    this.skyPunches = retained;
+  }
+  private endTransformation(reason: string) {
+    const form = this.transformation;
+    if (!form) { this.skyPunches = []; return; }
+    this.transformation = undefined;
+    this.skyPunches = [];
+    this.player.boosting = false;
+    this.events.push({ type: "transform-end", id: 0, character: form.kind === "nine-tail" ? "ember" : "cloud", ultimate: form.kind, x: this.player.x, z: this.player.z, reason });
+  }
   activateNuke(s: Serpent) {
+    const definition = ultimateFor(s.character);
     if (
       s !== this.player ||
-      (s.character !== "eclipse" && s.character !== "nova") ||
       !s.alive ||
+      this.mode === "practice" ||
       this.state !== "playing" ||
       this.cinematic ||
+      this.transformation ||
       this.nukeCooldown > 0
     )
       return false;
+    if (definition.mode === "transformation") {
+      this.nukeCooldown = definition.cooldown;
+      const kind = definition.id === "nine-tail" ? "nine-tail" : "skybreaker";
+      s.knockback = undefined;
+      this.transformation = { kind, elapsed: 0, remaining: definition.duration, nextAttack: SKY_PUNCH_FIRST };
+      this.skyPunches = [];
+      this.events.push({ type: "transform-start", id: 0, character: s.character, ultimate: definition.id, x: s.x, z: s.z });
+      return true;
+    }
     this.projectiles = [];
     for (const snake of this.snakes) { snake.charge = undefined; snake.knockback = undefined; snake.slowed = false; }
-    this.nukeCooldown = NUKE_COOLDOWN;
+    this.nukeCooldown = definition.cooldown;
     const impact = { x: s.x + Math.cos(s.angle) * 22, z: s.z + Math.sin(s.angle) * 22 };
     const reach = Math.hypot(impact.x, impact.z);
     if (reach > RADIUS - 18) { impact.x *= (RADIUS - 18) / reach; impact.z *= (RADIUS - 18) / reach; }
-    this.cinematic = { impact, kind: s.character === "nova" ? "spirit" : "purple", time: 0, detonated: false };
-    this.events.push({ type: "nuke", id: 0, x: s.x, z: s.z });
+    this.cinematic = { impact, kind: definition.id === "spirit" ? "spirit" : "purple", time: 0, detonated: false };
+    this.events.push({ type: "nuke", id: 0, ultimate: definition.id, x: s.x, z: s.z });
     return true;
   }
   private stepNuke(dt: number) {
