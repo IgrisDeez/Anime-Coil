@@ -9,6 +9,21 @@ import { RADIUS } from "../src/simulation.ts";
 
 const frame:EnvironmentFrame={time:0,dt:1/60,camera:{x:0,y:50,z:30},focus:{x:0,z:0},mode:"game",paused:false,reducedMotion:false};
 const shot=(kind:"spirit"|"purple",time=2):NonNullable<EnvironmentFrame["ultimate"]>=>({kind,time,origin:{x:90,z:10},impact:{x:95,z:12}});
+test('forty repeated map constructions retain bounded resources and dispose cleanly', () => {
+  const baseline = new Map<string, string>();
+  for (let index = 0; index < 40; index++) {
+    const id = MAPS[index % MAPS.length].id;
+    const profile = Math.floor(index / MAPS.length) % 2 ? 'mobile' : 'desktop';
+    const world = buildEnvironment(id, profile);
+    const key = `${id}/${profile}`;
+    const signature = JSON.stringify(world.stats);
+    if (baseline.has(key)) assert.equal(signature, baseline.get(key));
+    else baseline.set(key, signature);
+    world.update(frame);
+    world.dispose(); world.dispose();
+  }
+  assert.equal(baseline.size, 8);
+});
 test("Harbor water shader has a valid generated shoreline radius",()=>{
   const world=buildEnvironment("harbor","desktop");
   const ocean=world.group.getObjectByName("ocean") as THREE.Mesh<THREE.BufferGeometry,THREE.ShaderMaterial>;

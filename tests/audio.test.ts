@@ -229,8 +229,8 @@ test("zero voice volume cancels active speech; missing files keep effects and ga
   assert.doesNotThrow(() => unsupported.unlock());
   assert.equal(unsupported.unavailable, true);
 });
-test("all six Japanese callouts bundle cleanly", () => {
-  for (const clip of ["ember", "nova", "cloud", "eclipse", "purple", "spirit"]) {
+test("all seven Japanese callouts bundle cleanly", () => {
+  for (const clip of ["ember", "nova", "cloud", "eclipse", "purple", "spirit", "fox"]) {
     const wav = readFileSync(
       new URL(`../public/audio/${clip}.wav`, import.meta.url),
     );
@@ -335,4 +335,20 @@ test('ultimate transition cues use Effects and stop cleanly with pause or mute',
   a.setHidden(true);
   a.ultimateCue('purple', 'converge');
   assert.equal(ctx.oscillators.length, 6);
+});
+
+test('fox voice and staged effects respect volume, hidden-tab cleanup, and missing voice fallback', async () => {
+  const {a,ctx}=engine();a.unlock();await flush();
+  a.skill('ember','fox');await flush();
+  assert.equal(ctx.sources.filter(s=>s.started&&!s.stopped).length,1);
+  a.ultimateCue('fox','gather');a.ultimateCue('fox','launch');a.play('blast','fox');a.ultimateCue('fox','release');
+  assert.equal(ctx.oscillators.length,15, 'summon and charge add two restrained pressure layers');
+  a.resetTransient();assert.ok(ctx.oscillators.every(o=>o.stopped));
+  assert.ok(ctx.sources.every(s=>s.stopped));
+  a.setVolume('effects',0);a.ultimateCue('fox','launch');a.play('blast','fox');assert.equal(ctx.oscillators.length,15);
+  a.setVolume('effects',.65);a.setHidden(true);a.ultimateCue('fox','gather');assert.equal(ctx.oscillators.length,15);
+  a.setHidden(false);a.enabled=false;a.skill('ember','fox');assert.equal(ctx.oscillators.length,15);
+  const fallback=engine((async()=>({ok:false})) as unknown as typeof fetch);
+  fallback.a.unlock();await flush();fallback.a.skill('ember','fox');await flush();
+  assert.ok(fallback.a.missingClips.has('fox'));assert.equal(fallback.ctx.oscillators.length,3);
 });

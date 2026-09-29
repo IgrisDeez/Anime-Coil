@@ -64,13 +64,14 @@ export class SpiritCompass {
   private lastRevision = -1;
   private lastAlpha = 1;
   private point = { x: 0, y: 0, angle: 0 };
+  targetId: number | undefined;
   constructor(private canvas: HTMLCanvasElement) {
     this.context = canvas.getContext('2d');
     this.background = canvas.ownerDocument.createElement('canvas');
     this.background.width = this.background.height = 240;
     this.setMap(this.map);
   }
-  reset() { this.state.reset(); this.lastDraw = -Infinity; this.context?.clearRect(0, 0, 240, 240); }
+  reset() { this.state.reset(); this.targetId = undefined; this.lastDraw = -Infinity; this.context?.clearRect(0, 0, 240, 240); }
   setMap(id: MapId) {
     this.map = id; this.lastDraw = -Infinity;
     const c = this.background.getContext('2d'); if (!c) return;
@@ -107,6 +108,11 @@ export class SpiritCompass {
       if (marker.id === 0) continue;
       const p = projectMarker(marker, alpha, this.point);
       c.fillStyle = theme.rival; c.beginPath(); c.arc(p.x, p.y, 3, 0, Math.PI * 2); c.fill();
+      if (marker.id === this.targetId) {
+        c.save(); c.translate(p.x, p.y); c.rotate(Math.PI / 4);
+        c.fillStyle = '#fff7df'; c.strokeStyle = '#a36341'; c.lineWidth = 1.5;
+        c.beginPath(); c.rect(-5, -5, 10, 10); c.fill(); c.stroke(); c.restore();
+      }
     }
     const player = this.state.markers.get(0);
     if (player) {

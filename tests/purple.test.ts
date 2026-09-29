@@ -28,13 +28,13 @@ function setup() {
   }
   return a;
 }
-test("Hollow Purple is exclusive to a living player Shiro", () => {
+test("Hollow Purple is exclusive to a living player Shiro; every player character has a cinematic", () => {
   const a = setup();
   assert.equal(a.activateNuke(a.snakes[1]), false);
-  for (const character of ["ember", "cloud"] as const) {
+  for (const character of ["cloud"] as const) {
     const other = new Arena(character, Math.random, 0, 0);
     other.step(STEP, { ...idle, nuke: true });
-    assert.equal(other.cinematic, undefined);
+    assert.equal(other.cinematic?.kind, 'skybreaker');
   }
   a.player.alive = false;
   assert.equal(a.activateNuke(a.player), false);
@@ -67,8 +67,8 @@ test("blast kills all twenty exactly once, drops energy, keeps player safe, dela
   assert.equal(a.food.length, 180);
   assert.equal(a.snakes.filter((s) => s.alive).length, 1);
 });
-test('both ultimates emit one credited event at each defeated rival position', () => {
-  for (const character of ['eclipse', 'nova'] as const) {
+test('all cinematics emit one credited event at each defeated rival position', () => {
+  for (const character of ['eclipse', 'nova', 'ember'] as const) {
     const a = setup();
     a.player.character = character;
     a.step(STEP, { ...idle, nuke: true });

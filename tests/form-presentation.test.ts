@@ -3,80 +3,84 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {createHead,createHeadOutline,createTransformedHead,createTransformedHeadOutline} from '../src/models.ts';
 import {transformationCoilFinish,bodySkinAppearance} from '../src/coil-skins.ts';
-import {cartoonInfluence,formVisualIntensity} from '../src/worlds/types.ts';
-import {TransformationEffects} from '../src/transformation-effects.ts';
-import {Arena} from '../src/simulation.ts';
+import {cartoonInfluence} from '../src/worlds/types.ts';
+import {SkybreakerCinematic} from '../src/skybreaker.ts';
+import {Arena,NUKE_DURATION} from '../src/simulation.ts';
+import {ultimateFrame,UltimateCueTracker} from '../src/ultimate-presentation.ts';
 
-test('transformed heads and outlines are cached separately from normal heads',()=>{
+test('transformed heads and outlines are cached apart from normal heads',()=>{
   for(const id of ['ember','cloud'] as const){
     const normal=createHead(id),form=createTransformedHead(id),again=createTransformedHead(id);
-    assert.notEqual(form,normal);
-    assert.notEqual(form,again);
+    assert.notEqual(form,normal);assert.notEqual(form,again);
     assert.equal((form.children.find(child=>child instanceof THREE.Mesh) as THREE.Mesh).geometry,(again.children.find(child=>child instanceof THREE.Mesh) as THREE.Mesh).geometry);
     const outline=createTransformedHeadOutline(id),second=createTransformedHeadOutline(id);
     assert.equal(outline.geometry,second.geometry);
     assert.notEqual(outline.geometry,createHeadOutline(id).geometry);
-    const bounds=new THREE.Box3().setFromObject(form);
-    const shell=new THREE.Box3().setFromObject(outline);
-    assert.ok(shell.min.y<bounds.max.y && shell.max.y>bounds.min.y);
+    const bounds=new THREE.Box3().setFromObject(form),shell=new THREE.Box3().setFromObject(outline);
+    assert.ok(shell.min.y<bounds.max.y&&shell.max.y>bounds.min.y);
   }
 });
 
-test('form coil finishes are temporary definitions; equipped skins remain unchanged',()=>{
+test('temporary pearl and gold finishes do not mutate an equipped cosmetic',()=>{
   const saved=bodySkinAppearance('spiritweave','#ed844e');
   const fox=transformationCoilFinish('nine-tail'),cloud=transformationCoilFinish('skybreaker');
-  assert.notEqual(fox.base,cloud.base);
-  assert.notEqual(fox.base,fox.accent);
-  assert.equal(saved.texture,'spiritweave');
+  assert.notEqual(fox.base,cloud.base);assert.notEqual(fox.base,fox.accent);
   assert.deepEqual(bodySkinAppearance('spiritweave','#ed844e'),saved);
 });
 
-test('cartoon influence stops at 24 units and form staging stays inside eight seconds',()=>{
-  assert.equal(cartoonInfluence(0),1);
-  assert.equal(cartoonInfluence(20),1);
-  assert.ok(cartoonInfluence(22)>0 && cartoonInfluence(22)<1);
+test('Skybreaker timeline is a 5.6-second cinematic with deduplicated cues',()=>{
+  const tracker=new UltimateCueTracker();
+  for(const [time,stage,cue] of [[0,'summon',undefined],[.9,'charge','windup'],[2.5,'launch','throw'],[3.4,'impact',undefined],[4.3,'recovery','release']] as const){
+    assert.equal(ultimateFrame('skybreaker',time).stage,stage);
+    assert.deepEqual(tracker.consume('skybreaker',time),cue?[cue]:[]);
+    assert.deepEqual(tracker.consume('skybreaker',time),[]);
+    const reduced=ultimateFrame('skybreaker',time,true);
+    assert.equal(reduced.cameraWeight,0);assert.equal(reduced.flash,0);
+  }
   assert.equal(cartoonInfluence(24),0);
-  assert.equal(formVisualIntensity(0),0);
-  assert.equal(formVisualIntensity(.25),1);
-  assert.ok(Math.abs(formVisualIntensity(7.65)-1)<1e-12);
-  assert.equal(formVisualIntensity(8),0);
+  assert.equal(cartoonInfluence(0),1);
 });
 
-test('form impact pool deduplicates victims, freezes in pause time, and clears on expiry',()=>{
-  const arena=new Arena('ember',()=>.5,0,0),effects=new TransformationEffects('mobile');
-  arena.activateNuke(arena.player);
-  effects.ingest([{type:'transform-hit',id:0,targetId:4,ultimate:'nine-tail',x:1,z:2},{type:'transform-hit',id:0,targetId:4,ultimate:'nine-tail',x:1,z:2}],1);
-  effects.update(arena,1,false);
-  const stars=effects.group.children.find(child=>child instanceof THREE.InstancedMesh&&child.geometry.getAttribute('position').count===17) as THREE.InstancedMesh;
-  assert.equal(stars.count,1);
-  effects.update(arena,1,false);assert.equal(stars.count,1);
-  effects.update(arena,1.5,false);assert.equal(stars.count,0);
-  effects.clear();assert.equal(stars.count,0);
-  effects.dispose();
-});
-
-test('many confirmed form contacts never exceed pooled geometry or draw budgets',()=>{
+test('Skybreaker focal effect stays pooled, mobile-bounded, pause-stable, and disposes once',()=>{
   for(const profile of ['desktop','mobile'] as const){
-    const arena=new Arena('ember',()=>.5,0,0),effects=new TransformationEffects(profile);
+    const scene=new THREE.Scene(),fx=new SkybreakerCinematic(scene,profile),arena=new Arena('cloud',()=>.5,0,0);
+    const camera=new THREE.PerspectiveCamera(43,profile==='mobile'?390/844:16/9,.1,600);
     arena.activateNuke(arena.player);
-    effects.ingest(Array.from({length:20},(_,index)=>({type:'transform-hit' as const,id:0,targetId:index+1,ultimate:'nine-tail' as const,x:index,z:0})),2);
-    effects.update(arena,2,false);
-    assert.ok(effects.group.children.length<=(profile==='mobile'?16:24));
-    for(const child of effects.group.children)if(child instanceof THREE.InstancedMesh)assert.ok(child.count<=child.instanceMatrix.count);
-    effects.clear();
-    effects.dispose();
+    const draws=fx.group.children.filter(child=>child instanceof THREE.Mesh).length;
+    assert.ok(draws<=(profile==='mobile'?16:24));
+    for(const time of [.4,1.4,2.8,3.4,4.5,NUKE_DURATION]){
+      arena.cinematic!.time=time;camera.position.set(0,48,27);camera.lookAt(0,0,0);
+      fx.update(arena,camera,false);
+      assert.equal(fx.group.visible,true);
+      fx.group.traverse(child=>{if(child instanceof THREE.InstancedMesh)assert.ok(child.count<=child.instanceMatrix.count);});
+    }
+    camera.position.set(0,48,27);camera.lookAt(0,0,0);
+    arena.cinematic!.time=1.4;fx.update(arena,camera,false,true);
+    assert.equal(camera.position.y,48);
+    const before=JSON.stringify(fx.group.toJSON());fx.update(arena,camera,false,true);
+    assert.equal(JSON.stringify(fx.group.toJSON()),before);
+    arena.cinematic=undefined;fx.update(arena,camera,false);assert.equal(fx.group.visible,false);
+    fx.dispose();fx.dispose();assert.equal(scene.children.length,0);
   }
 });
 
-test('Skybreaker impact dents are local, pooled, and disappear after recovery',()=>{
-  const arena=new Arena('cloud',()=>.5,0,0),effects=new TransformationEffects('mobile');
-  arena.activateNuke(arena.player);
-  effects.ingest([{type:'transform-hit',id:0,targetId:3,ultimate:'skybreaker',x:7,z:-2}],1);
-  effects.update(arena,1,false);
-  const dent=effects.group.children.find(child=>child instanceof THREE.InstancedMesh&&child.geometry instanceof THREE.RingGeometry) as THREE.InstancedMesh;
-  assert.equal(dent.count,1);
-  const matrix=new THREE.Matrix4(),position=new THREE.Vector3();dent.getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
-  assert.equal(position.x,7);assert.equal(position.z,-2);
-  effects.update(arena,1.5,false);assert.equal(dent.count,0);
-  effects.dispose();
+test('Skybreaker keeps its giant fist in frame on desktop and portrait viewports',()=>{
+  for(const aspect of [16/9,390/844]){
+    const scene=new THREE.Scene(),fx=new SkybreakerCinematic(scene,aspect<1?'mobile':'desktop');
+    const arena=new Arena('cloud',()=>.5,0,0),camera=new THREE.PerspectiveCamera(43,aspect,.1,600);
+    arena.activateNuke(arena.player);arena.cinematic!.time=2.2;
+    camera.position.set(0,48,27);camera.lookAt(0,0,0);fx.update(arena,camera,false);
+    fx.group.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+    const fist=fx.group.children.find(child=>child instanceof THREE.Mesh&&child.material instanceof THREE.MeshToonMaterial) as THREE.Mesh;
+    const center=new THREE.Box3().setFromObject(fist).getCenter(new THREE.Vector3()).project(camera);
+    assert.ok(Number.isFinite(center.x)&&Math.abs(center.x)<.8);
+    assert.ok(Number.isFinite(center.y)&&Math.abs(center.y)<.8);
+    const fullSize=fist.scale.x;
+    camera.position.set(0,48,27);camera.lookAt(0,0,0);fx.update(arena,camera,false,true);
+    fx.group.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+    const quietCenter=new THREE.Box3().setFromObject(fist).getCenter(new THREE.Vector3()).project(camera);
+    assert.ok(Math.abs(quietCenter.x)<.8&&Math.abs(quietCenter.y)<.8);
+    assert.ok(fist.scale.x<fullSize);
+    fx.dispose();
+  }
 });

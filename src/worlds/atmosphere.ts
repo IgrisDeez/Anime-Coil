@@ -45,9 +45,9 @@ export function atmosphere(b:WorldBuilder,id:MapId) {
   return (f:EnvironmentFrame)=>{
     const t=f.reducedMotion?0:f.time,fx=f.mode==="menu"?0:f.focus.x,fz=f.mode==="menu"?0:f.focus.z,rx=reaction(f.ultimate,f.reducedMotion);
     waterUniforms.time.value=t;waterUniforms.pulse.value=rx.pulse;waterUniforms.light.value=rx.light;waterUniforms.tint.value=rx.tint;
-    const cartoon=f.transformation?.kind==='skybreaker'?f.transformation:undefined;
+    const cartoon=f.ultimate?.kind==='skybreaker'?f.ultimate:undefined;
     waterUniforms.cartoonCenter.value.set(cartoon?.origin.x??10000,cartoon?.origin.z??10000);
-    waterUniforms.cartoonIntensity.value=cartoon&&!f.reducedMotion?cartoon.intensity:0;
+    waterUniforms.cartoonIntensity.value=cartoon&&!f.reducedMotion?Math.max(0,Math.min(1,cartoon.time/.25,(5.6-cartoon.time)/.35)):0;
     for(let i=0;i<count;i++){
       const a=i*2.39996,rad=10+(i*17%65),drift=Math.sin(t*(id==="leaf"?.28:.17)+i)*(id==="leaf"?4.2:3);
       let x=fx+Math.cos(a)*rad+drift,z=fz+Math.sin(a)*rad+(id==="leaf"?Math.cos(t*.42+i)*2.4:0),y=id==="shibuya"?((i*.71-t*6.5)%22+22)%22:1+((i*.53+t*(id==="leaf"?-.75:.12))%9+9)%9;

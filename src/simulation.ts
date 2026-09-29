@@ -1,8 +1,4 @@
-import {
-  SKY_PUNCH_FIRST, SKY_PUNCH_INTERVAL, SKY_PUNCH_RANGE, SKY_PUNCH_RADIUS,
-  SKY_PUNCH_SPEED, TRANSFORMATION_DURATION, ultimateFor,
-  ULTIMATE_COOLDOWN, type UltimateId,
-} from "./ultimates";
+import { ultimateFor, ULTIMATE_COOLDOWN, type UltimateId, type CinematicKind } from "./ultimates";
 
 export type CharacterId = "ember" | "nova" | "cloud" | "eclipse";
 export interface Character {
@@ -108,6 +104,7 @@ export interface Food extends Point {
   id: number;
   value: number;
   color: number;
+  source: "natural" | "drop" | "boost";
 }
 export interface Serpent extends Point {
   id: number;
@@ -131,6 +128,7 @@ export interface Serpent extends Point {
   kills: number;
   previous: Point;
   previousAngle: number;
+  botStyle?: "forager" | "interceptor" | "evasive";
 }
 export interface KiProjectile extends Point {
   id: number;
@@ -140,19 +138,6 @@ export interface KiProjectile extends Point {
   radius: number;
   previous: Point;
 }
-export interface SkyPunch extends Point {
-  id: number;
-  direction: number;
-  remaining: number;
-  radius: number;
-  previous: Point;
-}
-export interface TransformationState {
-  kind: "nine-tail" | "skybreaker";
-  elapsed: number;
-  remaining: number;
-  nextAttack: number;
-}
 export interface Input {
   nuke?: boolean;
   angle: number;
@@ -160,9 +145,20 @@ export interface Input {
   ability: boolean;
 }
 export type MatchState = "playing" | "paused" | "over";
-export type MatchMode = "endless" | "sprint" | "practice";
+export type MatchMode = "endless" | "sprint" | "bounty" | "practice";
 export type MatchEndReason = "death" | "time";
 export const SPRINT_DURATION = 180;
+export const BOUNTY_DURATION = 180;
+export const BOUNTY_CHARGE_MAX = 100;
+export interface BountyResult {
+  points: number;
+  bounties: number;
+  directEliminations: number;
+  ultimateEliminations: number;
+  peakEnergy: number;
+}
+export const compareBountyResults = (a: BountyResult, b: BountyResult) =>
+  a.points - b.points || a.bounties - b.bounties || a.directEliminations - b.directEliminations;
 export interface SprintResult {
   score: number;
   kills: number;
@@ -175,10 +171,14 @@ export interface GameEvent {
   character?: CharacterId;
   targetId?: number;
   direction?: number;
-  type: "collect" | "ability" | "death" | "player-respawn" | "player-elimination" | "nuke" | "blast" | "ki-launch" | "ki-impact" | "transform-start" | "transform-launch" | "transform-hit" | "transform-end";
+  type: "collect" | "ability" | "death" | "player-respawn" | "player-elimination" | "nuke" | "blast" | "ki-launch" | "ki-impact";
   sequence?: number;
   ultimate?: UltimateId;
   reason?: string;
+  killerId?: number;
+  killerName?: string;
+  source?: "natural" | "drop" | "boost" | "collision" | "ultimate";
+  bounty?: boolean;
   id: number;
   x: number;
   z: number;
@@ -250,14 +250,17 @@ export class Arena {
   private eliminationSequence = 0;
   projectiles: KiProjectile[] = [];
   private projectileId = 0;
-  transformation: TransformationState | undefined;
-  skyPunches: SkyPunch[] = [];
-  private skyPunchId = 0;
   state: MatchState = "playing";
   elapsed = 0;
   endReason: MatchEndReason | undefined;
   nukeCooldown = 0;
-  cinematic: { kind: "purple" | "spirit"; impact: { x: number; z: number }; time: number; detonated: boolean } | undefined;
+  bountyPoints = 0;
+  bountyCharge = 0;
+  bountyTargetId: number | undefined;
+  bountiesClaimed = 0;
+  directEliminations = 0;
+  ultimateEliminations = 0;
+  cinematic: { kind: CinematicKind; impact: { x: number; z: number }; time: number; detonated: boolean } | undefined;
   deathReason = "";
   playerRespawnRemaining = 0;
   private pendingBotRespawns: Array<{ remaining: number; index: number }> = [];
@@ -277,12 +280,25 @@ export class Arena {
     for (let i = 0; i < this.botCount; i++) this.spawnBot(i);
     while (this.food.length < foodTarget) this.spawnFood();
     this.reindex();
+    this.assignBounty();
   }
   get player() {
     return this.snakes[0];
   }
   get remaining() {
-    return this.mode === "sprint" ? Math.max(0, SPRINT_DURATION - this.elapsed) : undefined;
+    return this.mode === "sprint" || this.mode === "bounty" ? Math.max(0, SPRINT_DURATION - this.elapsed) : undefined;
+  }
+  get bountyResult(): BountyResult {
+    return { points: this.bountyPoints, bounties: this.bountiesClaimed,
+      directEliminations: this.directEliminations, ultimateEliminations: this.ultimateEliminations,
+      peakEnergy: Math.floor(this.player.peak * 10) };
+  }
+  get bountyTarget() { return this.snakes.find(s => s.id === this.bountyTargetId && s.alive); }
+  private assignBounty() {
+    if (this.mode !== "bounty" || this.state !== "playing" || this.cinematic || !this.player.alive || this.bountyTarget) return;
+    const candidates = this.snakes.filter(s => s.id !== 0 && s.alive);
+    candidates.sort((a, b) => dist2(a, this.player) - dist2(b, this.player) || a.id - b.id);
+    this.bountyTargetId = candidates[0]?.id;
   }
   get sprintResult(): SprintResult {
     return {
@@ -292,11 +308,10 @@ export class Arena {
     };
   }
   private finishSprint() {
-    if (this.mode !== "sprint" || this.state !== "playing") return;
+    if ((this.mode !== "sprint" && this.mode !== "bounty") || this.state !== "playing") return;
     this.state = "over";
     this.endReason = "time";
     this.deathReason = "Time’s up!";
-    this.endTransformation("match-end");
   }
   createSnake(
     id: number,
@@ -348,17 +363,43 @@ export class Arena {
     for (let i = s.body.length; i < Math.floor(s.mass); i++)
       s.body.push({ ...s.body[s.body.length - 1] });
     this.snakes.push(s);
+    if (this.mode === "bounty") s.botStyle = index < 8 ? "forager" : index < 14 ? "interceptor" : "evasive";
   }
   private findSpawnPoint() {
-    let point: Point = { x: 70, z: 0 }, angle = 0;
-    for (let tries = 0; tries < 80; tries++) {
-      const a = this.random() * Math.PI * 2,
-        r = 25 + this.random() * 70;
-      point = { x: Math.cos(a) * r, z: Math.sin(a) * r };
-      angle = a + Math.PI;
-      if (this.snakes.every(s => !s.alive || s.body.every(b => dist2(b, point) > 24 ** 2))) break;
+    let best = { point: { x: 70, z: 0 }, angle: Math.PI, clearance: -Infinity };
+    const occupied = new SpatialGrid<BodyPoint>(6);
+    for (const snake of this.snakes) if (snake.alive) {
+      occupied.add({ x: snake.x, z: snake.z, owner: snake.id,
+        radius: HEAD_HIT_RADIUS * serpentScale(snake.mass) });
+      for (let j = 1; j < snake.body.length; j++) occupied.add({ ...snake.body[j],
+        owner: snake.id, radius: bodyHitRadiusAt(j, snake.body.length, snake.mass) });
     }
-    return { point, angle };
+    const searchRadius = HEAD_HIT_RADIUS * (1 + MAX_SIZE) + 1.5;
+    const inspect = (point: Point, angle: number) => {
+      let clearance = RADIUS - HEAD_RADIUS - Math.hypot(point.x, point.z);
+      // Check the entire starting coil and a short forward escape corridor.
+      for (let i = -5; i < MIN_MASS; i++) {
+        const part = { x: point.x - Math.cos(angle) * i * SPACING,
+          z: point.z - Math.sin(angle) * i * SPACING };
+        clearance = Math.min(clearance, RADIUS - HEAD_RADIUS - Math.hypot(part.x, part.z));
+        for (const body of occupied.query(part, searchRadius))
+          clearance = Math.min(clearance, Math.hypot(part.x - body.x, part.z - body.z) -
+            (HEAD_HIT_RADIUS + body.radius + 1.5));
+      }
+      if (clearance > best.clearance) best = { point, angle, clearance };
+      return clearance;
+    };
+    for (let tries = 0; tries < 80; tries++) {
+      const a = this.random() * Math.PI * 2, r = 25 + this.random() * 70;
+      if (inspect({ x: Math.cos(a) * r, z: Math.sin(a) * r }, a + Math.PI) >= 0) return best;
+    }
+    for (let ring = 20; ring <= 95; ring += 15)
+      for (let sector = 0; sector < 24; sector++) {
+        const a = sector * Math.PI / 12 + ring * .001;
+        const point = { x: Math.cos(a) * ring, z: Math.sin(a) * ring };
+        if (inspect(point, a + Math.PI) >= 0) return best;
+      }
+    return best;
   }
   private respawnPlayer() {
     const fallen = this.player;
@@ -371,6 +412,7 @@ export class Arena {
     this.deathReason = "";
     this.reindex();
     this.events.push({ type: "player-respawn", id: 0, x: returned.x, z: returned.z });
+    this.assignBounty();
   }
   private updateRespawns(dt: number) {
     if (this.playerRespawnRemaining > 0)
@@ -378,14 +420,15 @@ export class Arena {
     for (const pending of this.pendingBotRespawns)
       pending.remaining = Math.max(0, pending.remaining - dt);
     const canRespawn = !this.cinematic && this.state === "playing" &&
-      (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION);
+      ((this.mode !== "sprint" && this.mode !== "bounty") || this.elapsed < SPRINT_DURATION);
     if (!canRespawn) return;
     if (!this.player.alive && this.playerRespawnRemaining <= 0) this.respawnPlayer();
     const ready = this.pendingBotRespawns.filter(pending => pending.remaining <= 0);
     this.pendingBotRespawns = this.pendingBotRespawns.filter(pending => pending.remaining > 0);
     for (const pending of ready) this.spawnBot(pending.index);
+    this.assignBounty();
   }
-  spawnFood(p?: Point, value = 1, color?: number) {
+  spawnFood(p?: Point, value = 1, color?: number, source: Food["source"] = p ? "drop" : "natural") {
     const a = this.random() * Math.PI * 2,
       r = Math.sqrt(this.random()) * (RADIUS - 4);
     this.food.push({
@@ -394,6 +437,7 @@ export class Arena {
       z: p?.z ?? Math.sin(a) * r,
       value,
       color: color ?? Math.floor(this.random() * 4),
+      source,
     });
   }
   reindex() {
@@ -449,11 +493,16 @@ export class Arena {
           dist2(s, o) < 18 ** 2 &&
           dist2(s, o) > 10 ** 2,
       );
-      if (rival && s.mass > 30 && this.random() < 0.13)
+      const style = this.mode === "bounty" ? s.botStyle : undefined;
+      if (rival && s.mass > 30 && (style === "interceptor" || (!style && this.random() < 0.13)))
         s.target = Math.atan2(
           rival.z + Math.sin(rival.angle) * 8 - s.z,
           rival.x + Math.cos(rival.angle) * 8 - s.x,
         );
+      if (style === "evasive") {
+        const threat = this.snakes.find(o => o.id !== s.id && o.alive && dist2(s, o) < 16 ** 2);
+        if (threat) s.target = Math.atan2(s.z - threat.z, s.x - threat.x);
+      }
       let vx = Math.cos(s.target),
         vz = Math.sin(s.target);
       const look = {
@@ -502,20 +551,21 @@ export class Arena {
   }
   step(dt: number, input: Input) {
     if (this.state !== "playing") return;
-    if (this.mode === "sprint" && this.elapsed >= SPRINT_DURATION && !this.cinematic) {
+    const timed = this.mode === "sprint" || this.mode === "bounty";
+    if (timed && this.elapsed >= SPRINT_DURATION && !this.cinematic) {
       this.events = [];
       this.finishSprint();
       return;
     }
     this.events = [];
-    const playableDt = this.mode === "sprint" && !this.cinematic
+    const playableDt = timed && !this.cinematic
       ? Math.min(dt, SPRINT_DURATION - this.elapsed)
       : dt;
-    this.elapsed = this.mode === "sprint"
+    this.elapsed = timed
       ? Math.min(SPRINT_DURATION, this.elapsed + playableDt)
       : this.elapsed + dt;
     this.nukeCooldown = Math.max(0, this.nukeCooldown - playableDt);
-    if (input.nuke && (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)) this.activateNuke(this.player);
+    if (input.nuke && (!timed || this.elapsed < SPRINT_DURATION)) this.activateNuke(this.player);
     if (this.cinematic) {
       this.updateRespawns(playableDt);
       this.stepNuke(dt);
@@ -551,7 +601,7 @@ export class Arena {
     }
     // All snakes move together in short steps while forced motion is possible.
     // Timers, AI and casts still run exactly once per fixed simulation tick.
-    const forced = this.projectiles.length > 0 || this.skyPunches.length > 0 || this.snakes.some(s => s.knockback);
+    const forced = this.projectiles.length > 0 || this.snakes.some(s => s.knockback);
     const steps = forced ? Math.max(1, Math.ceil((BASE_SPEED * 1.7 + KI_IMPULSE) * dt / 0.2)) : 1;
     const h = dt / steps, consumed = new Set<number>();
     for (let tick = 0; tick < steps; tick++) {
@@ -561,8 +611,7 @@ export class Arena {
         const c = controls.get(s.id)!;
         const turn = 2.65 * (s.character === "cloud" && s.active > 0 ? 2 : 1) * h;
         s.angle += Math.max(-turn, Math.min(turn, angleDelta(s.angle, c.angle)));
-        const free = (s.character === "ember" && s.active > 0) ||
-          (s.id === 0 && this.transformation?.kind === "nine-tail");
+        const free = (s.character === "ember" && s.active > 0);
         s.boosting = free || (c.boost && s.mass > MIN_MASS + 0.05);
         const speed = BASE_SPEED * (s.boosting ? 1.7 : 1) * (s.slowed ? VEIL_SPEED : 1);
         s.x += Math.cos(s.angle) * speed * h;
@@ -582,7 +631,7 @@ export class Arena {
           s.dropClock += loss;
           if (s.dropClock >= 1) {
             s.dropClock -= 1;
-            this.spawnFood(s.body[s.body.length - 1], 1, CHARACTERS.findIndex(c => c.id === s.character));
+            this.spawnFood(s.body[s.body.length - 1], 1, CHARACTERS.findIndex(c => c.id === s.character), "boost");
           }
         }
         const pickup = 1.55 * serpentScale(s.mass);
@@ -591,17 +640,21 @@ export class Arena {
             consumed.add(f.id);
             s.mass += f.value * 0.6;
             s.peak = Math.max(s.peak, s.mass);
-            if (s.id === 0) this.events.push({ type: "collect", id: s.id, x: f.x, z: f.z });
+            if (s.id === 0) {
+              this.events.push({ type: "collect", id: s.id, x: f.x, z: f.z, source: f.source });
+              if (this.mode === "bounty" && f.source === "natural") {
+                this.bountyPoints++;
+                this.bountyCharge = Math.min(BOUNTY_CHARGE_MAX, this.bountyCharge + 1);
+              }
+            }
           }
         }
         this.followBody(s);
       }
-      this.advanceTransformation(h);
       this.reindex();
       this.resolveCollisions();
       if (this.state !== "playing") break;
       this.stepProjectiles(h);
-      this.stepSkyPunches(h);
     }
     this.updateSlows();
     this.food = this.food.filter(f => !consumed.has(f.id));
@@ -612,6 +665,7 @@ export class Arena {
     while (this.food.length < this.foodTarget) this.spawnFood();
     if (this.food.length > 1600) this.food.splice(0, this.food.length - 1600);
     if (this.elapsed >= SPRINT_DURATION) this.finishSprint();
+    this.assignBounty();
   }
   private updateSlows() {
     const field = hasVeil(this.player);
@@ -669,8 +723,7 @@ export class Arena {
       p.remaining -= travel;
       if (hit) {
         const target = this.snakes.find(s => s.id === hit!.owner)!;
-        if (!(target.id === 0 && this.transformation))
-          target.knockback = { x: vx * KI_IMPULSE, z: vz * KI_IMPULSE, remaining: KI_IMPULSE_DURATION };
+        target.knockback = { x: vx * KI_IMPULSE, z: vz * KI_IMPULSE, remaining: KI_IMPULSE_DURATION };
         this.events.push({ type: "ki-impact", id: p.ownerId, targetId: target.id, character: "nova", x: p.x, z: p.z, direction: p.direction });
       } else if (p.remaining > 1e-8 && travel < boundary - 1e-8) retained.push(p);
     }
@@ -685,114 +738,51 @@ export class Arena {
       for (let j = i + 1; j < living.length; j++) {
         const o = living[j];
         if (dist2(s, o) < (headRadius + HEAD_HIT_RADIUS * serpentScale(o.mass)) ** 2) {
-          if (this.transformation && (s.id === 0 || o.id === 0)) {
-            const rival = s.id === 0 ? o : s;
-            dead.set(rival.id, "A spirit form struck your coil.");
-            hitOwners.set(rival.id, 0);
-          } else {
-            dead.set(s.id, "Head-on clash. Both spirits fell.");
-            dead.set(o.id, "Head-on clash. Both spirits fell.");
-          }
+          dead.set(s.id, "Head-on clash. Both spirits fell.");
+          dead.set(o.id, "Head-on clash. Both spirits fell.");
+          if (!hitOwners.has(s.id)) hitOwners.set(s.id, o.id);
+          if (!hitOwners.has(o.id)) hitOwners.set(o.id, s.id);
         }
       }
       for (const b of this.bodyGrid.query(s, headRadius + BODY_RADIUS * MAX_SIZE)) {
         if (b.owner !== s.id && dist2(s, b) < (headRadius + b.radius) ** 2) {
-          if (this.transformation && s.id === 0) {
-            if (this.transformation.kind === "nine-tail" && !dead.has(b.owner)) {
-              dead.set(b.owner, "Struck by the Nine-Tail Cloak."); hitOwners.set(b.owner, 0);
-            }
-          } else if (!dead.has(s.id)) { dead.set(s.id, "Your head touched a rival’s coil."); hitOwners.set(s.id, b.owner); }
+          if (!dead.has(s.id)) { dead.set(s.id, "Your head touched a rival’s coil."); hitOwners.set(s.id, b.owner); }
           break;
         }
       }
     }
     for (const [id, reason] of dead) {
       const s = living.find(s => s.id === id)!;
-      this.eliminate(s, id !== 0 && !dead.has(0) && hitOwners.get(id) === 0, reason);
-      if (id === 0) this.endTransformation("death");
+      this.eliminate(s, id !== 0 && !dead.has(0) && hitOwners.get(id) === 0, reason, hitOwners.get(id));
     }
   }
-  private eliminate(s: Serpent, credited: boolean, reason: string) {
+  private eliminate(s: Serpent, credited: boolean, reason: string, killerId?: number) {
     if (!s.alive) return false;
     s.alive = false;
     s.charge = undefined;
     s.knockback = undefined;
     s.active = 0;
     for (let i = 0; i < s.body.length; i += 2) this.spawnFood(s.body[i], 2, CHARACTERS.findIndex(c => c.id === s.character));
-    this.events.push({ type: "death", id: s.id, x: s.x, z: s.z, reason });
-    if (s.id === 0) { this.playerRespawnRemaining = RESPAWN_DELAY; this.deathReason = reason; }
+    this.events.push({ type: "death", id: s.id, x: s.x, z: s.z, reason, killerId,
+      killerName: this.snakes.find(other => other.id === killerId)?.name });
+    if (s.id === 0) {
+      this.playerRespawnRemaining = RESPAWN_DELAY; this.deathReason = reason;
+      if (this.mode === "bounty") this.bountyCharge = Math.floor(this.bountyCharge / 2);
+    }
     else if (credited) {
       this.player.kills++;
-      this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
-      if (this.transformation?.kind === "nine-tail")
-        this.events.push({ type: "transform-hit", id: 0, targetId: s.id, character: "ember", ultimate: "nine-tail", x: s.x, z: s.z });
+      const bounty = this.mode === "bounty" && s.id === this.bountyTargetId;
+      if (this.mode === "bounty") {
+        this.directEliminations++;
+        this.bountyPoints += 100 + (bounty ? 200 : 0);
+        this.bountyCharge = Math.min(BOUNTY_CHARGE_MAX, this.bountyCharge + 20 + (bounty ? 15 : 0));
+        if (bounty) this.bountiesClaimed++;
+      }
+      this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z,
+        sequence: ++this.eliminationSequence, source: "collision", bounty });
     }
+    if (s.id === this.bountyTargetId) this.bountyTargetId = undefined;
     return true;
-  }
-  private advanceTransformation(dt: number) {
-    const form = this.transformation;
-    if (!form || !this.player.alive) return;
-    form.elapsed = Math.min(TRANSFORMATION_DURATION, form.elapsed + dt);
-    form.remaining = Math.max(0, TRANSFORMATION_DURATION - form.elapsed);
-    if (form.kind === "skybreaker") {
-      while (form.elapsed + 1e-8 >= form.nextAttack && form.nextAttack < TRANSFORMATION_DURATION) {
-        const direction = this.player.angle;
-        const offset = HEAD_HIT_RADIUS * serpentScale(this.player.mass) + SKY_PUNCH_RADIUS + .1;
-        const side = this.skyPunchId % 2 === 0 ? -1 : 1;
-        const x = this.player.x + Math.cos(direction) * offset - Math.sin(direction) * side * .34;
-        const z = this.player.z + Math.sin(direction) * offset + Math.cos(direction) * side * .34;
-        this.skyPunches.push({ id: this.skyPunchId++, x, z, previous: { x, z }, direction, remaining: SKY_PUNCH_RANGE, radius: SKY_PUNCH_RADIUS });
-        this.events.push({ type: "transform-launch", id: 0, character: "cloud", ultimate: "skybreaker", x, z, direction });
-        form.nextAttack += SKY_PUNCH_INTERVAL;
-      }
-    }
-    if (form.remaining <= 1e-8) this.endTransformation("expired");
-  }
-  private stepSkyPunches(dt: number) {
-    if (!this.skyPunches.length) return;
-    const targets = new SpatialGrid<BodyPoint>(5);
-    for (const s of this.snakes) {
-      if (!s.alive || s.id === 0) continue;
-      targets.add({ x: s.x, z: s.z, owner: s.id, radius: HEAD_HIT_RADIUS * serpentScale(s.mass) });
-      for (let i = 1; i < s.body.length; i++) targets.add({ ...s.body[i], owner: s.id, radius: bodyHitRadiusAt(i, s.body.length, s.mass) });
-    }
-    const retained: SkyPunch[] = [];
-    for (const p of this.skyPunches) {
-      const vx = Math.cos(p.direction), vz = Math.sin(p.direction), limit = RADIUS - p.radius;
-      if (Math.hypot(p.x, p.z) >= limit) continue;
-      const dot = p.x * vx + p.z * vz;
-      const boundary = -dot + Math.sqrt(dot * dot + limit * limit - p.x * p.x - p.z * p.z);
-      const travel = Math.min(SKY_PUNCH_SPEED * dt, p.remaining, boundary);
-      const midpoint = { x: p.x + vx * travel / 2, z: p.z + vz * travel / 2 };
-      let hit: BodyPoint | undefined, distance = Infinity;
-      for (const target of targets.query(midpoint, travel / 2 + HEAD_HIT_RADIUS * MAX_SIZE + p.radius)) {
-        const dx = target.x - p.x, dz = target.z - p.z;
-        const along = dx * vx + dz * vz, radius = target.radius + p.radius;
-        const perpendicular2 = Math.max(0, dx * dx + dz * dz - along * along);
-        if (perpendicular2 > radius * radius) continue;
-        const reach = Math.sqrt(radius * radius - perpendicular2);
-        if (along + reach < 0) continue;
-        const contact = Math.max(0, along - reach);
-        if (contact > travel) continue;
-        if (contact < distance - 1e-9 || (Math.abs(contact - distance) <= 1e-9 && target.owner < (hit?.owner ?? Infinity))) { hit = target; distance = contact; }
-      }
-      p.previous = { x: p.x, z: p.z };
-      p.x += vx * (hit ? distance : travel); p.z += vz * (hit ? distance : travel); p.remaining -= travel;
-      if (hit) {
-        const victim = this.snakes.find(s => s.id === hit!.owner);
-        if (victim && this.eliminate(victim, true, "Struck by Skybreaker Barrage."))
-          this.events.push({ type: "transform-hit", id: 0, targetId: victim.id, character: "cloud", ultimate: "skybreaker", x: p.x, z: p.z, direction: p.direction });
-      } else if (p.remaining > 1e-8 && travel < boundary - 1e-8) retained.push(p);
-    }
-    this.skyPunches = retained;
-  }
-  private endTransformation(reason: string) {
-    const form = this.transformation;
-    if (!form) { this.skyPunches = []; return; }
-    this.transformation = undefined;
-    this.skyPunches = [];
-    this.player.boosting = false;
-    this.events.push({ type: "transform-end", id: 0, character: form.kind === "nine-tail" ? "ember" : "cloud", ultimate: form.kind, x: this.player.x, z: this.player.z, reason });
   }
   activateNuke(s: Serpent) {
     const definition = ultimateFor(s.character);
@@ -802,26 +792,18 @@ export class Arena {
       this.mode === "practice" ||
       this.state !== "playing" ||
       this.cinematic ||
-      this.transformation ||
       this.nukeCooldown > 0
+      || (this.mode === "bounty" && this.bountyCharge < BOUNTY_CHARGE_MAX)
     )
       return false;
-    if (definition.mode === "transformation") {
-      this.nukeCooldown = definition.cooldown;
-      const kind = definition.id === "nine-tail" ? "nine-tail" : "skybreaker";
-      s.knockback = undefined;
-      this.transformation = { kind, elapsed: 0, remaining: definition.duration, nextAttack: SKY_PUNCH_FIRST };
-      this.skyPunches = [];
-      this.events.push({ type: "transform-start", id: 0, character: s.character, ultimate: definition.id, x: s.x, z: s.z });
-      return true;
-    }
     this.projectiles = [];
     for (const snake of this.snakes) { snake.charge = undefined; snake.knockback = undefined; snake.slowed = false; }
     this.nukeCooldown = definition.cooldown;
+    if (this.mode === "bounty") this.bountyCharge = 0;
     const impact = { x: s.x + Math.cos(s.angle) * 22, z: s.z + Math.sin(s.angle) * 22 };
     const reach = Math.hypot(impact.x, impact.z);
     if (reach > RADIUS - 18) { impact.x *= (RADIUS - 18) / reach; impact.z *= (RADIUS - 18) / reach; }
-    this.cinematic = { impact, kind: definition.id === "spirit" ? "spirit" : "purple", time: 0, detonated: false };
+    this.cinematic = { impact, kind: definition.id, time: 0, detonated: false };
     this.events.push({ type: "nuke", id: 0, ultimate: definition.id, x: s.x, z: s.z });
     return true;
   }
@@ -834,7 +816,7 @@ export class Arena {
       s.previous = { x: s.x, z: s.z };
       s.boosting = false;
       s.frozen = s.id !== 0;
-      if (s.id === 0 || !s.alive || shot.time < 1 || shot.kind === "spirit") continue;
+      if (s.id === 0 || !s.alive || shot.time < 1 || shot.kind !== "purple") continue;
       const pull = 1 - Math.exp(-dt * (1.1 + shot.time * 0.65));
       const dx = (p.x - s.x) * pull,
         dz = (p.z - s.z) * pull;
@@ -853,7 +835,10 @@ export class Arena {
         if (this.mode !== "practice")
           this.pendingBotRespawns.push({ remaining: RESPAWN_DELAY, index: Math.max(0, NAMES.indexOf(s.name)) });
         p.kills++;
-        this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z, sequence: ++this.eliminationSequence });
+        if (this.mode === "bounty") this.ultimateEliminations++;
+        this.events.push({ type: "player-elimination", id: s.id, x: s.x, z: s.z,
+          sequence: ++this.eliminationSequence, source: "ultimate" });
+        if (s.id === this.bountyTargetId) this.bountyTargetId = undefined;
         for (let i = 0; i < s.body.length; i += 2)
           this.spawnFood(
             s.body[i],
@@ -868,9 +853,10 @@ export class Arena {
     if (shot.time >= NUKE_DURATION) {
       this.snakes = this.snakes.filter((s) => s.alive);
       this.cinematic = undefined;
-      if (this.mode !== "sprint" || this.elapsed < SPRINT_DURATION)
+      if ((this.mode !== "sprint" && this.mode !== "bounty") || this.elapsed < SPRINT_DURATION)
         while (this.food.length < this.foodTarget) this.spawnFood();
       this.reindex();
+      this.assignBounty();
     }
   }
 }

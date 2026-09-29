@@ -6,7 +6,7 @@ import {
   type AudioChannel,
   type AudioPreferences,
 } from "./audio-settings";
-type Clip = CharacterId | "purple" | "spirit";
+type Clip = CharacterId | "purple" | "spirit" | "fox";
 export class AudioEngine {
   prefs: AudioPreferences = { ...DEFAULT_AUDIO };
   unavailable = false;
@@ -63,6 +63,7 @@ export class AudioEngine {
           "eclipse",
           "purple",
           "spirit",
+          "fox",
         ] as const)
           void this.load(clip);
         this.applyVolumes();
@@ -231,10 +232,17 @@ export class AudioEngine {
     this.applyVolumes();
     source.start();
   }
-  skill(character: CharacterId, ultimate?: "purple" | "spirit") {
+  skill(character: CharacterId, ultimate?: "purple" | "spirit" | "fox" | "skybreaker") {
     if (!this.ctx || !this.enabled || this.hidden) return;
-    void this.speak(ultimate ?? character);
-    if (ultimate === "spirit") {
+    if (ultimate !== 'skybreaker') void this.speak(ultimate ?? character);
+    if (ultimate === "skybreaker") {
+      this.tone(190, 550, .44, .065, "triangle");
+      this.tone(360, 220, .52, .032, "sine", .08);
+    } else if (ultimate === "fox") {
+      this.tone(75, 155, .65, .085, "triangle");
+      this.tone(310, 95, .5, .035, "sine", .08);
+      this.tone(420, 780, .38, .018, "sine", .1);
+    } else if (ultimate === "spirit") {
       [196, 294, 392, 587].forEach((f, i) =>
         this.tone(f, f * 2, 2.8 - i * 0.2, 0.045, "sine", i * 0.2));
     } else if (ultimate === "purple") {
@@ -265,7 +273,15 @@ export class AudioEngine {
   }
   ultimateCue(kind: UltimateKind, cue: UltimateCue) {
     if (!this.ctx || !this.enabled || this.hidden || this.prefs.effects === 0) return;
-    if (kind === 'purple' && cue === 'converge') {
+    if (kind === 'skybreaker') {
+      if (cue === 'windup') { this.tone(180, 770, 1.15, .045, 'triangle'); this.tone(460, 180, .6, .025, 'sine', .12); }
+      if (cue === 'throw') { this.tone(800, 95, .55, .08, 'triangle'); this.tone(270, 55, .48, .043, 'sine', .04); }
+      if (cue === 'release') this.tone(490, 220, .32, .035, 'triangle');
+    } else if (kind === 'fox') {
+      if (cue === 'gather') { this.tone(85, 310, 1.5, .06, 'sine'); this.tone(210, 520, 1.4, .025, 'triangle'); this.tone(58, 94, 1.2, .027, 'triangle', .12); }
+      if (cue === 'launch') { this.tone(680, 55, .7, .085, 'triangle'); this.tone(130, 42, .65, .06, 'sine'); }
+      if (cue === 'release') this.tone(320, 140, .6, .035, 'sine');
+    } else if (kind === 'purple' && cue === 'converge') {
       this.tone(260, 740, .5, .055, 'sine');
       this.tone(520, 160, .5, .047, 'triangle', .06);
     } else if (kind === 'purple' && cue === 'compress') {
@@ -318,7 +334,7 @@ export class AudioEngine {
     this.tone(760, 290, .09, .042, "triangle");
     this.tone(1040, 1320, .14, .021, "sine", .035);
   }
-  play(type: "collect" | "death" | "respawn" | "select" | "blast", ultimate?: "purple" | "spirit") {
+  play(type: "collect" | "death" | "respawn" | "select" | "blast", ultimate?: "purple" | "spirit" | "fox" | "skybreaker") {
     if (!this.ctx || !this.enabled || this.hidden) return;
     const t = this.ctx.currentTime;
     if (type === "collect") {
@@ -332,7 +348,18 @@ export class AudioEngine {
       this.tone(520, 880, .24, .043, "sine");
       this.tone(780, 1170, .28, .026, "sine", .045);
     }
-    if (type === "blast" && ultimate === "spirit") {
+    if (type === "blast" && ultimate === "skybreaker") {
+      this.tone(420, 48, .85, .14, "triangle");
+      this.tone(112, 25, 1.2, .12, "sine", .05);
+      this.tone(980, 120, .2, .045, "triangle", .07);
+    } else if (type === "blast" && ultimate === "fox") {
+      this.tone(170, 30, 1.1, .16, "triangle");
+      this.tone(74, 26, 1.3, .10, "sine");
+      this.tone(620, 120, .25, .045, "triangle");
+      this.tone(190, 48, .52, .047, "triangle", .18);
+      this.tone(880, 230, .12, .018, "triangle", .31);
+      this.tone(710, 140, .16, .015, "triangle", .46);
+    } else if (type === "blast" && ultimate === "spirit") {
       this.tone(180, 34, 1.5, .2, "triangle");
       this.tone(440, 110, .7, .09, "sine");
       this.tone(85, 42, 1.1, .055, 'sine', .15);

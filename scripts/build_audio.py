@@ -13,6 +13,7 @@ voices = [
  ('eclipse','無限バリア！',10002,1.1,.10,1.15),
  ('purple','ホロウ・パープル！',10002,1.02,.10,1.2),
  ('spirit','元気玉！',10001,1.05,.13,1.35),
+ ('fox','尾獣玉！',10005,1.02,.02,1.35),
 ]
 for name, text, speaker, speed, pitch, intonation in voices:
     if len(sys.argv) > 1 and name not in sys.argv[1:]: continue

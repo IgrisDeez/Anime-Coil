@@ -15,12 +15,14 @@ import {
 import { SkillEffects } from "./skill-effects";
 import { createHead, createHeadOutline, createTransformedHead, createTransformedHeadOutline } from "./models";
 import { SpiritCinematic } from "./spirit";
+import { FoxCinematic } from "./fox";
+import { SkybreakerCinematic } from "./skybreaker";
 import { PurpleCinematic } from "./purple";
-import { TransformationEffects } from "./transformation-effects";
 import { renderAnchor, updateRenderAnchor, type RenderAnchor } from './vfx-anchors';
 import { MAPS, getMap, type MapId } from "./maps";
 import { buildEnvironment, type Environment } from "./environments";
-import { profileFor, VisualClock, reaction, formVisualIntensity, type EnvironmentFrame } from "./worlds/types";
+import { profileFor, VisualClock, reaction, type EnvironmentFrame } from "./worlds/types";
+import type { GraphicsChoice } from './game-settings';
 import { bodySkinAppearance, BOT_OUTLINE_COLOR, createSpiritweavePixels, isPlayerMarkSegment, PLAYER_MARK_INTERVAL, PLAYER_OUTLINE_COLOR, SPIRITWEAVE_SIZE, transformationCoilFinish } from "./coil-skins";
 const bodyGeo = new THREE.SphereGeometry(1, 11, 7),
   dummy = new THREE.Object3D();
@@ -76,6 +78,9 @@ export class GameRenderer {
   renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(43, 1, 0.1, 600);
+  cinematicCameraEnabled = true;
+  private readonly gameplayCameraPosition = new THREE.Vector3();
+  private readonly gameplayCameraRotation = new THREE.Quaternion();
   visuals = new Map<number, SnakeVisual>();
   private effectAnchors = new Map<number, RenderAnchor>();
   food: THREE.InstancedMesh;
@@ -87,19 +92,23 @@ export class GameRenderer {
   heroId: CharacterId = "ember";
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
-  handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); this.transformations.ingest(events,this.visualClock.time); }
-  clearEffects() { this.skillEffects.clear(); this.transformations.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
+  clearEffects() { this.fox?.clear(); this.skybreaker?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
   readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
   private focusTarget = new THREE.Vector3();
   private boostCamera = 0;
+  private graphicsChoice: GraphicsChoice = 'auto';
+  setGraphicsChoice(choice: GraphicsChoice) { this.graphicsChoice = choice; this.resize(); }
   private ray = new THREE.Raycaster();
   private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   private target = new THREE.Vector3();
   private stampTarget = new THREE.Vector3();
-  projectPoint(x: number, z: number, out: { x: number; y: number }) {
-    this.stampTarget.set(x, 1.5, z).project(this.camera);
-    if (this.stampTarget.z < -1 || this.stampTarget.z > 1 || Math.abs(this.stampTarget.x) > 1 || Math.abs(this.stampTarget.y) > 1) return false;
+  projectPoint(x: number, z: number, out: { x: number; y: number }, height = 1.5, allowOffscreen = false) {
+    this.stampTarget.set(x, height, z).project(this.camera);
+    if (!Number.isFinite(this.stampTarget.x) || !Number.isFinite(this.stampTarget.y) ||
+      this.stampTarget.z < -1 || this.stampTarget.z > 1 ||
+      (!allowOffscreen && (Math.abs(this.stampTarget.x) > 1 || Math.abs(this.stampTarget.y) > 1))) return false;
     out.x = (this.stampTarget.x + 1) * innerWidth * .5;
     out.y = (1 - this.stampTarget.y) * innerHeight * .5;
     return true;
@@ -140,9 +149,13 @@ export class GameRenderer {
   private sunlight = new THREE.DirectionalLight("#fff1d9", 3);
   private rimLight = new THREE.DirectionalLight("#9773ff", 1.8);
   mapId: MapId = "shibuya";
+  private fox: FoxCinematic;
+  private skybreaker: SkybreakerCinematic;
+  private foxTint = new THREE.Color("#ffa343");
+  private purpleTint = new THREE.Color("#aa65ff");
+  disposeCinematics() { this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose(); }
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
-  private transformations: TransformationEffects;
   setCosmetics(skin: BodySkinId = 'original', trail: TrailId = 'original') {
     this.bodySkin = skin;
     this.skillEffects.setBoostTrail(trail);
@@ -197,6 +210,7 @@ export class GameRenderer {
     this.sunlight.position.set(-12, 30, 20);
     this.rimLight.position.set(10, 10, -15);
     this.scene.add(this.hemisphere, this.sunlight, this.rimLight, this.skillEffects.group);
+    this.skillEffects.setProfile(this.profile);
     const ringGeo = new THREE.RingGeometry(RADIUS - 0.3, RADIUS + 0.3, 180);
     this.ring = new THREE.Mesh(
       ringGeo,
@@ -231,10 +245,10 @@ export class GameRenderer {
     this.food.frustumCulled = false;
     this.scene.add(this.food);
     this.scene.add(this.hero);
+    this.fox = new FoxCinematic(this.scene, this.profile);
+    this.skybreaker = new SkybreakerCinematic(this.scene, this.profile);
     this.purple = new PurpleCinematic(this.scene, this.profile);
     this.spirit = new SpiritCinematic(this.scene, this.profile);
-    this.transformations = new TransformationEffects(this.profile);
-    this.scene.add(this.transformations.group);
     this.setHero("ember");
     this.setMap("shibuya");
     this.resize();
@@ -324,7 +338,7 @@ export class GameRenderer {
         normal,
         hollowPurple: summarizeSamples(this.samples["hollow-purple"]),
         spiritBomb: summarizeSamples(this.samples["spirit-bomb"]),
-        nineTail: summarizeSamples(this.samples["nine-tail"]),
+        foxSpiritBomb: summarizeSamples(this.samples["nine-tail"]),
         skybreaker: summarizeSamples(this.samples.skybreaker),
       },
       memory: { ...info.memory, programs: info.programs?.length ?? 0 }, snakes: this.visuals.size,
@@ -414,8 +428,8 @@ export class GameRenderer {
   resize() {
     const w = innerWidth,
       h = innerHeight;
-    const profile = profileFor(w, matchMedia("(pointer:coarse)").matches);
-    if (this.profile !== profile) { this.profile = profile; this.spirit.setProfile(profile); this.purple.setProfile(profile); this.transformations.setProfile(profile); this.setMap(this.mapId); }
+    const profile = this.graphicsChoice === 'auto' ? profileFor(w, matchMedia("(pointer:coarse)").matches) : this.graphicsChoice === 'low' ? 'mobile' : 'desktop';
+    if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId); }
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.75));
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
@@ -458,7 +472,7 @@ export class GameRenderer {
     time = this.visualClock.advance(dt, paused, document.hidden);
     this.visualFrame.time = time; this.visualFrame.dt = paused ? 0 : Math.min(dt, .1);
     this.visualFrame.paused = paused; this.visualFrame.reducedMotion = reducedMotion;
-    this.boostMotion.update(!menu && arena ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic, arena.transformation?.kind === 'nine-tail') : 'none', this.visualFrame.dt);
+    this.boostMotion.update(!menu && arena ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic, false) : 'none', this.visualFrame.dt);
     const stamp = performance.now();
     const frameInterval = this.frameStamp ? stamp - this.frameStamp : 0;
     this.frameStamp=stamp;
@@ -586,7 +600,7 @@ export class GameRenderer {
           this.scene.add(outline, headOutline, head, body, aura, shadow);
           if (marks) this.scene.add(marks);
         }
-        const formKind = s.id === 0 && arena.transformation && ((arena.transformation.kind === 'nine-tail' && s.character === 'ember') || (arena.transformation.kind === 'skybreaker' && s.character === 'cloud')) ? arena.transformation.kind : undefined;
+        const formKind = s.id === 0 && arena.cinematic?.kind === 'fox' ? 'nine-tail' : s.id === 0 && arena.cinematic?.kind === 'skybreaker' && s.character === 'cloud' ? 'skybreaker' : undefined;
         if (v.formKind !== formKind) {
           if (formKind) this.applyFormFinish(v, formKind);
           else if (s.id === 0) this.applySkin(v.body,v.outline,s.character);
@@ -605,6 +619,7 @@ export class GameRenderer {
         (v.aura.material as THREE.MeshBasicMaterial).color.set(
           s.frozen ? "#547a8e" : s.slowed ? "#ad8bcf" : c.color,
         );
+        (v.aura.material as THREE.MeshBasicMaterial).opacity = s.character === 'eclipse' && s.active > 0 ? .82 : .65;
         // Bodies and collisions use the current fixed-step state. Rendering
         // an older interpolated head makes a hit register ahead of its face.
         const hx = s.x,
@@ -697,23 +712,29 @@ export class GameRenderer {
       if (this.food.instanceColor) this.food.instanceColor.needsUpdate = true;
     }
     this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId, this.effectAnchors);
-    this.transformations.update(menu ? undefined : arena, time, reducedMotion, this.effectAnchors,this.mapId);
+    this.gameplayCameraPosition.copy(this.camera.position);
+    this.gameplayCameraRotation.copy(this.camera.quaternion);
     this.purple.update(arena, this.camera, menu, reducedMotion);
     this.spirit.update(arena, this.camera, menu, reducedMotion);
+    this.fox.update(arena, this.camera, menu, reducedMotion);
+    this.skybreaker.update(arena, this.camera, menu, reducedMotion);
+    if (!this.cinematicCameraEnabled && arena?.cinematic) {
+      this.camera.position.copy(this.gameplayCameraPosition);
+      this.camera.quaternion.copy(this.gameplayCameraRotation);
+      this.camera.updateMatrixWorld();
+    }
     const shot = menu ? undefined : arena?.cinematic;
-    const form = menu ? undefined : arena?.transformation;
     const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,
-      ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined,
-      transformation:form&&arena?{kind:form.kind,elapsed:form.elapsed,origin:{x:arena.player.x,z:arena.player.z},intensity:formVisualIntensity(form.elapsed)}:undefined};
+      ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
     this.environment?.update(frame);
     const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
     this.hemisphere.intensity=base.intensity*response.light;
     this.sunlight.intensity=base.sunIntensity*response.light;
-    this.sunlight.color.set(base.sun).lerp(new THREE.Color("#aa65ff"),response.tint);
+    this.sunlight.color.set(base.sun).lerp(shot?.kind === "fox" ? this.foxTint : this.purpleTint,response.tint);
     this.rimLight.intensity=base.rimIntensity+response.tint;
     this.renderer.render(this.scene, this.camera);
     if (!paused && !menu && arena && frameInterval > 0 && frameInterval < 200) {
-      const phase: SamplePhase = arena.transformation?.kind ?? (arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal");
+      const phase: SamplePhase = arena.cinematic?.kind === "fox" ? "nine-tail" : arena.cinematic?.kind === "skybreaker" ? "skybreaker" : arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal";
       const samples = this.samples[phase];
       samples.push({ ms: frameInterval, calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles,
         snakes: arena.snakes.filter(s => s.alive).length });

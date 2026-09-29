@@ -23,7 +23,7 @@ test('opening hint fades after four active seconds, freezes on pause, and return
 });
 
 test('all mode labels stay inside the Energy card with stable mode IDs', () => {
-  assert.deepEqual(HUD_MODE_LABELS, { endless: 'ENDLESS', sprint: '3-MINUTE SPRINT', practice: 'GUIDED PRACTICE' });
+  assert.deepEqual(HUD_MODE_LABELS, { endless: 'ENDLESS', sprint: '3-MINUTE SPRINT', bounty: 'BOUNTY HUNT', practice: 'GUIDED PRACTICE' });
   const scoreStart = ui.indexOf('class="hud-score"');
   const mode = ui.indexOf('id="hud-mode"');
   const right = ui.indexOf('class="hud-right"');

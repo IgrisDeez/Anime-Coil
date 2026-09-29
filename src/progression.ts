@@ -1,7 +1,7 @@
 import { MAPS, type MapId } from './maps';
 import type { GameEvent } from './simulation';
 
-export type ProgressMode = 'endless' | 'sprint' | 'practice';
+export type ProgressMode = 'endless' | 'sprint' | 'bounty' | 'practice';
 export type BodySkinId = 'original' | 'neon' | 'spiritweave';
 export type TrailId = 'original' | 'petals' | 'starlight';
 export type ChallengeId = 'orbs' | 'survival' | 'eliminations' | 'sprint-maps';

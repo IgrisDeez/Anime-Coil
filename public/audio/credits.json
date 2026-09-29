@@ -50,6 +50,14 @@
       "speed": 1.05,
       "pitch": 0.13,
       "intonation": 1.35
+    },
+    {
+      "file": "fox",
+      "text": "尾獣玉！",
+      "speaker": 10005,
+      "speed": 1.02,
+      "pitch": 0.02,
+      "intonation": 1.35
     }
   ]
 }

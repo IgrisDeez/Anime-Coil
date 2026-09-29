@@ -9,8 +9,7 @@ export interface EnvironmentFrame {
   readonly mode: "menu" | "game";
   readonly paused: boolean;
   readonly reducedMotion: boolean;
-  readonly ultimate?: Readonly<{ kind: "purple" | "spirit"; time: number; origin: VisualPoint; impact: VisualPoint }>;
-  readonly transformation?: Readonly<{ kind: 'nine-tail' | 'skybreaker'; elapsed: number; origin: VisualPoint; intensity: number }>;
+  readonly ultimate?: Readonly<{ kind: "purple" | "spirit" | "fox" | "skybreaker"; time: number; origin: VisualPoint; impact: VisualPoint }>;
 }
 /** Cosmetic radius with a soft four-unit rim; no simulation state reads this. */
 export function cartoonInfluence(distance: number, radius = 24): number {
@@ -38,6 +37,8 @@ export function reaction(ultimate: EnvironmentFrame["ultimate"], reduced: boolea
   if (!ultimate || reduced) return { tint: 0, light: 1, attraction: 0, pulse: 0 };
   const t = ultimate.time, blast = Math.max(0, t - 3.4);
   const pulse = t >= 3.4 ? Math.max(0, 1 - blast / .8) : 0;
+  if (ultimate.kind === "fox") return { tint: .24 * Math.max(0, 1 - blast / 2.2), light: t < 3.4 ? 1 - Math.min(.22, t * .09) : 1 + pulse * .24, attraction: 0, pulse };
+  if (ultimate.kind === "skybreaker") return { tint: .14 * Math.max(0, 1 - blast / 2.2), light: t < 3.4 ? 1 + Math.min(.12, t * .04) : 1 + pulse * .2, attraction: 0, pulse };
   return ultimate.kind === "purple"
     ? { tint: Math.min(.3, t * .09) * Math.max(0, 1 - blast / 2.2), light: 1 + pulse * .2, attraction: 0, pulse }
     : { tint: 0, light: t < 3.4 ? 1 - Math.min(.18, t * .07) : 1 + pulse * .22, attraction: t < 2.4 ? Math.min(1,t / 2.4) : 0, pulse };

@@ -30,11 +30,20 @@ test('practice skips and death never advance the guide', () => {
   assert.equal(guide.step, 4);
 });
 
-test('an E skill used early still satisfies the last practice step', () => {
+test('practice measures each step only while it is active', () => {
   const guide = new PracticeGuide();
   const player = { angle: 0, boosting: false, alive: true };
   guide.update(1 / 60, player, [{ type: 'ability', id: 0, x: 0, z: 0 }]);
   guide.skip(); guide.skip(); guide.skip();
   guide.update(1 / 60, player, []);
+  assert.equal(guide.complete, false);
+  guide.update(1 / 60, player, [{ type: 'ability', id: 0, x: 0, z: 0 }]);
   assert.equal(guide.complete, true);
+});
+
+test('practice prompts show the selected E skill and rebound key', () => {
+  const guide = new PracticeGuide('nova');
+  guide.skip(); guide.skip(); guide.skip();
+  assert.match(guide.detailForKey('R', false), /Ki Cannon: press R/);
+  assert.match(guide.detailForKey('R', true), /Ki Cannon: tap Skill/);
 });

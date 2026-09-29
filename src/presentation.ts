@@ -1,7 +1,7 @@
 import { MIN_MASS, type CharacterId, type MatchMode } from './simulation';
 
 export const HUD_MODE_LABELS: Readonly<Record<MatchMode,string>> = {
-  endless: 'ENDLESS', sprint: '3-MINUTE SPRINT', practice: 'GUIDED PRACTICE',
+  endless: 'ENDLESS', sprint: '3-MINUTE SPRINT', bounty: 'BOUNTY HUNT', practice: 'GUIDED PRACTICE',
 };
 export const MATCH_HINT_DURATION = 4;
 
@@ -85,7 +85,8 @@ export class MotionPreference {
   private query: MediaQueryList | undefined;
   private systemReduced = false;
   previewReduced = false;
-  get reduced() { return this.systemReduced || this.previewReduced; }
+  userReduced = false;
+  get reduced() { return this.systemReduced || this.previewReduced || this.userReduced; }
   private change = () => { this.systemReduced = this.query?.matches ?? false; };
   constructor() {
     if (typeof matchMedia === 'function') {

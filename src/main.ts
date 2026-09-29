@@ -15,10 +15,11 @@ import {
   type CharacterId,
   type MatchMode,
   type SprintResult,
+  type BountyResult,
 } from "./simulation";
 import { GameRenderer } from "./renderer";
 import { AudioEngine } from "./audio";
-import { loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
+import { DEFAULT_AUDIO, loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
 import {
   MAPS,
   getMap,
@@ -28,13 +29,17 @@ import {
   type MapStorage,
 } from "./maps";
 import { ui } from "./ui";
+import { installSettingsTabs, restoreDialogFocus, selectSettingsTab } from './settings-tabs';
 import { installWorldDiagnostics } from "./worlds/diagnostics";
 import { Progression, CHALLENGES, BODY_SKINS, TRAILS, type BodySkinId, type TrailId } from './progression';
 import { PracticeGuide } from './practice';
 import { loadSprintBest, recordSprint } from './sprint-record';
+import { loadBountyBest, recordBounty } from './bounty-record';
+import { defaultSettings, loadGameSettings, saveGameSettings, updateBinding, visualComfort, keyLabel, type Action } from './game-settings';
 import { DeathPresentation } from './death-presentation';
 import { SkinPreviewSelection } from './coil-skins';
-import { UltimateCueTracker, ultimateFrame } from './ultimate-presentation';
+import { progressSnapshot, sessionSummary, UnlockNotices, type SessionProgress, type SessionSummary } from './session-summary';
+import { cinematicImpactAnchor, FoxImpactPresentation, PurpleImpactPresentation, SkybreakerImpactPresentation, SpiritImpactPresentation, UltimateCueTracker, ultimateFrame } from './ultimate-presentation';
 import { ultimateFor } from './ultimates';
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = ui;
 const nodes = new Map<string, HTMLElement>();
@@ -48,6 +53,11 @@ const hudLifetime = new HudLifetime();
 const hudChanges = new HudChanges();
 const deathPresentation = new DeathPresentation();
 const ultimateCues = new UltimateCueTracker();
+const spiritImpact = new SpiritImpactPresentation();
+const foxImpact = new FoxImpactPresentation();
+const purpleImpact = new PurpleImpactPresentation();
+const skybreakerImpact = new SkybreakerImpactPresentation();
+const impactWorld = {x:0,y:0,z:0};
 const compass = new SpiritCompass(el<HTMLCanvasElement>('minimap'));
 const eliminationStamps = new EliminationStampView(el('kill-stamps'));
 const speedWind = new SpeedWindView(el<HTMLCanvasElement>('boost-speed-lines'));
@@ -67,7 +77,23 @@ try {
 const progression = new Progression(mapStorage);
 const skinPreview = new SkinPreviewSelection();
 let sprintBest: SprintResult | undefined = loadSprintBest(mapStorage);
-let selectedMode: 'endless' | 'sprint' = 'endless';
+let bountyBest: BountyResult | undefined = loadBountyBest(mapStorage);
+let selectedMode: 'endless' | 'sprint' | 'bounty' = 'endless';
+const settings = loadGameSettings(mapStorage);
+function applyTouchSettings() {
+  document.documentElement.dataset.touchHand = settings.touchHand;
+  document.documentElement.dataset.touchSize = settings.touchSize;
+  el('touch-preview').dataset.touchHand = settings.touchHand;
+  el('touch-preview').dataset.touchSize = settings.touchSize;
+}
+applyTouchSettings();
+const unlockNotices = new UnlockNotices();
+let sessionStart: SessionProgress = progressSnapshot(progression.state);
+let finalSummary: SessionSummary | undefined;
+let manualRecap = false;
+let unlockNoticeRemaining = 0;
+motionPreference.userReduced = settings.motion === 'reduced';
+let rebinding: Action | undefined;
 let practiceGuide: PracticeGuide | undefined;
 let matchFinalized = false;
 let darkTheme = false;
@@ -83,6 +109,10 @@ audio.prefs = loadAudio(mapStorage);
 let selectedMap: MapId = loadMap(mapStorage);
 function chooseMap(id: MapId, persist = true) {
   const changed = selectedMap !== id;
+  if (changed) spiritImpact.reset();
+  if (changed) foxImpact.reset();
+  if (changed) purpleImpact.reset();
+  if (changed) skybreakerImpact.reset();
   selectedMap = id;
   view.setMap(id);
   compass.setMap(id);
@@ -115,18 +145,23 @@ try {
 }
 el("best-score").textContent = String(best);
 function showBest() {
-  el('best-label').textContent = selectedMode === 'sprint' ? 'Sprint record' : 'Personal best';
-  el('best-score').textContent = String(selectedMode === 'sprint' ? sprintBest?.score ?? 0 : best);
+  el('best-label').textContent = selectedMode === 'sprint' ? 'Sprint record' : selectedMode === 'bounty' ? 'Bounty record' : 'Personal best';
+  el('best-score').textContent = String(selectedMode === 'sprint' ? sprintBest?.score ?? 0 : selectedMode === 'bounty' ? bountyBest?.points ?? 0 : best);
 }
-function chooseMode(mode: 'endless' | 'sprint') {
+function chooseMode(mode: 'endless' | 'sprint' | 'bounty') {
   selectedMode = mode;
   document.querySelectorAll<HTMLButtonElement>('.mode-choice').forEach(button =>
     button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
   showBest();
+  el('mode-description').textContent = mode === 'endless'
+    ? 'Grow and survive for as long as you like. Respawn in 3 seconds; V is ready after its cooldown.'
+    : mode === 'sprint'
+      ? 'Set your best peak energy in 3 minutes. Respawn in 3 seconds; V is ready after its cooldown.'
+      : 'Earn points from natural orbs and direct KOs in 3 minutes. Respawn in 3 seconds; charge V to 100.';
   audio.unlock(); audio.play('select');
 }
 document.querySelectorAll<HTMLButtonElement>('.mode-choice').forEach(button =>
-  button.addEventListener('click', () => chooseMode(button.dataset.mode as 'endless' | 'sprint')));
+  button.addEventListener('click', () => chooseMode(button.dataset.mode as 'endless' | 'sprint' | 'bounty')));
 function applyCosmetics() {
   const { cosmetics } = progression.state;
   view?.setCosmetics(cosmetics.skin, cosmetics.trail);
@@ -218,6 +253,9 @@ let mouse = { x: innerWidth * 0.7, y: innerHeight * 0.5 },
 let accumulator = 0,
   last = performance.now(),
   hudClock = 0;
+let deathContactRemaining = 0;
+const deathContactPoint = { x: 0, z: 0 };
+const projectedCue = { x: 0, y: 0 };
 function clearInput() {
   clearSkillVisual();
   boostKey = false;
@@ -236,8 +274,9 @@ const skillVisuals = {
   eclipse: ["キィーン", "無限バリア！", "#8595ed"],
   purple: ["ゴゴゴ…", "ホロウ・パープル！", "#ac79ee"],
   spirit: ["ゴゴゴ…", "元気玉！", "#65c6e8"],
+  fox: ["尾獣玉！", "狐の魂", "#ffb34f"],
   nineTail: ["九尾！", "九尾の衣", "#ef9651"],
-  skybreaker: ["連打！", "スカイブレイカー", "#e98280"],
+  skybreaker: ["ドン！", "スカイブレイカー", "#e98280"],
   blast: ["ドォォン！", "", "#edbc69"],
 } as const;
 function clearSkillVisual() {
@@ -298,6 +337,87 @@ for (const channel of ["effects", "voices"] as AudioChannel[]) {
     saveAudio(audio.prefs, mapStorage);
   });
 }
+function refreshSettings() {
+  document.querySelectorAll<HTMLButtonElement>('.key-binding').forEach(button => {
+    const action = button.dataset.action as Action;
+    button.querySelector('kbd')!.textContent = rebinding === action ? 'Press key…' : keyLabel(settings.keys[action]);
+    button.setAttribute('aria-pressed', String(rebinding === action));
+  });
+  document.querySelectorAll<HTMLButtonElement>('.quality-choice').forEach(button =>
+    button.setAttribute('aria-pressed', String(button.dataset.quality === settings.graphics)));
+  document.querySelectorAll<HTMLButtonElement>('.motion-choice').forEach(button =>
+    button.setAttribute('aria-pressed', String(button.dataset.motion === settings.motion)));
+  document.querySelectorAll<HTMLButtonElement>('.touch-hand-choice').forEach(button =>
+    button.setAttribute('aria-pressed', String(button.dataset.hand === settings.touchHand)));
+  document.querySelectorAll<HTMLButtonElement>('.touch-size-choice').forEach(button =>
+    button.setAttribute('aria-pressed', String(button.dataset.size === settings.touchSize)));
+  const flash = el('flash-toggle');
+  flash.textContent = `Reduced flashes: ${settings.reducedFlashes ? 'On' : 'Off'}`;
+  flash.setAttribute('aria-pressed', String(settings.reducedFlashes));
+  const camera = el('camera-toggle');
+  camera.textContent = `Cinematic camera: ${settings.cinematicCamera ? 'On' : 'Off'}`;
+  camera.setAttribute('aria-pressed', String(settings.cinematicCamera));
+  el('boost').querySelector('kbd')!.textContent = keyLabel(settings.keys.boost);
+  el('ability').querySelector('kbd')!.textContent = keyLabel(settings.keys.ability);
+  el('nuke').querySelector('kbd')!.textContent = keyLabel(settings.keys.ultimate);
+  el('help-boost-key').textContent = keyLabel(settings.keys.boost);
+  el('help-ability-key').textContent = keyLabel(settings.keys.ability);
+  el('help-ultimate-key').textContent = keyLabel(settings.keys.ultimate);
+  el('menu-ability-key').textContent = keyLabel(settings.keys.ability);
+  el('menu-ultimate-key').textContent = keyLabel(settings.keys.ultimate);
+  updatePracticeGuide();
+}
+refreshSettings();
+document.querySelectorAll<HTMLButtonElement>('.key-binding').forEach(button => button.addEventListener('click', () => {
+  clearInput(); rebinding = button.dataset.action as Action;
+  el('binding-note').textContent = `Press a letter, number, or Space for ${rebinding}. Escape cancels.`;
+  refreshSettings();
+}));
+document.querySelectorAll<HTMLButtonElement>('.quality-choice').forEach(button => button.addEventListener('click', () => {
+  settings.graphics = button.dataset.quality as typeof settings.graphics;
+  view?.setGraphicsChoice(settings.graphics);
+  if (view && screen === 'menu') {
+    const postcards = view.mapThumbnails();
+    MAPS.forEach((map, index) => (el<HTMLImageElement>(`map-${map.id}`).src = postcards[index]));
+  }
+  saveGameSettings(settings, mapStorage); refreshSettings();
+}));
+document.querySelectorAll<HTMLButtonElement>('.motion-choice').forEach(button => button.addEventListener('click', () => {
+  settings.motion = button.dataset.motion as typeof settings.motion;
+  motionPreference.userReduced = settings.motion === 'reduced';
+  saveGameSettings(settings, mapStorage); refreshSettings();
+}));
+for (const selector of ['.touch-hand-choice', '.touch-size-choice'])
+  document.querySelectorAll<HTMLButtonElement>(selector).forEach(button => button.addEventListener('click', () => {
+    clearInput();
+    if (button.dataset.hand) settings.touchHand = button.dataset.hand as typeof settings.touchHand;
+    if (button.dataset.size) settings.touchSize = button.dataset.size as typeof settings.touchSize;
+    applyTouchSettings(); saveGameSettings(settings, mapStorage); refreshSettings();
+  }));
+el('flash-toggle').addEventListener('click', () => {
+  settings.reducedFlashes = !settings.reducedFlashes;
+  saveGameSettings(settings, mapStorage); refreshSettings();
+});
+el('camera-toggle').addEventListener('click', () => {
+  settings.cinematicCamera = !settings.cinematicCamera;
+  view.cinematicCameraEnabled = settings.cinematicCamera;
+  saveGameSettings(settings, mapStorage); refreshSettings();
+});
+document.querySelectorAll<HTMLButtonElement>('.settings-reset').forEach(button => button.addEventListener('click', () => {
+  const defaults = defaultSettings();
+  clearInput();
+  if (button.dataset.section === 'controls') { settings.keys = defaults.keys; settings.touchHand = defaults.touchHand; settings.touchSize = defaults.touchSize; applyTouchSettings(); }
+  if (button.dataset.section === 'appearance') { darkTheme = false; applyTheme(); try { mapStorage?.setItem('anime-coil-theme-v1', 'light'); } catch {} settings.graphics = defaults.graphics; view.setGraphicsChoice(settings.graphics); }
+  if (button.dataset.section === 'accessibility') { settings.motion = defaults.motion; settings.reducedFlashes = defaults.reducedFlashes; settings.cinematicCamera = defaults.cinematicCamera; motionPreference.userReduced = false; view.cinematicCameraEnabled = true; }
+  if (button.dataset.section === 'audio') { audio.enabled = DEFAULT_AUDIO.enabled; for (const channel of ['effects', 'voices'] as const) { audio.setVolume(channel, DEFAULT_AUDIO[channel]); el<HTMLInputElement>(`volume-${channel}`).value = String(Math.round(DEFAULT_AUDIO[channel] * 100)); el(`value-${channel}`).textContent = `${Math.round(DEFAULT_AUDIO[channel] * 100)}%`; } saveAudio(audio.prefs, mapStorage); updateSound(); }
+  saveGameSettings(settings, mapStorage); refreshSettings();
+}));
+installSettingsTabs(el<HTMLDialogElement>('settings-dialog'), () => {
+  if (!rebinding) return;
+  rebinding = undefined;
+  el('binding-note').textContent = 'Key change cancelled.';
+  refreshSettings();
+});
 for (const name of ["help", "settings", "credits", "challenges"]) {
   const dialog = el<HTMLDialogElement>(`${name}-dialog`);
   let opener: HTMLElement | undefined;
@@ -309,6 +429,7 @@ for (const name of ["help", "settings", "credits", "challenges"]) {
 
         audio.unlock();
         dialog.showModal();
+        if (name === 'settings') selectSettingsTab(dialog, 'controls', true);
         if (name === 'challenges') renderChallenges();
         if (name === "settings")
           el("audio-note").textContent = audio.missingClips.size
@@ -319,8 +440,9 @@ for (const name of ["help", "settings", "credits", "challenges"]) {
   dialog.querySelector<HTMLButtonElement>(".close-button")!.onclick = () =>
     dialog.close();
   dialog.addEventListener("close", () => {
+    if (name === 'settings') { rebinding = undefined; clearInput(); refreshSettings(); }
     if (name === 'challenges' && skinPreview.skin) el('skin-preview-back').focus();
-    else opener?.focus();
+    else restoreDialogFocus(opener);
 
   });
 }
@@ -368,26 +490,38 @@ function updatePracticeGuide() {
   if (!practiceGuide) return;
   setText(el('practice-step'), practiceGuide.complete ? 'Practice complete' : `Step ${practiceGuide.step + 1} / 4`);
   setText(el('practice-instruction'), practiceGuide.label);
-  setText(el('practice-detail'), practiceGuide.detail);
+  setText(el('practice-detail'), practiceGuide.detailForKey(keyLabel(settings.keys.ability), matchMedia('(pointer: coarse)').matches));
   el('practice-skip').hidden = practiceGuide.complete;
 }
 function start(mode: MatchMode = selectedMode) {
   ultimateCues.reset();
+  spiritImpact.reset();
+  foxImpact.reset();
+  purpleImpact.reset();
+  skybreakerImpact.reset();
   clearSkinPreview();
   if (arena) finalizeMatch();
   arena = new Arena(selected, Math.random, 20, 850, mode);
   matchFinalized = false;
+  sessionStart = progressSnapshot(progression.state);
+  finalSummary = undefined;
+  manualRecap = false;
+  unlockNoticeRemaining = 0;
+  el('unlock-notice').hidden = true;
+  unlockNotices.reset();
   progression.beginMatch(mode);
-  practiceGuide = mode === 'practice' ? new PracticeGuide() : undefined;
+  practiceGuide = mode === 'practice' ? new PracticeGuide(selected) : undefined;
   deathPresentation.reset();
   document.body.classList.remove('player-dead');
   el('death-wash').style.setProperty('--death-flash', '0');
   el('respawn-notice').hidden = true;
   el('respawn-notice').classList.remove('visible', 'leaving');
+  el('death-contact').hidden = true;
   screen = "game";
   accumulator = 0;
   last = performance.now();
   clearInput();
+  deathContactRemaining = 0;
   mouse = { x: innerWidth * 0.75, y: innerHeight * 0.5 };
   view.start(arena);
   applyCosmetics();
@@ -395,6 +529,7 @@ function start(mode: MatchMode = selectedMode) {
   eliminationStamps.setAccent(UI_ACCENTS[selected].fill);
   speedWind.clear();
   compass.reset(); compass.state.sync(arena, true);
+  compass.targetId = arena.bountyTargetId;
   hudChanges.reset(); hudMotion.clear(); leaderboard.clear();
   hudLifetime.start();
   hudMotion.reduced = motionPreference.reduced;
@@ -403,8 +538,12 @@ function start(mode: MatchMode = selectedMode) {
   el("nuke").hidden = mode === 'practice';
   el("ultimate-name").textContent = ultimateFor(selected).name;
   el('hud-mode').textContent = HUD_MODE_LABELS[mode];
-  el('hud-mode').setAttribute('aria-label', `${mode === 'practice' ? 'Guided practice' : mode === 'sprint' ? '3-minute sprint' : 'Endless'} mode`);
+  el('hud-mode').setAttribute('aria-label', `${mode === 'practice' ? 'Guided practice' : mode === 'sprint' ? '3-minute sprint' : mode === 'bounty' ? 'Bounty Hunt' : 'Endless'} mode`);
+  el('score-label').textContent = mode === 'bounty' ? 'Bounty points' : 'Energy';
+  el('bounty-target').hidden = mode !== 'bounty';
+  el('bounty-world-marker').hidden = true;
   el('practice-guide').hidden = mode !== 'practice';
+  el('end-recap').hidden = mode !== 'endless';
   updatePracticeGuide();
   el("hud").hidden = false;
   el('hud').dataset.mode = mode;
@@ -430,6 +569,13 @@ function saveBest(): boolean {
     showBest();
     return recorded.newRecord;
   }
+  if (arena.mode === 'bounty') {
+    if (arena.state !== 'over') return false;
+    const recorded = recordBounty(arena.bountyResult, bountyBest, mapStorage);
+    bountyBest = recorded.best;
+    showBest();
+    return recorded.newRecord;
+  }
   const score = Math.floor(arena.player.peak * 10);
   const improved = score > best;
   best = Math.max(best, score);
@@ -441,11 +587,17 @@ function finalizeMatch(): boolean {
   if (!arena || matchFinalized) return false;
   const record = saveBest();
   progression.finishMatch(selectedMap, arena.mode === 'sprint' && arena.endReason === 'time');
+  finalSummary = sessionSummary(arena.mode, sessionStart, progressSnapshot(progression.state));
+  unlockNotices.add(finalSummary.unlocks);
   matchFinalized = true;
   return record;
 }
 function menu() {
   ultimateCues.reset();
+  spiritImpact.reset();
+  foxImpact.reset();
+  purpleImpact.reset();
+  skybreakerImpact.reset();
   clearSkinPreview();
   finalizeMatch();
   audio.resetTransient();
@@ -456,11 +608,14 @@ function menu() {
   el('death-wash').style.setProperty('--death-flash', '0');
   el('respawn-notice').hidden = true;
   el('respawn-notice').classList.remove('visible', 'leaving');
+  el('death-contact').hidden = true;
+  el('bounty-world-marker').hidden = true;
   practiceGuide = undefined;
   view.mode = "menu";
   view.clearEffects();
   eliminationStamps.clear();
   speedWind.clear();
+  unlockNotices.reset(); unlockNoticeRemaining = 0; el('unlock-notice').hidden = true;
   compass.reset(); hudMotion.clear(); hudChanges.reset(); leaderboard.clear();
   hudLifetime.clear();
   el('toast').classList.remove('visible');
@@ -481,6 +636,7 @@ function pause() {
   speedWind.clear();
   clearInput();
   el("pause-modal").hidden = false;
+  el('end-recap').hidden = arena.mode !== 'endless';
   el("resume").focus();
 }
 function resume() {
@@ -496,6 +652,13 @@ el("play").onclick = () => start();
 el("restart").onclick = () => start(arena?.mode ?? selectedMode);
 el("change").onclick = menu;
 el("quit").onclick = menu;
+el('end-recap').onclick = () => {
+  if (!arena || arena.mode !== 'endless' || arena.state !== 'paused') return;
+  manualRecap = true;
+  arena.state = 'over';
+  el('pause-modal').hidden = true;
+  gameOver();
+};
 el("pause").onclick = pause;
 el("resume").onclick = resume;
 el("reload").onclick = () => location.reload();
@@ -508,6 +671,16 @@ el('practice-skip').onclick = () => { practiceGuide?.skip(); updatePracticeGuide
 el('practice-exit').onclick = menu;
 canvas.tabIndex = 0;
 window.addEventListener("keydown", (e) => {
+  if (rebinding && document.querySelector('#settings-dialog[open]')) {
+    e.preventDefault(); e.stopPropagation();
+    if (e.code === 'Escape') { rebinding = undefined; el('binding-note').textContent = 'Key change cancelled.'; }
+    else if (updateBinding(settings, rebinding, e.code)) {
+      saveGameSettings(settings, mapStorage);
+      el('binding-note').textContent = `${rebinding} set to ${keyLabel(e.code)}.`;
+      rebinding = undefined;
+    } else el('binding-note').textContent = 'That key is unavailable or already assigned.';
+    refreshSettings(); return;
+  }
   if (document.querySelector("dialog[open]")) return;
   if (e.code === "Tab") {
     const modal = document.querySelector<HTMLElement>(".modal:not([hidden])");
@@ -538,18 +711,18 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   if (screen !== "game" || arena?.state !== "playing") return;
-  if (e.code === "Space") {
+  if (e.code === settings.keys.boost) {
     e.preventDefault();
     if (arena.player.alive) boostKey = true;
   }
-  if (e.code === "KeyE" && !e.repeat) abilityQueued = true;
-  if (e.code === "KeyV" && !e.repeat) {
+  if (e.code === settings.keys.ability && !e.repeat) { e.preventDefault(); abilityQueued = true; }
+  if (e.code === settings.keys.ultimate && !e.repeat) {
     e.preventDefault();
     nukeQueued = true;
   }
 });
 window.addEventListener("keyup", (e) => {
-  if (e.code === "Space") boostKey = false;
+  if (e.code === settings.keys.boost) boostKey = false;
 });
 canvas.addEventListener("pointermove", (e) => {
   if (e.pointerType === "mouse") mouse = { x: e.clientX, y: e.clientY };
@@ -617,16 +790,17 @@ function updateHUD() {
   if (!arena) return;
   const p = arena.player,
     c = CHARACTERS.find((c) => c.id === p.character)!;
-  setText(el("score"), Math.floor(p.mass * 10).toLocaleString());
+  setText(el("score"), (arena.mode === 'bounty' ? arena.bountyPoints : Math.floor(p.mass * 10)).toLocaleString());
   if (!p.alive) setText(el('respawn-reason'), arena.deathReason);
-  el("time").textContent = arena.mode === 'sprint' ? timeLabel(Math.ceil(arena.remaining ?? 0)) : timeLabel(arena.elapsed);
+  el("time").textContent = arena.remaining !== undefined ? timeLabel(Math.ceil(arena.remaining)) : timeLabel(arena.elapsed);
+  if (arena.mode === 'bounty') setText(el('bounty-target'), `✦ ${arena.bountyTarget?.name ?? 'New rival arriving…'}`);
   const ranking = [...arena.snakes]
     .filter((s) => s.alive)
     .sort((a, b) => b.mass - a.mass);
   el("rank").textContent = p.alive ? `#${ranking.indexOf(p) + 1}` : "—";
   el("population").textContent = String(ranking.length);
   leaderboard.update(ranking);
-  const changed = hudChanges.update(Math.floor(p.mass * 10), p.alive ? ranking.indexOf(p) + 1 : -1, p.cooldown, arena.nukeCooldown, arena.state === 'playing' && !arena.cinematic);
+  const changed = hudChanges.update(arena.mode === 'bounty' ? arena.bountyPoints : Math.floor(p.mass * 10), p.alive ? ranking.indexOf(p) + 1 : -1, p.cooldown, arena.nukeCooldown, arena.state === 'playing' && !arena.cinematic);
   if (changed.score) hudMotion.pulse(el('score'));
   if (changed.rank) hudMotion.pulse(el('rank'), 'rank');
   if (changed.skillReady) hudMotion.pulse(el('ability'));
@@ -639,23 +813,21 @@ function updateHUD() {
   button.disabled = feedback.disabled;
   button.dataset.state = p.alive ? feedback.state : 'respawning';
   button.setAttribute("aria-label", `${c.power}: ${actionLabel}`);
-  const ultimate = ultimateFor(p.character), form = arena.transformation;
-  const formActive = !!form;
+  const ultimate = ultimateFor(p.character);
   el<HTMLButtonElement>("nuke").disabled =
-    arena.state !== 'playing' || !p.alive || arena.nukeCooldown > 0 || !!arena.cinematic || formActive;
-  el('nuke').dataset.state = !p.alive ? 'respawning' : arena.state !== 'playing' ? 'disabled' : arena.cinematic || formActive ? 'active' : arena.nukeCooldown > 0 ? 'cooldown' : 'ready';
-  el("nuke-status").textContent = !p.alive ? 'Respawning…' : formActive
-    ? `Active ${form.remaining.toFixed(1)}s`
-    : arena.cinematic ? "Unleashing…"
-      : arena.nukeCooldown > 0 ? `${arena.nukeCooldown.toFixed(1)}s` : "Ready";
+    arena.state !== 'playing' || !p.alive || arena.nukeCooldown > 0 || !!arena.cinematic ||
+    (arena.mode === 'bounty' && arena.bountyCharge < 100);
+  el('nuke').dataset.state = !p.alive ? 'respawning' : arena.state !== 'playing' ? 'disabled' : arena.cinematic ? 'active' : arena.nukeCooldown > 0 ? 'cooldown' : arena.mode === 'bounty' && arena.bountyCharge < 100 ? 'charging' : 'ready';
+  el("nuke-status").textContent = !p.alive ? 'Respawning…' : arena.cinematic ? "Unleashing…"
+      : arena.nukeCooldown > 0 ? `${arena.nukeCooldown.toFixed(1)}s` : arena.mode === 'bounty' && arena.bountyCharge < 100 ? `Charge ${arena.bountyCharge}/100` : "Ready";
   el('nuke').setAttribute('aria-label', `${ultimate.name}: ${el('nuke-status').textContent}`);
 
-  const status = p.alive ? boostStatus(p, form?.kind === 'nine-tail') : 'respawning';
+  const status = p.alive ? boostStatus(p, false) : 'respawning';
   const unavailable = status === 'unavailable';
   const boostButton = el<HTMLButtonElement>('boost');
   boostButton.dataset.state = status;
   boostButton.setAttribute('aria-disabled', String(unavailable || !p.alive));
-  boostButton.setAttribute('aria-label', status === 'respawning' ? 'Boost: respawning' : p.boosting ? 'Boosting' : unavailable ? 'Boost unavailable: need energy' : 'Boost: hold Space');
+  boostButton.setAttribute('aria-label', status === 'respawning' ? 'Boost: respawning' : p.boosting ? 'Boosting' : unavailable ? 'Boost unavailable: need energy' : `Boost: hold ${keyLabel(settings.keys.boost)}`);
   setText(el('boost-status'), !p.alive ? 'Respawning…' : p.boosting ? 'Rushing' : unavailable ? 'Need energy' : 'Hold');
 }
 function updatePresentation() {
@@ -664,6 +836,23 @@ function updatePresentation() {
   document.body.classList.toggle('presentation-paused', frame.paused);
   document.body.classList.toggle('reduced-motion', frame.reducedMotion);
   if (!arena || screen !== 'game') { speedWind.clear(); return; }
+  if (arena.cinematic || !arena.player.alive) el('unlock-notice').hidden = true;
+  if (!frame.paused && !arena.cinematic && arena.player.alive) {
+    unlockNoticeRemaining = Math.max(0, unlockNoticeRemaining - frame.dt);
+    if (unlockNoticeRemaining === 0) {
+      const next = unlockNotices.take(true);
+      if (next) { el('unlock-notice').textContent = `Unlocked: ${next}`; unlockNoticeRemaining = 2.8; }
+    }
+    el('unlock-notice').hidden = unlockNoticeRemaining === 0;
+  }
+  if (arena.state === 'over') {
+    document.body.classList.remove('player-dead');
+    el('respawn-notice').hidden = true;
+    el('death-contact').hidden = true;
+    el('bounty-world-marker').hidden = true;
+    speedWind.clear();
+    return;
+  }
   const deathFrame = deathPresentation.update(arena.player.alive, arena.playerRespawnRemaining, frame.dt, frame.paused, frame.reducedMotion);
   document.body.classList.toggle('player-dead', deathFrame.dead);
   el('death-wash').style.setProperty('--death-flash', deathFrame.flash.toFixed(3));
@@ -696,17 +885,25 @@ function updatePresentation() {
   compass.draw(frame, accumulator / STEP);
   if (frame.paused) return;
   const p = arena.player, c = CHARACTERS.find(c => c.id === p.character)!;
-  const form = arena.transformation, ultimate = ultimateFor(p.character);
+  const ultimate = ultimateFor(p.character);
   const lag = STEP * (1 - accumulator / STEP);
   const progress = arena.cinematic ? 0 : p.charge ? 1 - Math.min(KI_CHARGE, p.charge.remaining + lag) / KI_CHARGE
     : p.active > 0 && p.character !== 'nova' ? Math.min(c.duration, p.active + lag) / c.duration
     : p.cooldown > 0 ? 1 - Math.min(c.cooldown, p.cooldown + lag) / c.cooldown : 1;
   el('cool-fill').style.transform = `scaleX(${progress})`;
-  el('nuke-fill').style.transform = `scaleX(${form ? form.remaining / ultimate.duration : arena.cinematic ? 0 : arena.nukeCooldown > 0 ? 1 - Math.min(NUKE_COOLDOWN, arena.nukeCooldown + lag) / NUKE_COOLDOWN : 1})`;
+  el('nuke-fill').style.transform = `scaleX(${arena.cinematic ? Math.max(0,1-arena.cinematic.time/ultimate.duration) : arena.nukeCooldown > 0 ? 1 - Math.min(NUKE_COOLDOWN, arena.nukeCooldown + lag) / NUKE_COOLDOWN : 1})`;
+  if (arena.mode === 'bounty' && !arena.cinematic && arena.nukeCooldown <= 0)
+    el('nuke-fill').style.transform = `scaleX(${arena.bountyCharge / 100})`;
+  if (deathContactRemaining > 0 && !frame.paused) deathContactRemaining = Math.max(0, deathContactRemaining - frame.dt);
+  el('death-contact').hidden = deathContactRemaining <= 0;
 }
 
 function gameOver() {
   ultimateCues.reset();
+  spiritImpact.reset();
+  foxImpact.reset();
+  purpleImpact.reset();
+  skybreakerImpact.reset();
   if (!arena) return;
   speedWind.clear();
   const record = finalizeMatch();
@@ -716,17 +913,25 @@ function gameOver() {
   el('death-wash').style.setProperty('--death-flash', '0');
   el('respawn-notice').hidden = true;
   el('respawn-notice').classList.remove('visible', 'leaving');
+  el('death-contact').hidden = true;
+  el('bounty-world-marker').hidden = true;
   view.clearEffects();
   eliminationStamps.clear();
   hudLifetime.clear(); hudMotion.clear();
   el('toast').hidden = true;
   clearInput();
-  el('results-title').textContent = arena.mode === 'practice' ? 'A little more practice?' : arena.endReason === 'time' ? 'Sprint complete!' : 'One more adventure?';
-  el("death-reason").textContent = arena.deathReason;
-  el('result-record').textContent = record ? arena.mode === 'sprint' ? 'New sprint record! ✦' : 'New personal best! ✦' : '';
-  el("result-score").textContent = String(Math.floor(arena.player.peak * 10));
+  el('results-title').textContent = manualRecap ? 'Run recap' : arena.mode === 'practice' ? 'A little more practice?' : arena.mode === 'bounty' && arena.endReason === 'time' ? 'Bounty complete!' : arena.endReason === 'time' ? 'Sprint complete!' : 'One more adventure?';
+  el("death-reason").textContent = manualRecap ? 'Run ended by player.' : arena.deathReason;
+  el('result-record').textContent = record ? arena.mode === 'sprint' ? 'New sprint record! ✦' : arena.mode === 'bounty' ? 'New bounty record! ✦' : 'New personal best! ✦' : '';
+  el('result-score-label').textContent = arena.mode === 'bounty' ? 'Bounty points' : 'Best energy';
+  el("result-score").textContent = String(arena.mode === 'bounty' ? arena.bountyPoints : Math.floor(arena.player.peak * 10));
   el("result-time").textContent = timeLabel(arena.elapsed);
   el("result-kills").textContent = String(arena.player.kills);
+  el('bounty-results').hidden = arena.mode !== 'bounty';
+  if (arena.mode === 'bounty') el('bounty-results').textContent = `${arena.bountiesClaimed} bounties · ${arena.directEliminations} direct KOs · ${arena.ultimateEliminations} ultimate KOs · ${Math.floor(arena.player.peak * 10)} peak energy`;
+  el('session-progress').textContent = finalSummary?.progress.length ? `This run: ${finalSummary.progress.join(' · ')}` : arena.mode === 'practice' ? 'Practice does not change challenge progress.' : 'No challenge progress this run.';
+  el('session-unlocks').textContent = finalSummary?.unlocks.length ? `New rewards: ${finalSummary.unlocks.join(', ')}` : '';
+  el('result-challenges').hidden = arena.mode === 'practice';
   el('restart').textContent = arena.mode === 'practice' ? 'Practice again ↗' : 'Play again ↗';
   el("results").hidden = false;
   el("restart").focus();
@@ -755,7 +960,11 @@ function frame(now: number) {
       skillVisualRemaining = Math.max(0, skillVisualRemaining - STEP);
       if (!skillVisualRemaining) clearSkillVisual();
       compass.state.sync(arena);
+      compass.targetId = arena.bountyTargetId;
       progression.recordStep(arena.events, Math.max(0, arena.elapsed - beforeElapsed), arena.player.alive);
+      if (arena.mode !== 'practice' && (Math.floor(arena.elapsed) !== Math.floor(beforeElapsed) ||
+        arena.events.some(event => event.type === 'collect' || event.type === 'player-elimination')))
+        unlockNotices.add(sessionSummary(arena.mode, sessionStart, progressSnapshot(progression.state)).unlocks);
       if (practiceGuide) { practiceGuide.update(STEP, arena.player, arena.events); updatePracticeGuide(); }
       view.handleEvents(arena.events, arena);
       const eliminations = eliminationStamps.ingest(arena.events);
@@ -763,17 +972,6 @@ function frame(now: number) {
       for (const event of arena.events) {
         if (event.type === 'player-elimination') continue;
         if (event.type === 'player-respawn') { audio.play('respawn'); continue; }
-        if (event.type === 'transform-start' || event.type === 'transform-launch' || event.type === 'transform-hit' || event.type === 'transform-end') {
-          const kind = event.ultimate === 'nine-tail' ? 'nine-tail' : 'skybreaker';
-          if (event.type === 'transform-start') {
-            audio.stopBoost(true);
-            audio.transformation(kind, 'start');
-            showSkillVisual(kind === 'nine-tail' ? 'nineTail' : 'skybreaker');
-          } else if (event.type === 'transform-launch') audio.transformation(kind, 'launch');
-          else if (event.type === 'transform-hit') audio.transformation(kind, 'impact');
-          else if (event.reason === 'expired') audio.transformation(kind, 'end');
-          continue;
-        }
         if (event.type === "ki-launch" || event.type === "ki-impact") {
           if (event.id === 0 || event.targetId === 0) audio.cannon(event.type === "ki-launch" ? "fire" : "impact");
           continue;
@@ -783,6 +981,9 @@ function frame(now: number) {
             boostKey = false;
             boostPointer = false;
             audio.stopBoost(true);
+            if (event.killerName) arena.deathReason = `${event.reason ?? 'Your spirit fell.'} ${event.killerName} was involved.`;
+            deathContactPoint.x = event.x; deathContactPoint.z = event.z;
+            deathContactRemaining = .7;
           }
           if (event.type === "ability" || event.type === "nuke") {
             if (event.type === 'nuke') audio.stopBoost(true);
@@ -804,6 +1005,17 @@ function frame(now: number) {
   } else accumulator = 0;
   const shot = arena?.cinematic;
   for (const cue of ultimateCues.consume(shot?.kind, shot?.time)) audio.ultimateCue(shot!.kind, cue);
+  const advancing = arena?.state === 'playing' && !document.hidden;
+  const comfort = visualComfort(settings, motionPreference.reduced);
+  const softenImpact = comfort.softenImpact;
+  const spiritFrame = spiritImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
+  const foxFrame = foxImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
+  const purpleFrame = purpleImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
+  const skybreakerFrame = skybreakerImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
+  const impactFrame = shot?.kind === 'fox' ? foxFrame : shot?.kind === 'purple' ? purpleFrame : shot?.kind === 'skybreaker' ? skybreakerFrame : spiritFrame;
+  canvas.style.setProperty('--spirit-gray', String(impactFrame.grayscale));
+  canvas.style.setProperty('--spirit-contrast', String(impactFrame.contrast));
+  canvas.style.setProperty('--spirit-brightness', String(impactFrame.brightness));
   el("cinematic").hidden = !shot;
   document.body.classList.toggle("in-cinematic", !!shot);
   if (shot) {
@@ -811,20 +1023,63 @@ function frame(now: number) {
     const blasting = shot.time >= NUKE_BLAST;
     const spirit = shot.kind === "spirit";
     el("cinematic").classList.toggle("spirit", spirit);
-    el("cinema-name").textContent = spirit ? "Spirit Bomb" : "Hollow Purple";
+    el("cinematic").classList.toggle("fox", shot.kind === "fox");
+    el("cinematic").classList.toggle("purple", shot.kind === "purple");
+    el("cinematic").classList.toggle("skybreaker", shot.kind === "skybreaker");
+    el("cinema-name").textContent = shot.kind === "fox" ? "Fox Spirit Bomb" : shot.kind === "skybreaker" ? "Skybreaker Slam" : spirit ? "Spirit Bomb" : "Hollow Purple";
     el("cinematic").classList.toggle("detonated", blasting);
+    el("cinematic").classList.toggle("spirit-impact-keyframe", spirit && impactFrame.phase === 'keyframe');
+    el("cinematic").classList.toggle("spirit-impact-monochrome", spirit && impactFrame.phase === 'monochrome');
+    el("cinematic").classList.toggle("fox-impact-keyframe", shot.kind === 'fox' && impactFrame.phase === 'keyframe');
+    el("cinematic").classList.toggle("fox-impact-monochrome", shot.kind === 'fox' && impactFrame.phase === 'monochrome');
+    el("cinematic").classList.toggle("purple-impact-keyframe", shot.kind === 'purple' && impactFrame.phase === 'keyframe');
+    el("cinematic").classList.toggle("purple-impact-monochrome", shot.kind === 'purple' && impactFrame.phase === 'monochrome');
+    el("cinematic").classList.toggle("skybreaker-impact-keyframe", shot.kind === 'skybreaker' && impactFrame.phase === 'keyframe');
+    el("cinematic").classList.toggle("skybreaker-impact-monochrome", shot.kind === 'skybreaker' && impactFrame.phase === 'monochrome');
     el("cinema-stage").textContent = '';
-    el("cinema-caption").textContent = spirit ? '衝撃！' : '炸裂！';
+    el("cinema-caption").textContent = shot.kind === 'fox' ? '轟！' : shot.kind === 'skybreaker' ? 'ドン！' : spirit ? '衝撃！' : '炸裂！';
     const overlay=el("cinematic");
-    overlay.style.setProperty('--flare', String(shotFrame.flash));
+    overlay.style.setProperty('--flare', String(softenImpact || impactFrame.phase === 'keyframe' || impactFrame.phase === 'monochrome' || spirit || shot.kind === 'fox' ? 0 : shotFrame.flash));
+    overlay.style.setProperty('--spirit-ink', String(spirit ? impactFrame.ink : 0));
+    overlay.style.setProperty('--fox-ink', String(shot.kind === 'fox' ? impactFrame.ink : 0));
+    overlay.style.setProperty('--impact-art-ink', String(!softenImpact && (shot.kind === 'purple' || shot.kind === 'skybreaker') ? impactFrame.ink : 0));
     overlay.style.setProperty('--cinema-darken', String(shotFrame.darken));
     overlay.style.setProperty('--cinema-bars', String(shotFrame.bars));
     overlay.style.setProperty('--cinema-title', String(shotFrame.titleOpacity));
     overlay.style.setProperty('--cinema-impact', String(blasting ? Math.max(0,1-(shot.time-NUKE_BLAST)/.55) : 0));
   }
+  if (!shot) {
+    el('cinematic').classList.remove('spirit-impact-keyframe','spirit-impact-monochrome','fox-impact-keyframe','fox-impact-monochrome','purple-impact-keyframe','purple-impact-monochrome','skybreaker-impact-keyframe','skybreaker-impact-monochrome');
+    el('cinematic').style.setProperty('--spirit-ink','0');
+    el('cinematic').style.setProperty('--fox-ink','0');
+    el('cinematic').style.setProperty('--impact-art-ink','0');
+  }
+  view.cinematicCameraEnabled = comfort.cameraEnabled;
   view.render(arena, now / 1000, accumulator / STEP, dt, motionPreference.reduced);
+  if (shot && arena) cinematicImpactAnchor(shot.kind, shot.impact, arena.player, impactWorld);
+  const impactAnchorVisible = !!shot && view.projectPoint(impactWorld.x, impactWorld.z, projectedCue, impactWorld.y, true);
+  el('cinematic').classList.toggle('impact-anchor-hidden', !!shot && !impactAnchorVisible);
+  if (impactAnchorVisible && shot) {
+    const prefix = shot.kind === 'fox' ? 'fox-impact' : shot.kind === 'spirit' ? 'spirit-impact' : 'impact-art';
+    el('cinematic').style.setProperty(`--${prefix}-x`, `${projectedCue.x}px`);
+    el('cinematic').style.setProperty(`--${prefix}-y`, `${projectedCue.y}px`);
+  }
+  const target = arena?.mode === 'bounty' && arena.state === 'playing' ? arena.bountyTarget : undefined;
+  const targetMarker = el('bounty-world-marker');
+  const cueCovered = (x: number, y: number) =>
+    (x < 185 && y < 190) || (x > innerWidth - 215 && y < 250) || y > innerHeight - 112;
+  const targetVisible = !!target && !arena?.cinematic && view.projectPoint(target.x, target.z, projectedCue);
+  targetMarker.hidden = !targetVisible || cueCovered(projectedCue.x, projectedCue.y);
+  if (!targetMarker.hidden) {
+    targetMarker.style.left = `${projectedCue.x}px`;
+    targetMarker.style.top = `${projectedCue.y - 28}px`;
+  }
+  const contact = el('death-contact');
+  if (deathContactRemaining > 0 && view.projectPoint(deathContactPoint.x, deathContactPoint.z, projectedCue) && !cueCovered(projectedCue.x, projectedCue.y)) {
+    contact.style.left = `${projectedCue.x}px`; contact.style.top = `${projectedCue.y}px`;
+  } else contact.hidden = true;
   if (arena && screen === 'game') eliminationStamps.draw(view, view.presentation);
-  const currentBoost = arena && screen === 'game' ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic, arena.transformation?.kind === 'nine-tail') : 'none';
+  const currentBoost = arena && screen === 'game' ? boostKind(arena.player, arena.state === 'playing', !!arena.cinematic, false) : 'none';
   audio.setBoost(currentBoost === 'fox' || (currentBoost === 'normal' && (boostKey || boostPointer)), currentBoost === 'fox', view.boostMotion.intensity);
   updatePresentation();
   hudClock += dt;
@@ -837,7 +1092,10 @@ function frame(now: number) {
 try {
   applyAccent();
   view = new GameRenderer(canvas);
+  view.cinematicCameraEnabled = settings.cinematicCamera;
+  view.setGraphicsChoice(settings.graphics);
   applyCosmetics();
+  choose(selected);
   const maps = view.mapThumbnails();
   MAPS.forEach((m, i) => (el<HTMLImageElement>(`map-${m.id}`).src = maps[i]));
   chooseMap(selectedMap, false);
@@ -858,5 +1116,6 @@ canvas.addEventListener("webglcontextlost", (e) => {
 });
 
 if (import.meta.hot) import.meta.hot.dispose(() => {
+  view?.disposeCinematics();
   motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear(); eliminationStamps.dispose();
 });
