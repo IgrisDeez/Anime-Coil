@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import type { DetailProfile } from "./types";
 
-export const SURFACES = ['asphalt', 'plaster', 'wood', 'roof', 'stone', 'sand', 'fabric', 'grass', 'rock'] as const;
+export const SURFACES = ['asphalt', 'plaster', 'wood', 'roof', 'stone', 'sand', 'fabric', 'grass', 'rock', 'wetAsphalt', 'facade'] as const;
 export type SurfaceKind = typeof SURFACES[number];
-export const SURFACE_SCALE: Record<SurfaceKind, number> = { asphalt: 5, plaster: 6, wood: 4, roof: 5, stone: 12, sand: 5, fabric: 3, grass: 7, rock: 28 };
+export const SURFACE_SCALE: Record<SurfaceKind, number> = { asphalt: 5, plaster: 6, wood: 4, roof: 5, stone: 12, sand: 5, fabric: 3, grass: 7, rock: 28, wetAsphalt: 9, facade: 8 };
 /** Periodic, neutral modulation: base instance colors remain the art direction. */
 export function surfacePixels(kind: SurfaceKind, size: number) {
   const data = new Uint8Array(size * size * 4);
@@ -13,6 +13,8 @@ export function surfacePixels(kind: SurfaceKind, size: number) {
     const u = x / size, v = y / size, n = noise();
     let value = .96 + (n - .5) * .06;
     if (kind === 'asphalt') value = .955 + (n - .5) * .10;
+    if (kind === 'wetAsphalt') value = .94 + (n-.5)*.06 + Math.sin(u*Math.PI*4)*Math.cos(v*Math.PI*6)*.025;
+    if (kind === 'facade') value = .97 - ((u*4)%1<.018 || (v*4)%1<.018 ? .10 : 0) + (n-.5)*.035;
     if (kind === 'plaster') value = .965 + Math.sin(u * Math.PI * 8) * Math.sin(v * Math.PI * 6) * .026 + (n - .5) * .04;
     if (kind === 'wood') value = .95 + Math.sin(v * Math.PI * 30 + Math.sin(u * Math.PI * 4) * .6) * .04 - ((v * 4) % 1 < .022 ? .14 : 0) + (n-.5)*.025;
     if (kind === 'roof') value = .96 - ((v * 4) % 1 < .045 || ((u * 4 + Math.floor(v * 4) * .5) % 1) < .025 ? .16 : 0) + Math.sin(v * Math.PI * 8) * .025;
@@ -43,7 +45,7 @@ export function createSurfaceTexture(kind: SurfaceKind, profile: DetailProfile, 
 }
 /** Object-space metre mapping survives batching, scaled props and ship animation. */
 export function finishSurface(material: THREE.MeshToonMaterial | THREE.MeshBasicMaterial, kind: SurfaceKind, wind?: {value:number}, strength?: {value:number}, cartoon?: {center: THREE.Vector2; time:{value:number}; intensity:{value:number}}) {
-  const ground = ['asphalt','grass','stone','sand'].includes(kind);
+  const ground = ['asphalt','wetAsphalt','grass','stone','sand'].includes(kind);
   material.name = `surface-${kind}`;
   material.customProgramCacheKey = () => `world-surface-${kind}`;
   material.onBeforeCompile = shader => {

@@ -1,4 +1,5 @@
 import { LifeReactions } from './life-reactions';
+import { dirtyRange } from './instance-updates';
 import * as THREE from 'three';
 import { CHARACTERS, HEAD_HIT_RADIUS, KI_CHARGE, KI_RADIUS, KI_RANGE, VEIL_RADIUS, angleDelta, bodyRadiusAt, serpentScale, type Arena, type GameEvent, type CharacterId } from './simulation';
 import { BoostMotion } from './presentation';
@@ -50,16 +51,17 @@ export class SkillEffects {
   private aims = this.pool(new THREE.BoxGeometry(1,1,1), 96, .56);
   private slashes = this.pool(taperedSlashGeometry(), 192, .78);
   private stars = this.pool(impactStarGeometry(), 48, .72);
-  private meshes = [this.cores,this.sparks,this.ribbons,this.aims,this.slashes,this.stars];
+  private meshes: THREE.InstancedMesh[] = [this.cores,this.sparks,this.ribbons,this.aims,this.slashes,this.stars];
+  private colorRanges=new Int32Array(12).fill(-1);
 
   private pool(geometry: THREE.BufferGeometry, count: number, opacity: number) {
     const mesh = new THREE.InstancedMesh(geometry, new THREE.MeshBasicMaterial({color:'white',transparent:opacity<1,opacity,depthWrite:opacity===1}), count);
-    mesh.count=0; mesh.frustumCulled=false;
+    mesh.count=0; mesh.visible=false; mesh.frustumCulled=false;
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.group.add(mesh);
     return mesh;
   }
-  clear() { this.life.reset(); this.bursts=[]; this.trails=[]; this.trailClock=0; this.boostMarks.length=0; this.boostMarkClock=0; for(const m of this.meshes) m.count=0; }
+  clear() { this.life.reset(); this.bursts=[]; this.trails=[]; this.trailClock=0; this.boostMarks.length=0; this.boostMarkClock=0; for(const m of this.meshes) {m.count=0;m.visible=false;} }
   ingest(events: readonly GameEvent[], boosted = false, direction = 0) {
     this.life.ingest(events, boosted, direction);
     for(const e of events) {
@@ -76,12 +78,17 @@ export class SkillEffects {
     this.dummy.position.set(x,y,z); this.dummy.scale.set(sx,sy,sz); this.dummy.rotation.set(rx,ry,0); this.dummy.updateMatrix();
     mesh.setMatrixAt(mesh.count,this.dummy.matrix);
     if(!this.colors.has(color)) this.colors.set(color,new THREE.Color(color));
-    mesh.setColorAt(mesh.count,this.colors.get(color)!); mesh.count++;
+    const tint=this.colors.get(color)!,array=mesh.instanceColor?.array,o=mesh.count*3;
+    if(!array||array[o]!==Math.fround(tint.r)||array[o+1]!==Math.fround(tint.g)||array[o+2]!==Math.fround(tint.b)){
+      mesh.setColorAt(mesh.count,tint);const slot=this.meshes.indexOf(mesh)*2;
+      if(this.colorRanges[slot]<0)this.colorRanges[slot]=mesh.count;this.colorRanges[slot+1]=mesh.count;
+    }mesh.count++;
   }
   update(arena: Arena|undefined, time:number, dt:number, reduced:boolean, boost: BoostMotion = this.idleBoost, mapId: MapId = 'shibuya', anchors?: ReadonlyMap<number, RenderAnchor>) {
     this.group.visible=!!arena && !arena.cinematic;
     if(!arena || arena.cinematic) { this.clear(); if(arena) this.seed(arena); return; }
     this.life.update(arena.snakes, dt, reduced);
+    this.colorRanges.fill(-1);
     for(const mesh of this.meshes) mesh.count=0;
     for(const b of this.bursts) b.age+=dt;
     for(const t of this.trails) t.age+=dt;
@@ -314,7 +321,12 @@ export class SkillEffects {
           1.2*fade,1,.32*fade,i%2?'#5dc7f8':'#e7fcff',-p.direction);
       }
     }
-    for(const mesh of this.meshes) { mesh.instanceMatrix.needsUpdate=true; if(mesh.instanceColor) mesh.instanceColor.needsUpdate=true; }
+    for(let i=0;i<this.meshes.length;i++){
+      const mesh=this.meshes[i];mesh.visible=mesh.count>0;if(!mesh.visible)continue;
+      dirtyRange(mesh.instanceMatrix,0,mesh.count*16);
+      const first=this.colorRanges[i*2],last=this.colorRanges[i*2+1];
+      if(mesh.instanceColor&&first>=0)dirtyRange(mesh.instanceColor,first*3,(last-first+1)*3);
+    }
   }
   dispose() { if(this.disposed) return; this.disposed=true; for(const mesh of this.meshes) { mesh.dispose(); mesh.geometry.dispose(); (mesh.material as THREE.Material).dispose(); } this.group.removeFromParent(); }
 }

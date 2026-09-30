@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RADIUS } from '../simulation';
 import { WorldBuilder } from "./builder";
 import { shop, lantern, flag, cable } from "./architecture";
 import { addWorldLife } from "./life";
@@ -75,7 +76,7 @@ export function leaf(b:WorldBuilder) {
   // A bounded ring of shallow highlights makes the canal current legible without reflections.
   const currentGroup=new THREE.Group(),currentCount=b.profile==="mobile"?16:28;
   const current=new THREE.InstancedMesh(b.geo(new THREE.BoxGeometry(1,.025,.32)),b.material(new THREE.MeshBasicMaterial({color:"#b5ded0",transparent:true,opacity:.48,depthWrite:false})),currentCount);
-  current.name="village-canal-current";current.frustumCulled=false;currentGroup.add(current);b.group.add(currentGroup);
+  current.name="village-canal-current";current.frustumCulled=true;current.boundingSphere=new THREE.Sphere(new THREE.Vector3(),RADIUS+35);currentGroup.add(current);b.group.add(currentGroup);
   const currentDummy=new THREE.Object3D();
   const updateCurrent=(time:number,reduced:boolean)=>{for(let i=0;i<currentCount;i++){const a=(i/currentCount)*Math.PI*2+(reduced?0:time*.028);const r=leafCanalRadius(a);currentDummy.position.set(Math.cos(a)*r,-.548,Math.sin(a)*r);currentDummy.rotation.set(0,-a,0);currentDummy.scale.set(1,.8,1);currentDummy.updateMatrix();current.setMatrixAt(i,currentDummy.matrix);}current.instanceMatrix.needsUpdate=true;};
   updateCurrent(0,true);b.moving(currentGroup,f=>updateCurrent(f.time,f.reducedMotion));

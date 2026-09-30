@@ -9,6 +9,8 @@ export interface EnvironmentFrame {
   readonly mode: "menu" | "game";
   readonly paused: boolean;
   readonly reducedMotion: boolean;
+  readonly skyVisible?: boolean;
+  readonly summonClearance?: Readonly<{min: Readonly<{x:number;y:number;z:number}>; max: Readonly<{x:number;y:number;z:number}>}>;
   readonly ultimate?: Readonly<{ kind: "purple" | "spirit" | "fox" | "skybreaker"; time: number; origin: VisualPoint; impact: VisualPoint }>;
 }
 /** Cosmetic radius with a soft four-unit rim; no simulation state reads this. */

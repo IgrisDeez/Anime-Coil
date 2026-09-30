@@ -1494,7 +1494,6 @@ body.reduced-motion * { animation: none !important; transition-property: opacity
 .touch-preview span { padding: 6px 9px; border-radius: 13px; background: #dbeedc; color: #365d4d; }
 .touch-preview[data-touch-hand="right"] { flex-direction: row-reverse; }
 .touch-preview[data-touch-size="large"] span { padding: 9px 12px; }
-.mode-description { margin: -7px 0 11px; min-height: 2.4em; font-size: 10px; line-height: 1.2; color: var(--muted); text-align: center; }
 .session-progress, .session-unlocks { margin: 8px 0 !important; font-size: 12px !important; }
 .session-unlocks { color: #4a8b65 !important; font-weight: 850; }
 #unlock-notice { position: fixed; z-index: 5; top: calc(95px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); max-width: min(340px, 80vw); padding: 9px 14px; border-radius: 16px; background: var(--cream); color: var(--ink); border: 2px solid #98c5a4; box-shadow: var(--shadow); text-align: center; font-size: 12px; font-weight: 850; pointer-events: none; }
@@ -1748,9 +1747,8 @@ body.reduced-motion * { animation: none !important; transition-property: opacity
 .selection-panel .map-card, .selection-panel .map-card:nth-child(even) { transform: none; }
 .selection-panel .map-card:is(:hover, :focus-visible, [aria-pressed="true"]) { transform: translateY(-2px); }
 .selection-panel .map-card span { white-space: normal; line-height: 1.15; overflow-wrap: anywhere; }
-.selection-panel .mode-picker { margin: 0 0 10px; }
+.selection-panel .mode-picker { margin: 0 0 15px; }
 .selection-panel .mode-choice { min-height: 44px; padding: 5px; line-height: 1.15; }
-.selection-panel .mode-description { margin: 0 0 15px; min-height: 0; font-size: 12px; line-height: 1.45; text-align: left; }
 
 :root[data-theme="dark"] .settings-tabs { background: #202939; }
 :root[data-theme="dark"] .settings-tabs button[aria-selected="true"] { background: #394e49; color: #e1f2e5; }

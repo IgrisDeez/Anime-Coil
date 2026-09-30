@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { Arena, STEP, NUKE_BLAST, NUKE_DURATION, RADIUS, SPRINT_DURATION, BASE_SPEED } from '../src/simulation.ts';
 import { FoxCinematic, foxTailGeometry } from '../src/fox.ts';
+import { createFoxSummon } from '../src/fox-model.ts';
 import { ultimateFrame, UltimateCueTracker } from '../src/ultimate-presentation.ts';
 import { reaction } from '../src/worlds/types.ts';
 
@@ -69,7 +70,7 @@ test('fox pooled geometry is bounded, pause-stable, shared safely, and disposed 
     fx.group.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.LineSegments||o instanceof THREE.Points){geometry.add(o.geometry);materials.add(o.material as THREE.Material);}});
     a.activateNuke(a.player);
     for(const time of [.3,1.5,2.6,3.5,5.2,NUKE_DURATION]){
-      a.cinematic!.time=time;camera.position.set(0,48,27);camera.lookAt(0,0,0);
+      a.cinematic!.time=time;a.cinematic!.detonated=time>=NUKE_BLAST;camera.position.set(0,48,27);camera.lookAt(0,0,0);
       fx.update(a,camera,false);assert.equal(fx.group.visible,true);
       let draws=0;fx.group.traverse(o=>{
         if(!(o instanceof THREE.Mesh||o instanceof THREE.LineSegments||o instanceof THREE.Points)||!o.visible)return;
@@ -101,7 +102,8 @@ test('fox bomb grows independently of the summon and leaves a broad pooled impac
   a.cinematic!.time=2.4;
   fx.update(a,camera,false);
   assert.equal(beast.scale.x,1.8);
-  assert.ok(orb.scale.x>11 && orb.position.z>orb.scale.x);
+  assert.ok(orb.scale.x>11);
+  assert.ok(new THREE.Vector3().copy(fx.staging.bombCenter).distanceTo(fx.staging.muzzle)>orb.scale.x+2.7);
   assert.equal(shell.visible,true);
   a.cinematic!.time=3.8;a.cinematic!.detonated=true;
   fx.update(a,camera,false);
@@ -158,7 +160,9 @@ test('fox summon has poseable face and paws, nine distinct curved tails, and a t
   assert.ok(head.rotation.x>idleHead&&left.rotation.x<idlePaw);
   assert.match(orb.material.fragmentShader,/noise3\(vec3 p\)/);
   assert.ok(orb.material.uniforms.pressure.value>.5);
-  assert.ok(orb.position.z-orb.scale.z>6,'charge sits ahead of the muzzle rather than over the face');
+  const mouthToBomb=new THREE.Vector3().copy(fx.staging.bombCenter).sub(fx.staging.muzzle);
+  assert.ok(Math.abs(mouthToBomb.length()-orb.scale.x-2.8)<1e-8,'charge has radius-based muzzle clearance');
+  assert.ok(mouthToBomb.normalize().distanceTo(fx.staging.firingDirection)<1e-8,'charge follows the displayed jaw direction');
   for(const aspect of [16/9,390/844]) {
     camera.aspect=aspect;camera.updateProjectionMatrix();camera.position.set(0,48,27);camera.lookAt(0,0,0);
     fx.update(arena,camera,false);fx.group.updateMatrixWorld(true);camera.updateMatrixWorld(true);
@@ -170,5 +174,110 @@ test('fox summon has poseable face and paws, nine distinct curved tails, and a t
   arena.cinematic!.time=2.2;camera.position.set(0,48,27);camera.lookAt(0,0,0);fx.update(arena,camera,false,true);
   assert.equal(head.rotation.x,.06);
   assert.equal(left.rotation.x,-.12);
+  fx.dispose();
+});
+
+test('golden fox has closed finite sculpted volumes, separate jaws, limb markings, and isolated materials',()=>{
+  const a=createFoxSummon(),b=createFoxSummon();
+  assert.equal(a.meshes.length,4);
+  assert.equal(a.muzzle.parent,a.head);
+  assert.ok(a.head.position.y>15&&Math.abs(a.leftPaw.position.x)>3);
+  for(let i=0;i<a.meshes.length;i++){
+    const mesh=a.meshes[i];assert.notEqual(mesh.material,b.meshes[i].material);
+    for(const attribute of ['position','normal','color','uv']){
+      const buffer=mesh.geometry.getAttribute(attribute);
+      for(const value of buffer.array)assert.ok(Number.isFinite(value));
+    }
+    const normals=mesh.geometry.getAttribute('normal');
+    for(let j=0;j<normals.count;j++)assert.ok(Math.hypot(normals.getX(j),normals.getY(j),normals.getZ(j))>.9);
+  }
+  const torso=a.meshes[0].geometry.boundingBox!;
+  assert.ok(torso.min.y<.2&&torso.max.y>15&&torso.max.x>6,'bent legs connect the chest to grounded feet');
+  assert.ok(a.meshes[1].geometry.boundingBox!.max.z>5,'jaw is a long fox muzzle');
+  const tail=foxTailGeometry();assert.ok(tail.index&&tail.getAttribute('color'));
+  const color=tail.getAttribute('color');let hasInk=false;
+  for(let i=0;i<color.count;i++)if(color.getX(i)<.1&&color.getY(i)<.05)hasInk=true;
+  assert.equal(hasInk,true,'tail fan retains dark inner stripes');tail.dispose();
+  for(const model of [a,b])for(const mesh of model.meshes){mesh.geometry.dispose();(mesh.material as THREE.Material).dispose();}
+});
+
+test('fox muzzle anchor follows charge poses and launch wake follows the actual trajectory',()=>{
+  const scene=new THREE.Scene(),fx=new FoxCinematic(scene),a=new Arena('ember',()=>.5,0,0),camera=new THREE.PerspectiveCamera(43,16/9,.1,600);
+  a.activateNuke(a.player);
+  const orb=fx.group.getObjectByName('fox-bomb-core') as THREE.Mesh;
+  for(const time of [.9,1.5,2.4,2.5]){
+    a.cinematic!.time=time;camera.position.set(0,48,27);camera.lookAt(0,0,0);fx.update(a,camera,false);
+    const anchor=fx.group.getObjectByName('fox-muzzle-anchor')!.getWorldPosition(new THREE.Vector3());
+    assert.ok(anchor.distanceTo(fx.staging.muzzle)<1e-8);
+    const displacement=new THREE.Vector3().copy(fx.staging.bombCenter).sub(anchor);
+    assert.ok(Math.abs(displacement.length()-orb.scale.x-2.8)<1e-8);
+    assert.ok(displacement.normalize().distanceTo(fx.staging.firingDirection)<1e-8);
+  }
+  a.cinematic!.time=3.1;fx.update(a,camera,false);fx.group.updateMatrixWorld(true);
+  const wake=fx.group.children.find(o=>o instanceof THREE.Mesh&&o.geometry instanceof THREE.ConeGeometry) as THREE.Mesh;
+  const tip=new THREE.Vector3(0,.5,0).applyMatrix4(wake.matrixWorld);
+  assert.ok(tip.distanceTo(fx.staging.bombCenter)<1e-8,'the cone tip touches the moving bomb');
+  a.cinematic!.time=2.4;camera.position.set(0,48,27);camera.lookAt(0,0,0);const normalPose=camera.quaternion.clone();
+  fx.update(a,camera,false,false,false);
+  assert.deepEqual(camera.position.toArray(),[0,48,27]);assert.equal(camera.quaternion.angleTo(normalPose),0,'Camera Off preserves gameplay framing');
+  assert.ok(Math.hypot(fx.staging.bombCenter.x-a.player.x,fx.staging.bombCenter.z-a.player.z)>orb.scale.x+4,'retained-camera charge clears the player');
+  fx.clear();assert.equal(fx.staging.active,false);assert.deepEqual({...fx.staging.muzzle},{x:0,y:0,z:0});
+  assert.equal(orb.visible,false);fx.dispose();
+});
+
+test('staged fox cameras fit model and orb bounds on desktop, short windows and phones, including arena edges',()=>{
+  const fx=new FoxCinematic(new THREE.Scene()),camera=new THREE.PerspectiveCamera(43,16/9,.1,600);
+  for(const edge of [false,true])for(const aspect of [16/9,2.5,390/844]){
+    const a=new Arena('ember',()=>.5,0,0);if(edge){a.player.x=RADIUS-1;a.player.z=0;}
+    a.activateNuke(a.player);const impact={...a.cinematic!.impact};
+    camera.aspect=aspect;camera.updateProjectionMatrix();
+    for(const time of [.9,1.5,2.4,2.7,3.3,3.5,4.1]){
+      a.cinematic!.time=time;a.cinematic!.detonated=time>=3.4;camera.position.set(a.player.x,48,27);camera.lookAt(a.player.x,0,0);fx.update(a,camera,false);camera.updateMatrixWorld(true);
+      const bounds=fx.staging.summonBounds;
+      for(let i=0;i<8;i++){
+        const point=new THREE.Vector3(i&1?bounds.max.x:bounds.min.x,i&2?bounds.max.y:bounds.min.y,i&4?bounds.max.z:bounds.min.z).project(camera);
+        assert.ok(Math.abs(point.x)<.98&&Math.abs(point.y)<.98&&point.z<1,`fox framing ${edge}/${aspect}/${time}`);
+      }
+      if(time<3.4){
+        const point=new THREE.Vector3().copy(fx.staging.bombCenter).project(camera);assert.ok(Math.abs(point.x)<.95&&Math.abs(point.y)<.95,'bomb remains in frame');
+      }
+      assert.deepEqual(a.cinematic!.impact,impact,'visual edge staging cannot move the damage anchor');
+    }
+    // Connected stage boundaries have no hard camera position or orientation cuts.
+    for(const boundary of [.55,.65,.9,1.55,2.5,3.4,4.3,4.35,5.6]){
+      a.cinematic!.time=boundary-.001;a.cinematic!.detonated=boundary-.001>=3.4;camera.position.set(a.player.x,48,27);camera.lookAt(a.player.x,0,0);fx.update(a,camera,false);const before=camera.position.clone(),rotation=camera.quaternion.clone();
+      a.cinematic!.time=boundary+.001;a.cinematic!.detonated=boundary+.001>=3.4;camera.position.set(a.player.x,48,27);camera.lookAt(a.player.x,0,0);fx.update(a,camera,false);
+      assert.ok(before.distanceTo(camera.position)<1.5,`position continuity at ${boundary}`);assert.ok(rotation.angleTo(camera.quaternion)<.03,`rotation continuity at ${boundary}`);
+    }
+    a.cinematic!.time=5.2;camera.position.set(a.player.x,48,27);camera.lookAt(a.player.x,0,0);fx.update(a,camera,false);camera.updateMatrixWorld(true);
+    const returningPlayer=new THREE.Vector3(a.player.x,1.5,a.player.z).project(camera);
+    assert.ok(Math.abs(returningPlayer.x)<.98&&Math.abs(returningPlayer.y)<.98,'recovery restores a readable player view');
+  }
+  fx.dispose();
+});
+
+test('fox frozen poses and repeated clear/reactivation reset anchors, shader state and every pooled layer',()=>{
+  const fx=new FoxCinematic(new THREE.Scene()),camera=new THREE.PerspectiveCamera(43,16/9,.1,600);
+  const resetCamera=()=>{camera.position.set(0,48,27);camera.lookAt(0,0,0);};
+  for(let cycle=0;cycle<6;cycle++){
+    const a=new Arena('ember',()=>.5,0,0);a.activateNuke(a.player);a.cinematic!.time=2.1;
+    resetCamera();fx.update(a,camera,false);fx.group.updateMatrixWorld(true);
+    const pose=JSON.stringify(fx.group.toJSON()),anchor=JSON.stringify(fx.staging);
+    a.state='paused';a.step(STEP,idle);resetCamera();fx.update(a,camera,false);fx.group.updateMatrixWorld(true);
+    assert.equal(JSON.stringify(fx.group.toJSON()),pose);assert.equal(JSON.stringify(fx.staging),anchor);
+    a.cinematic!.time=3.65;a.cinematic!.detonated=true;resetCamera();fx.update(a,camera,false);
+    fx.clear();assert.equal(fx.staging.active,false);
+    assert.deepEqual({...fx.staging.bombCenter},{x:0,y:0,z:0});
+    for(const part of fx.group.children)if(part instanceof THREE.Mesh||part instanceof THREE.Points||part instanceof THREE.LineSegments){
+      assert.equal(part.visible,false,'every transient layer is hidden after cleanup');
+      if(part instanceof THREE.InstancedMesh)assert.equal(part.count,0);
+      if(part.material instanceof THREE.ShaderMaterial){assert.equal(part.material.uniforms.time.value,0);assert.equal(part.material.uniforms.alpha.value,0);}
+    }
+    resetCamera();fx.update(undefined,camera,false);assert.equal(fx.group.visible,false);
+    a.state='playing';a.cinematic!.time=1.5;a.cinematic!.detonated=false;
+    resetCamera();fx.update(a,camera,false);assert.equal(fx.group.visible,true);
+    a.player.alive=false;fx.update(a,camera,false);assert.equal(fx.staging.active,false,'death clears a stale cinematic');
+    a.player.alive=true;a.state='over';fx.update(a,camera,false);assert.equal(fx.staging.active,false,'match end clears a stale cinematic');
+  }
   fx.dispose();
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Arena, BOUNTY_CHARGE_MAX, SPRINT_DURATION, STEP, RADIUS, HEAD_HIT_RADIUS, bodyHitRadiusAt, type Input } from '../src/simulation.ts';
+import { Arena, BOUNTY_CHARGE_MAX, SPRINT_DURATION, STEP, RADIUS, HEAD_HIT_RADIUS, bodyHitRadiusAt, serpentScale, type Input } from '../src/simulation.ts';
 import { BOUNTY_BEST_KEY, loadBountyBest, recordBounty } from '../src/bounty-record.ts';
 import { defaultSettings, loadGameSettings, saveGameSettings, updateBinding } from '../src/game-settings.ts';
 
@@ -97,10 +97,40 @@ test('spawned coils have clearance from rivals when a safe start exists', () => 
     for (const point of snake.body) for (let i = 0; i < other.body.length; i++) {
       const body = other.body[i];
       const clearance = Math.hypot(point.x - body.x, point.z - body.z) -
-        (HEAD_HIT_RADIUS + bodyHitRadiusAt(i, other.body.length, other.mass));
-      assert.ok(clearance > 0, `spawn ${snake.id} overlaps ${other.id}`);
+        (HEAD_HIT_RADIUS * serpentScale(snake.mass) + bodyHitRadiusAt(i, other.body.length, other.mass));
+      assert.ok(clearance >= 3 - 1e-9, `spawn ${snake.id} is too near ${other.id}`);
     }
   }
+});
+
+test('crowded spawns wait for a safe opening instead of creating an immediate collision', () => {
+  const a = hunt();
+  const blocker = target(a, 1, 20, 0);
+  blocker.body = [];
+  // Cover every random and deterministic candidate in the bounded search.
+  for (const ring of [20, 35, 50, 65, 80, 95])
+    for (let sector = 0; sector < 24; sector++) {
+      const angle = sector * Math.PI / 12 + ring * .001;
+      blocker.body.push({ x: Math.cos(angle) * ring, z: Math.sin(angle) * ring });
+    }
+  blocker.body.push({ x: -60, z: 0 });
+  blocker.mass = blocker.body.length;
+  a.player.alive = false;
+  a.playerRespawnRemaining = 0;
+  const pending = () => (a as unknown as { pendingBotRespawns: Array<{ remaining: number; index: number }> }).pendingBotRespawns;
+  pending().push({ remaining: 0, index: 0 });
+  assert.equal(a.spawnBot(0), false);
+  assert.equal(a.snakes.length, 2);
+  a.step(0, input);
+  assert.equal(a.player.alive, false);
+  assert.equal(a.events.some(event => event.type === 'player-respawn'), false);
+  assert.equal(pending().length, 1);
+  a.snakes = [a.player];
+  a.step(.25, input);
+  assert.equal(a.player.alive, true);
+  assert.equal(a.events.filter(event => event.type === 'player-respawn').length, 1);
+  assert.equal(a.snakes.length, 2);
+  assert.equal(pending().length, 0);
 });
 
 test('player death carries the responsible rival name and contact position', () => {

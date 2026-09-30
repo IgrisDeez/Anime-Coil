@@ -1,5 +1,141 @@
-# Anime Coil v1.6.1 — UI Alignment and Clarity
+# Anime Coil v1.6.7 — Profiling-Driven Performance Pass
 A solo browser arena built with TypeScript, Three.js, and Vite. Pick one of four original anime-inspired chibi serpents and compete with 20 bots in Endless, three-minute Sprint, or Bounty Hunt. Guided Practice is available from Help.
+
+## v1.6.7 — Profiling-Driven Performance Pass
+
+This local patch caches snake transforms and food colors, animates food/rain in shaders, restricts changed instance ranges, culls conservatively bounded offscreen meshes, throttles background actors, caps desktop DPR at 1.5 and avoids redundant HUD writes. Geometry, art direction, saved preferences and the fixed 60 Hz simulation are preserved. The distant-body 30 Hz trial was rejected because it separated heads from their coils.
+
+The matched ordinary replay retains 21 snakes, 987 body segments and 850 food: conservative repeated baseline CPU median/p95 was 4.0–4.2/5.9–6.3 ms; final was 3.1–3.2/5.2–5.6 ms. Calls fell from 125 to 68 through culling, and a separately instrumented warm frame uploaded 21,696 bytes instead of 1,687,248. These are hardware-accelerated headless Edge/Intel Iris Xe rendering samples, not live-match or physical-phone guarantees. Final live-game 21-snake samples still exceed the whole-game CPU target; expensive simulation/event/catch-up frames remain.
+
+**293 tests**, npm run build and diff checks pass. Final resource checks include 40 map switches and repeated ultimate cycles on desktop/phone-sized layouts. See [the full performance report](docs/PERFORMANCE-1.6.7.md) and its raw evidence for all isolated/cumulative stages, stress bodies, GPU/DPR results, live population ranges, rejected trials and review limits. Local preview: http://127.0.0.1:4173/. Package/visible versions and source archive are 1.6.7; no Git publishing or deployment.
+
+## v1.6.6 — Shibuya After Hours
+
+Shibuya now uses four packed street-aligned districts instead of twelve scattered storefronts. All profiles retain 32 detailed frontages; desktop adds 24 middle-distance blocks and 24 skyline masses, while mobile uses 16 of each. Commercial screen towers, glass buildings, stepped terraces and stacked shops have distinct silhouettes, finished sides, entrances, roof equipment and grounded foundations. Two station entrances occupy the intentional street opening. Raised architecture, street furniture, trees and background actors remain outside the existing collision clearance.
+
+The circular arena rules are unchanged, but the visible ground is now a joined scramble intersection: broad crossings, diagonal pedestrian stripes, lane dividers, turn arrows, stop lines, hatched paint, drains/manhole graphics, road patches and pavement seams. These are flat cosmetic surfaces. Centre paint is subdued to retain contrast for frozen opponents, collectibles and player ownership marks. Perimeter traffic retains 12 cars/12 pedestrians on desktop and 4 cars/6 pedestrians on mobile, with added wheels and tail lights.
+
+A camera-centred procedural night sky adds a navy/indigo gradient, slow layered storm clouds, sparse cloud-veiled stars, a softly obscured moon and restrained horizon glow. It uses one cached background draw, no texture downloads, post-processing, new lights or reflection pass. Fully downward views skip that draw when opaque ground covers the sky. Clouds use the existing presentation clock; pause/hidden tabs freeze them and reduced motion holds them static. Shibuya menu and postcard framing are adjusted; a sky horizon is naturally visible in lower-angle sightlines and cinematics rather than being forced into the top-down gameplay camera.
+
+Billboards use twelve original locally generated poster designs in padded landscape, square and portrait atlas regions, merged into one shared draw per district. Small banners reuse existing sign-atlas entries without changing other maps' sign behaviour. Shop identities remain stable. Puddle reflections now take colours and positions from actual storefront anchors. Atlas creation has a readable base-colour fallback without browser canvas support, and all resources belong to the existing map disposer.
+
+The dense-city review exposed a phone boundary cinematic camera inside a building. A Shibuya-only, temporary dithered camera-to-focus corridor now clears intervening raised scenery; ground, snakes, food and boundary cues remain untouched. It complements the existing fox summon volume and resets on completion, restart, quit and map change. Camera paths and ultimate mechanics are unchanged, and the corridor uses cached vectors/uniforms without another animation loop.
+
+| Environment maximum | v1.6.5 desktop | v1.6.6 desktop | v1.6.5 mobile | v1.6.6 mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Draw calls, including sky | 29 | 68 | 29 | 64 |
+| Triangles | 36,676 | 87,174 | 28,132 | 46,434 |
+| Materials | 18 | 22 | 18 | 22 |
+| Textures | 4 | 5 | 4 | 5 |
+| Moving actors | 24 | 24 | 10 | 10 |
+
+Both profiles remain below 120/80 environment calls, 150,000/75,000 triangles and 32 materials, retaining the 24/10 moving-actor limits. Static district batches retain tight instance bounds, so offscreen architecture can be culled during normal play. The fully visible city uses more bounded draws than the prior global batch, but avoids submitting the entire skyline under a top-down gameplay camera. Normal rendering can also omit the sky call; environment maxima include it. Total scene counts include shared character/effect resources and are not the environment budget.
+
+Validation: **277 tests pass**, preserving all 267 baseline tests and adding ten checks for frontage packing/profile populations, finite district instance bounds/camera culling, rotationally aligned road markings, padded reusable atlas panels, sky pause/reduced-motion behaviour, camera-relative sky positioning, top-down sky culling, profile/cleanup limits, and cinematic scenery restoration. Existing tests cover finite geometry/UVs, fallback textures, 40 constructions/disposals and gameplay regressions. Simulation, gameplay orchestration, models, audio, E effects and the four ultimate renderer files remain byte-for-byte identical to the saved v1.6.5 source archive; earlier local edits are retained.
+
+Matched rendering samples compare the saved v1.6.5 source with v1.6.6 using seed 812, Shibuya, 21 living snakes, Auto quality, DPR 1, 30 warmup frames and 60 sampled frames. Simulation positions were held constant to isolate rendering cost from bot turnover. These are headless Edge/SwiftShader software-browser measurements, not hardware GPU timing, sustained live-match FPS or physical-phone performance.
+
+| Viewport | RAF median/p95 before → after (ms) | CPU submission median/p95 before → after (ms) | Scene calls before → after | Scene triangles before → after |
+| --- | --- | --- | ---: | ---: |
+| 1440×900 | 158.0/172.8 → 175.3/183.7 | 4.8/9.3 → 6.0/8.5 | 159 → 160 | 227,792 → 209,096 |
+| 390×844 | 90.2/96.1 → 89.6/93.7 | 4.0/7.6 → 4.2/7.7 | 128 → 129 | 206,800 → 193,840 |
+
+The richer city increased desktop software frame time by about 11%; the phone-sized sample was comparable. District box culling reduced submitted normal-play triangles despite the larger authored environment. This is a visual-density tradeoff, not a claimed performance improvement. Final raw measurements are in `../v166-review/controlled-profile.json`.
+
+Resource checks first observed one late geometry upload on Hidden Leaf at phone width. After settling the gameplay camera for 90 frames and priming three four-map cycles, two consecutive 40-switch cycles returned every map to identical geometry, texture and shader-program counts. Shibuya returned to 97/3/23 on desktop and 83/3/22 on phone (GPU-uploaded geometries/textures/programs, including cached renderer assets). These counts differ from fully visible authored environment totals because offscreen assets upload lazily. Settled per-map results are retained in `../v166-review/resources-settled-*.json`; no continuing growth was observed.
+
+Live review covered production menu, gameplay and pause in both UI themes at 1440×900, 900×480 and 390×844, plus all four ultimate renderers at summon, charge, launch, impact and recovery, large-coil boundary casts, reduced-motion fox staging, the generated postcard and a low-angle night-sky view. Final browser checks reported no application or shader errors. The in-app browser connection was unavailable, so review used an isolated owned headless browser. Renderer fixtures omit the DOM impact artwork; the existing overlay regressions remain intact. Physical-phone touch, hardware GPU timing and prolonged real-device play remain unverified.
+
+`npm test`, `npm run build` and `git diff --check` pass. The build retains the existing advisory about the shared Three.js chunk size. Package, page title, menu and credits show **1.6.6**. The source archive and production preview at **http://127.0.0.1:4173/** are refreshed. Temporary review fixtures are excluded from delivery. No Git publishing or website deployment was performed.
+
+## v1.6.5 — Shibuya Neon Revival
+
+Shibuya is rebuilt as a rainy blue-purple anime city. Four facade families now distinguish glass offices, narrow neon shops, terraced blocks and commercial towers, with a prominent COIL 109 shopping tower and two supported station entrances. Front and side windows have dark wells, raised frames and varied warm/cool panes; roofs gain parapets, setbacks and equipment, while shops gain lanterns, projecting glyph signs and grounded forecourts. The skyline surrounds the district at two depths rather than appearing only behind one row of buildings. Shibuya's menu postcard is rendered from the finished environment with a lower preview angle.
+
+The source/capture audit confirmed repeated flat facades, largely blank side walls, disconnected perimeter street composition, generic circular pedestrian routes, and traffic streaks unrelated to those roads. These were replaced rather than labelled as missing-face bugs: no missing-face or shader failure was reproduced in the review. Shared typed street anchors connect closed chamfered roads, inner/outer sidewalks, station approaches and crossings. A confirmed closed-ribbon seam in the shared path helper is fixed by using the same endpoint cross-section. Interior crossing paint remains flat, subdued and cosmetic; all raised landmarks and background inhabitants remain outside the existing playable clearance zone.
+
+Deterministic, repeating wet-asphalt and facade textures retain base-color fallback. Irregular, soft neon puddle graphics suggest cyan/pink reflections without reflective passes. Bounded rain, splash rings and distant mist replace the old uniformly pulsing ellipses. Neon sign artwork has padded atlas cells and stable shop identities; other maps retain their original plain sign artwork. Lighting emphasizes warm shop interiors against darker upper facades and layered haze, without adding lights, bloom, shadows or postprocessing. Pause/hidden tabs freeze the existing presentation clock; Reduced motion hides animated rain/splashes and holds traffic and pedestrians static while keeping wet streets and signage readable.
+
+Shibuya owns 12 pedestrians plus 12 vehicles on desktop, and 6 plus 4 on mobile. Five shared instanced actor draws follow the actual sidewalk/road routes; weather uses reusable bounded buffers. New resources belong to the existing environment disposer. Summon-clearance shader composition and cartoon/ultimate environment reactions remain supported. Simulation, main gameplay orchestration, audio, E effects, all four ultimate renderers and the other three map builders are byte-for-byte unchanged from the v1.6.4 archive; existing earlier local changes are preserved.
+
+| Environment-only budget | Before desktop | Finished desktop | Before mobile | Finished mobile |
+| --- | ---: | ---: | ---: | ---: |
+| Draw calls | 19 | 29 | 19 | 29 |
+| Triangles | 16,288 | 36,676 | 13,986 | 28,132 |
+| Materials | 15 | 18 | 15 | 18 |
+| Textures | 4 | 4 | 4 | 4 |
+| Background actors | 8 | 24 | 4 | 10 |
+
+Both profiles remain under 120/80 calls, 150,000/75,000 environment triangles, 32 materials and 32/12 background actors. Total gameplay scene counts include character geometry and are separate from environment budgets: matched 21-snake captures changed from 150 calls / 206,972 triangles to 159 / 227,792 on desktop, and 119 / 192,462 to 128 / 206,800 at phone width.
+
+Controlled browser samples used seed 812, Shibuya, 21 living snakes, Auto quality, 50 warmup frames and 100 sampled frames. Simulation positions were held constant to compare rendering rather than bot turnover. Headless Edge used SwiftShader software rendering, not hardware GPU timing. At 1440×900, before/after RAF median/p95 were 159.7/179.2 ms and 166.6/180.1 ms; CPU submission median/p95 were 4.8/9.5 ms and 5.9/16.6 ms. At 390×844, RAF median/p95 were 90.3/180.6 ms and 97.1/116.8 ms; CPU submission median/p95 were 7.9/127.9 ms and 6.8/19.1 ms. Software-browser scheduling/outliers make these unsuitable for claiming a hardware speed improvement or playable-device FPS. Actual-device GPU timing and sustained live-match timing remain review limits.
+
+Forty map switches at desktop, short-window and phone sizes returned each map to identical warm/final geometry, texture and program counts. After cycling, Shibuya returned to 109 geometries / 4 textures / 23 programs; cached renderer resources are included. No shader or page errors were reported. Screenshot review covered menu, normal play and street views at 1440×900, 900×480 and 390×844; production light/dark menus, Play/Pause/Quit, all four ultimate charge/launch/recovery stages, a boundary fox cast and Reduced motion were checked at desktop/phone sizes. Physical-phone touch, GPU-specific performance and extended subjective rain/contrast tuning remain unverified. Raw measurements and representative screenshots are retained outside the source tree in `outputs/v165-review`.
+
+Validation: **267 tests passed**, preserving the 260-test baseline and adding seven Shibuya tests for closed paths, facade families/foundations, deterministic actor routes, profile limits, pause, reduced-motion weather, texture/shader composition and stable sign setup. Existing tests cover budgets, finite UVs, deterministic construction, repeated disposal, scenery restoration and gameplay regressions. `npm test`, `npm run build` and `git diff --check` pass. Package, title, menu and credits show 1.6.5. The production preview is hosted locally at **http://127.0.0.1:4173/**; the source archive is refreshed. No Git publishing or website deployment was performed.
+
+## v1.6.4 — Player-Anchored Summon & Cinematic Polish
+
+Kitsu's fox now appears exactly 30 units behind the captured activation position and facing (50 with Reduced motion or Cinematic Camera Off). Neither the clamped impact point nor arena-center recentering controls summon placement. The existing posed muzzle still supplies bomb growth and jaw clearance. On boundary-clamped casts, an elevated lateral arc exits forward before curving into the unchanged impact point, with a derivative-aligned wake and the existing 0.28-unit ground clearance. The golden model, nine tails, maximum bomb radius, and attack mechanics remain unchanged.
+
+A world-owned uniform set softly dithers raised scenery in the summon bounds, including instanced buildings. Ground-height fragments, collectibles, snakes, and arena boundary graphics remain visible. It uses the existing material shaders with no additional render passes or per-activation materials; activation/recovery fade the clearance and explicit cleanup restores scenery, including pause-safe restart. Pomu's cosmetic terrain ripples build during wind-up and transfer to the captured impact on rebound.
+
+Skybreaker Slam retains Pomu's white-haired transformation and giant-fist size. A reusable curved arm buffer replaces the straight cylinder; the fist compresses, follows an overhead curved strike, and gains knuckle creases, tension strokes and a tighter shadow. Shoulder smoke curls, varied scalloped smoke, stars and an animated radial ink dent/rebound replace the uniform disk presentation. Spirit Bomb has softer seamless Cartesian turbulence, broader tapered gathering ribbons, displayed-head shoulder anchors, a trajectory-aligned descending wake, and shaded overlapping cloud lobes that open and dissolve at staggered times. Both attacks now fit projected bounds and blend eye and focus through charge, release and recovery; Spirit Bomb's charge-to-throw camera cut is removed. Cinematic Camera Off, Reduced motion and Reduced flashes retain their existing precedence.
+
+All three effects have explicit idempotent cleanup, snapshot reset and resource disposal. No simulation, cooldown, elimination, respawn, E-skill, audio or HUD rules were changed in this patch; local v1.6.2/v1.6.3 work is retained. Detonation stays at 3.4 seconds and completion at 5.6 seconds. Existing impact artwork, monochrome aftermath, Japanese callouts and audio are preserved.
+
+Validation: **260 tests passed**, preserving the 250-test baseline and adding ten staging/resource/lifecycle tests. Tests cover captured placement across headings and arena boundaries, curved launch clearance, instanced shader composition, scenery restoration during pause-safe restart, displayed anchors, camera continuity and recovery visibility, comfort settings, tangent-aligned wakes and repeated cleanup. `npm test`, `npm run build` and `git diff --check` pass. Package, title, menu and credits show 1.6.4; the production preview and source archive were refreshed. This release is local: no Git publishing or website deployment.
+
+Visual review used isolated headless Edge with software ANGLE because the in-app browser connection was unavailable. All five stages of the three cinematics were captured on every map at 1440 × 900, 390 × 844 and 900 × 480, with additional large-coil edge casts, Camera Off, Reduced motion and paused launch samples. The review caught and fixed smoke/star visibility after cleanup. Final shader/console checks reported no errors. Separate production checks cover both UI themes, actual keyboard activation, impact overlays, pause/resume and recovery. Screenshots and raw measurements are retained beside the repository in `../v164-review/`.
+
+Isolated ultimate draws (ordinary scene hidden) peaked at **Fox 15/14**, **Skybreaker 9/9**, and **Spirit 11/9** for desktop/mobile across summon, charge, launch, impact and recovery, below 24/16. Environment budgets are unchanged and continue to pass tests. Total scene counts below include snakes, collectibles and environments and are not the environment-only budget.
+
+Controlled before/after samples use the archived v1.6.3 source, seed 812, Hidden Leaf, the same viewport/profile, gameplay camera (Camera Off), 20 warm frames and 60 measured submissions. Normal/charge have 21 living snakes; recovery has one after the wipe. Times are CPU durations around `GameRenderer.render`, not GPU timings, sustained FPS, or physical-phone measurements. Software rendering and scheduling produce noisy p95 values; these results do not establish a hardware performance improvement.
+
+| Layout / attack / phase | Snakes | CPU p50/p95 before → after (ms) | Scene calls before → after | Triangles before → after |
+|---|---:|---|---|---|
+| desktop / fox / normal | 21 | 2.7/7.3 → 1.7/2.8 | 166 → 166 | 214,280 → 214,280 |
+| desktop / fox / charge | 21 | 1.8/3.2 → 1.8/2.6 | 177 → 177 | 269,676 → 269,676 |
+| desktop / fox / recovery | 1 | 0.7/1.4 → 0.7/0.9 | 74 → 74 | 100,332 → 100,332 |
+| desktop / skybreaker / normal | 21 | 1.4/2.3 → 1.6/2.4 | 165 → 165 | 214,612 → 214,612 |
+| desktop / skybreaker / charge | 21 | 1.5/2.5 → 1.6/2.3 | 179 → 179 | 240,760 → 242,904 |
+| desktop / skybreaker / recovery | 1 | 1.5/5.8 → 0.7/0.9 | 76 → 71 | 63,624 → 63,808 |
+| desktop / spirit / normal | 21 | 1.4/2.2 → 1.5/8.7 | 161 → 161 | 214,540 → 214,540 |
+| desktop / spirit / charge | 21 | 1.5/2.6 → 1.8/2.5 | 174 → 172 | 369,300 → 368,680 |
+| desktop / spirit / recovery | 1 | 1.2/5.0 → 0.6/1.0 | 61 → 61 | 267,364 → 279,028 |
+| phone / fox / normal | 21 | 1.8/3.6 → 2.2/7.3 | 134 → 134 | 193,944 → 193,944 |
+| phone / fox / charge | 21 | 1.3/1.8 → 1.5/2.6 | 142 → 142 | 245,676 → 245,676 |
+| phone / fox / recovery | 1 | 1.1/2.7 → 0.7/5.2 | 72 → 72 | 90,060 → 90,060 |
+| phone / skybreaker / normal | 21 | 2.4/5.4 → 1.3/1.9 | 133 → 133 | 194,276 → 194,276 |
+| phone / skybreaker / charge | 21 | 2.6/8.1 → 1.3/2.5 | 147 → 147 | 220,424 → 221,128 |
+| phone / skybreaker / recovery | 1 | 0.6/1.8 → 0.9/2.4 | 71 → 68 | 52,936 → 52,960 |
+| phone / spirit / normal | 21 | 2.2/7.1 → 1.3/2.5 | 129 → 129 | 194,204 → 194,204 |
+| phone / spirit / charge | 21 | 1.3/2.0 → 2.8/10.2 | 138 → 137 | 287,648 → 287,462 |
+| phone / spirit / recovery | 1 | 0.8/6.3 → 0.9/5.3 | 58 → 58 | 162,724 → 170,500 |
+
+The 40-map-switch check returned to Harbor ten times with identical **189 geometries / 7 textures / 39 programs**. Twelve fresh activations per attack also stabilized: Fox **177/9/42**, Skybreaker **175/9/42**, Spirit **176/9/42** (geometries/textures/programs); different scene states account for the different totals. Physical-device GPU/thermal performance, real phone touch interaction, and subjective full-speed cinematic feel still require device review.
+
+## v1.6.3 — Golden Fox Summon Redesign
+
+Fox Spirit Bomb now summons a crouched, upright golden fox with broad shoulders, a narrower waist, bent hind legs, spread forearms and clawed feet. The longer angular muzzle has separate open jaws, fangs, narrow eyes, swept ears and pointed cheek tufts. Shoulder circles, chest and waist emblems, cheek stripes and wrist bands follow the supplied reference's visual language. Four cached vertex-color meshes provide the torso/legs, head and articulated arms; normal Kitsu character assets remain separate. Nine closed, curved flame-tail instances have rounded roots, hooked tips, dark inner stripes and distinct layered placements. Charge adds subtle staggered flex and claw tension; reduced motion holds the detailed fan and pose static.
+
+A named anchor inside the posed head supplies the muzzle position and facing. A reusable readonly staging view supplies those coordinates, the bomb center, summon bounds and camera focus. The unchanged maximum 11.48-unit bomb radius has radius-based jaw clearance; its wake follows the actual launch trajectory, and its lower surface stays at least 0.28 units above ground. The summon stages inward near arena edges while the authoritative impact point stays unchanged. Low front three-quarter summon framing blends into side charge and oblique launch framing, then blends both camera position and focus back toward gameplay. Projected bounds guide desktop, short-window and portrait framing. Camera Off and reduced motion retain gameplay framing and move the visual summon farther back so the charged orb clears the player; the complete giant summon may extend beyond that unchanged gameplay view.
+
+The existing 3.4-second detonation, 5.6-second duration, dark chakra shader, impact keyframes, monochrome aftermath, sound effects, Japanese callouts and combat rules remain intact. Cleanup resets poses, anchors, shaders and every transient layer on exit, death, match end and map change. Cached vectors, shared tail geometry and pooled effects avoid runtime geometry construction. Transparent graphic layers use a single render pass; mobile omits one secondary aftermath ring. The complete visible effect remains within 24 desktop / 16 mobile draws.
+
+Validation: **250 tests passed** (the 246-test baseline plus four targeted tests), including finite geometry/normals, material isolation, tail placements, posed muzzle separation, wake direction, ground clearance, camera continuity and player visibility during recovery, comfort settings, frozen poses, repeated cleanup and idempotent disposal. `npm run build` and `git diff --check` passed. The production preview serves v1.6.3 with HTTP 200; a separate production-browser menu, activation and pause/resume smoke check reported no console errors. The source archive was refreshed with 92 entries, including `src/fox-model.ts`; this release remains local.
+
+Isolated headless Edge with software ANGLE successfully captured front/three-quarter model views and all five cinematic stages on all four maps at 1440 × 900 and 390 × 844, plus arena-edge launch, 900 × 480, reduced-motion and Camera Off samples. These controlled renderer fixtures omit the HUD and CSS impact artwork; they are not physical-phone or full live-match review. No shader errors were reported. A 40-map-switch cycle returned Harbor to **166 geometries / 8 textures / 32 programs** at every four-map checkpoint. At 3.65 seconds after the wipe, with one snake, the measured effect used **15 desktop / 14 mobile draws**, separately from the ordinary scene.
+
+For a matching seeded Hidden Leaf charge sample at 1.9 seconds with 21 snakes, the earlier and redesigned renderers were compared using retained gameplay framing, 40 warmup frames and 120 samples. Desktop CPU submission median/p95 was **3.6/6.2 ms before, 3.6/5.1 ms after**; phone-size Low was **2.9/4.8 ms before, 2.9/4.9 ms after**. Effect draws were **13 before / 11 after** in both profiles. Total triangles rose from **234,384 to 270,252 desktop** and **213,664 to 249,532 Low** for the more detailed sculpture. These software-browser CPU samples are illustrative, not GPU frame-time or performance-improvement claims; scenery visibility can change with staging. Physical-device speed, live camera motion, audio listening and the unchanged CSS keyframes remain manual review items. Screenshots and raw measurements are retained outside the source archive in `outputs/fox-review`.
+
+## v1.6.2 — Menu Clarity and Safer Spawns
+
+Changed the character-selection heading and its accessible group name to **Choose your character**. The redundant description beneath the match-mode buttons is gone; mode rules remain in Help.
+
+Spawn placement now checks the entire starting coil, its forward corridor, the arena edge, and nearby living snakes with extra room for the first movement tick. Bot checks use the bot's actual starting mass. If a crowded arena has no safe candidate, that snake waits and retries after its three-second respawn countdown instead of spawning into an immediate collision. The pending bot slot remains queued until placement succeeds. Movement, collision rules, and spawn timers are unchanged.
+
+Validation: **246 tests passed**, including safe initial placement and a forced no-space respawn for both player and bot; `npm run build` and `git diff --check` passed. The local production preview serves HTTP 200. Live desktop and physical-phone visual review remains open.
 
 ## v1.6.1 — UI Alignment and Clarity
 
@@ -7,7 +143,7 @@ Settings now opens on Controls in an accessible four-tab layout. The title, clos
 
 Pause centers its tool buttons and places the two exit actions on separate rows below the primary resume action. Help leads with a compact control guide and Guided Practice, then keeps the full mode and character descriptions in expandable sections. The menu aligns its map cards and controls and gives mode descriptions a readable size. Results and Challenges share the new dialog header, width, spacing, and inner scrolling behavior. Phone and short-window layouts keep controls reachable without clipping.
 
-This is a presentation-only local patch. Match rules, saved preferences, maps, and audio content are unchanged; Git publishing and website deployment are excluded. Validation: **245 tests passed**, `npm run build` passed, `git diff --check` found no whitespace errors, and the production preview serves HTTP 200 on port 4173. The added tests cover tab navigation, hidden-panel state, and returning focus to the opener. Live screenshots and manual desktop/phone layout tuning remain open: the in-app browser connection was unavailable, and isolated headless Edge could not initialize WebGL. No visual or performance measurement is claimed from that attempt.
+This is a presentation-only patch. Match rules, saved preferences, maps, and audio content are unchanged. Validation: **245 tests passed**, `npm run build` passed, `git diff --check` found no whitespace errors, and the production preview serves HTTP 200 on port 4173. The added tests cover tab navigation, hidden-panel state, and returning focus to the opener. Live screenshots and manual desktop/phone layout tuning remain open: the in-app browser connection was unavailable, and isolated headless Edge could not initialize WebGL. No visual or performance measurement is claimed from that attempt. The v1.6.1 changes were later pushed to `origin/worlds-reborn` in commit `2fc6c812`; website deployment was not included.
 
 ## v1.6.0 — Everyday Polish
 

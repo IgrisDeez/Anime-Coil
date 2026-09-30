@@ -25,7 +25,10 @@ export function addWorldLife(builder: WorldBuilder, map: MapId) {
   const heads = new THREE.InstancedMesh(headGeometry, headMaterial, count);
   bodies.name = `${map}-walking-silhouettes`;
   heads.name = `${map}-walking-heads`;
-  bodies.frustumCulled = heads.frustumCulled = false;
+  bodies.frustumCulled = heads.frustumCulled = true;
+  // Entire deterministic walking route plus head height and bob displacement.
+  const routeRadius=map==='harbor'?215:map==='tournament'?262:map==='leaf'?172:136;
+  bodies.boundingSphere=new THREE.Sphere(new THREE.Vector3(),routeRadius);heads.boundingSphere=bodies.boundingSphere.clone();
   bodies.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   heads.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const dummy = new THREE.Object3D();

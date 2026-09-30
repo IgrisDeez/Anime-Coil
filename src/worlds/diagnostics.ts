@@ -3,10 +3,10 @@ import { MAPS, type MapId } from "../maps";
 
 // Opt-in, local review surface. Does not alter gameplay or saved preferences.
 export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, select:(id:MapId)=>void, previewMotion?:(reduced:boolean)=>void) {
-  if (!new URLSearchParams(location.search).has("worldDebug")) return;
+  if (!new URLSearchParams(location.search).has("worldDebug")&&!new URLSearchParams(location.search).has('perfDebug')) return ()=>{};
   const panel=document.createElement("details");
   panel.style.cssText="position:fixed;z-index:500;right:8px;bottom:8px;background:#fff8e8;color:#493e38;padding:8px;border-radius:12px;max-width:92vw;max-height:42vh;overflow:auto;font:11px monospace";
-  panel.innerHTML='<summary>World diagnostics</summary><button>Measure frames</button> <button>Profile 6s</button> <button>Capture stats</button> <button>Cycle maps ×40</button><pre aria-live="polite"></pre>';
+  panel.innerHTML='<summary>Local performance diagnostics</summary><button>Measure frames</button> <button>Profile 40s</button> <button>Capture stats</button> <button>Cycle maps ×40</button><pre></pre>';
   document.body.append(panel);
   if (previewMotion) {
     const label = document.createElement('label'), toggle = document.createElement('input');
@@ -17,12 +17,12 @@ export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, sel
   const show=()=>output.textContent=JSON.stringify(view.diagnostics(),null,2);
   reset.onclick=()=>{view.resetMeasurements();output.textContent="Sampling frames…";};
   const visibleInterval=(duration:number)=>new Promise<boolean>(resolve=>{
-    let start=0,last=performance.now();
+    let start=0;
     const tick=(now:number)=>{
-      if(document.hidden||mode()!=="game"||view.presentation.paused||now-last>300){resolve(false);return;}
+      if(document.hidden||mode()!=="game"||view.presentation.paused){resolve(false);return;}
       if(!start)start=now;
       if(now-start>=duration){resolve(true);return;}
-      last=now;requestAnimationFrame(tick);
+      requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
   });
@@ -30,15 +30,15 @@ export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, sel
     if(mode()!=="game"||view.presentation.paused||view.diagnostics().snakes<21){output.textContent="Start a full 21-snake match before profiling.";return;}
     profile.disabled=true;
     try{
-      output.textContent="Warming up for 1 second…";
-      if(!await visibleInterval(1000)){output.textContent="Profile interrupted.";return;}
+      output.textContent="Warming up for 10 seconds…";
+      if(!await visibleInterval(10000)){output.textContent="Profile interrupted.";return;}
       view.resetMeasurements();
-      output.textContent="Sampling for 5 seconds. Press V during the sample to capture its current form or cinematic phase.";
-      if(!await visibleInterval(5000)){output.textContent="Profile interrupted; partial samples follow.\n"+JSON.stringify(view.diagnostics(),null,2);return;}
+      output.textContent="Sampling for 30 seconds. Population and cinematic phases are reported separately.";
+      if(!await visibleInterval(30000)){output.textContent="Profile interrupted; partial samples follow.\n"+JSON.stringify(view.diagnostics(),null,2);return;}
       show();
     }finally{profile.disabled=false;}
   };
-  capture.onclick=show;
+  capture.onclick=()=>{view.measureDrawCalls();show();};
   cycle.onclick=async()=>{
     if(mode()!=="menu"){output.textContent="Return to the menu before cycling worlds.";return;}
     const original=view.mapId,results:ReturnType<GameRenderer["diagnostics"]>[]=[];
@@ -53,5 +53,7 @@ export function installWorldDiagnostics(view: GameRenderer, mode:()=>string, sel
       output.textContent=JSON.stringify({cycles:40,warm:results.slice(4,8).map(x=>({map:x.map,...x.memory})),final:results.slice(-4).map(x=>({map:x.map,...x.memory}))},null,2);
     } finally {select(original);cycle.disabled=false;}
   };
+  let lastRefresh=0;
+  return (now:number)=>{if(panel.open&&!profile.disabled&&!cycle.disabled&&now-lastRefresh>=1000){lastRefresh=now;show();}};
 }
 

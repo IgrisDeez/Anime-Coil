@@ -72,6 +72,8 @@ export const RADIUS = 115,
   MIN_MASS = 18,
   STEP = 1 / 60;
 export const RESPAWN_DELAY = 3;
+// Additional room for the first movement tick and a rival moving toward a new coil.
+const SPAWN_BUFFER = 3;
 // Hair, hats and aura are decorative. Keep the lethal core inside the face,
 // with a small inset on the low-poly body so near misses favor the player.
 export const HEAD_HIT_RADIUS = 0.78;
@@ -264,6 +266,7 @@ export class Arena {
   deathReason = "";
   playerRespawnRemaining = 0;
   private pendingBotRespawns: Array<{ remaining: number; index: number }> = [];
+  private spawnSearchCooldown = 0;
   foodGrid = new SpatialGrid<Food>(8);
   bodyGrid = new SpatialGrid<BodyPoint>(5);
   private foodId = 0;
@@ -277,7 +280,8 @@ export class Arena {
   ) {
     if (mode === "practice") this.botCount = 0;
     this.snakes.push(this.createSnake(0, "You", selected, { x: 0, z: 0 }, 0));
-    for (let i = 0; i < this.botCount; i++) this.spawnBot(i);
+    for (let i = 0; i < this.botCount; i++)
+      if (!this.spawnBot(i)) this.pendingBotRespawns.push({ remaining: 0, index: i });
     while (this.food.length < foodTarget) this.spawnFood();
     this.reindex();
     this.assignBounty();
@@ -349,7 +353,10 @@ export class Arena {
   }
   spawnBot(index: number) {
     index = Math.max(0, index);
-    const { point: p, angle } = this.findSpawnPoint();
+    const extra = Math.floor(this.random() * 24);
+    const spawn = this.findSpawnPoint(MIN_MASS + extra);
+    if (!spawn) return false;
+    const { point: p, angle } = spawn;
     const s = this.createSnake(
       this.nextId++,
       NAMES[index % NAMES.length],
@@ -357,16 +364,15 @@ export class Arena {
       p,
       angle,
     );
-    const extra = Math.floor(this.random() * 24);
     s.mass += extra;
     s.peak = s.mass;
     for (let i = s.body.length; i < Math.floor(s.mass); i++)
       s.body.push({ ...s.body[s.body.length - 1] });
     this.snakes.push(s);
     if (this.mode === "bounty") s.botStyle = index < 8 ? "forager" : index < 14 ? "interceptor" : "evasive";
+    return true;
   }
-  private findSpawnPoint() {
-    let best = { point: { x: 70, z: 0 }, angle: Math.PI, clearance: -Infinity };
+  private findSpawnPoint(mass = MIN_MASS) {
     const occupied = new SpatialGrid<BodyPoint>(6);
     for (const snake of this.snakes) if (snake.alive) {
       occupied.add({ x: snake.x, z: snake.z, owner: snake.id,
@@ -374,36 +380,41 @@ export class Arena {
       for (let j = 1; j < snake.body.length; j++) occupied.add({ ...snake.body[j],
         owner: snake.id, radius: bodyHitRadiusAt(j, snake.body.length, snake.mass) });
     }
-    const searchRadius = HEAD_HIT_RADIUS * (1 + MAX_SIZE) + 1.5;
+    const spawnRadius = HEAD_HIT_RADIUS * serpentScale(mass);
+    const searchRadius = spawnRadius + HEAD_HIT_RADIUS * MAX_SIZE + SPAWN_BUFFER;
     const inspect = (point: Point, angle: number) => {
-      let clearance = RADIUS - HEAD_RADIUS - Math.hypot(point.x, point.z);
+      let clearance = Infinity;
       // Check the entire starting coil and a short forward escape corridor.
       for (let i = -5; i < MIN_MASS; i++) {
         const part = { x: point.x - Math.cos(angle) * i * SPACING,
           z: point.z - Math.sin(angle) * i * SPACING };
-        clearance = Math.min(clearance, RADIUS - HEAD_RADIUS - Math.hypot(part.x, part.z));
+        clearance = Math.min(clearance, RADIUS - HEAD_RADIUS * serpentScale(mass) - SPAWN_BUFFER - Math.hypot(part.x, part.z));
         for (const body of occupied.query(part, searchRadius))
           clearance = Math.min(clearance, Math.hypot(part.x - body.x, part.z - body.z) -
-            (HEAD_HIT_RADIUS + body.radius + 1.5));
+            (spawnRadius + body.radius + SPAWN_BUFFER));
       }
-      if (clearance > best.clearance) best = { point, angle, clearance };
       return clearance;
     };
     for (let tries = 0; tries < 80; tries++) {
       const a = this.random() * Math.PI * 2, r = 25 + this.random() * 70;
-      if (inspect({ x: Math.cos(a) * r, z: Math.sin(a) * r }, a + Math.PI) >= 0) return best;
+      const point = { x: Math.cos(a) * r, z: Math.sin(a) * r }, angle = a + Math.PI;
+      if (inspect(point, angle) >= 0) return { point, angle };
     }
     for (let ring = 20; ring <= 95; ring += 15)
       for (let sector = 0; sector < 24; sector++) {
         const a = sector * Math.PI / 12 + ring * .001;
         const point = { x: Math.cos(a) * ring, z: Math.sin(a) * ring };
-        if (inspect(point, a + Math.PI) >= 0) return best;
+        const angle = a + Math.PI;
+        if (inspect(point, angle) >= 0) return { point, angle };
       }
-    return best;
+    // A crowded arena can have no valid start. Wait instead of spawning in contact.
+    return undefined;
   }
   private respawnPlayer() {
     const fallen = this.player;
-    const { point, angle } = this.findSpawnPoint();
+    const spawn = this.findSpawnPoint();
+    if (!spawn) return false;
+    const { point, angle } = spawn;
     const returned = this.createSnake(0, fallen.name, this.selected, point, angle);
     returned.peak = fallen.peak;
     returned.kills = fallen.kills;
@@ -413,6 +424,7 @@ export class Arena {
     this.reindex();
     this.events.push({ type: "player-respawn", id: 0, x: returned.x, z: returned.z });
     this.assignBounty();
+    return true;
   }
   private updateRespawns(dt: number) {
     if (this.playerRespawnRemaining > 0)
@@ -422,10 +434,19 @@ export class Arena {
     const canRespawn = !this.cinematic && this.state === "playing" &&
       ((this.mode !== "sprint" && this.mode !== "bounty") || this.elapsed < SPRINT_DURATION);
     if (!canRespawn) return;
-    if (!this.player.alive && this.playerRespawnRemaining <= 0) this.respawnPlayer();
-    const ready = this.pendingBotRespawns.filter(pending => pending.remaining <= 0);
-    this.pendingBotRespawns = this.pendingBotRespawns.filter(pending => pending.remaining > 0);
-    for (const pending of ready) this.spawnBot(pending.index);
+    this.spawnSearchCooldown = Math.max(0, this.spawnSearchCooldown - dt);
+    if (this.spawnSearchCooldown <= 0) {
+      let crowded = false;
+      if (!this.player.alive && this.playerRespawnRemaining <= 0)
+        crowded = !this.respawnPlayer();
+      this.pendingBotRespawns = this.pendingBotRespawns.filter(pending => {
+        if (pending.remaining > 0) return true;
+        if (this.spawnBot(pending.index)) return false;
+        crowded = true;
+        return true;
+      });
+      if (crowded) this.spawnSearchCooldown = .25;
+    }
     this.assignBounty();
   }
   spawnFood(p?: Point, value = 1, color?: number, source: Food["source"] = p ? "drop" : "natural") {

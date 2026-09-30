@@ -1,4 +1,7 @@
 import { BoostMotion, boostKind, breathing, PreviewMotion, previewBlink, type PresentationFrame } from './presentation';
+import { FoodInstances } from './food-instances';
+import { FrameProfiler, GpuTimer } from './frame-profiler';
+import { dirtyRange, FoodColors, SnakeInstances } from './instance-updates';
 import type { BodySkinId, TrailId } from './progression';
 import * as THREE from "three";
 import {
@@ -41,11 +44,11 @@ function createPlayerMarks(capacity: number) {
     polygonOffset: true, polygonOffsetFactor: -2,
   }), capacity);
   mesh.count = 0;
-  mesh.frustumCulled = false;
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   return mesh;
 }
 interface SnakeVisual {
+  instances: SnakeInstances;
   character: CharacterId;
   head: THREE.Group;
   headOutline: THREE.Mesh;
@@ -75,6 +78,24 @@ function summarizeSamples(samples: readonly FrameSample[]) {
   };
 }
 export class GameRenderer {
+  private submissionBreakdown:Record<string,number>|undefined;
+  /** One separate diagnostic draw: its hook overhead is excluded from benchmarks. */
+  measureDrawCalls(){
+    const labels=new Map<THREE.Object3D,string>(),hooks=new Map<THREE.Object3D,THREE.Object3D['onBeforeRender']>(),calls:Record<string,number>={};
+    const label=(root:THREE.Object3D|undefined,name:string)=>root?.traverse(o=>labels.set(o,name));
+    label(this.environment?.group,'environment');label(this.skillEffects.group,'skills');
+    label(this.fox.group,'fox');label(this.purple.group,'purple');label(this.skybreaker.group,'skybreaker');label(this.spirit.presentationGroup,'spirit');label(this.food,'food');
+    for(const v of this.visuals.values()){
+      label(v.head,'heads');label(v.headOutline,'heads');label(v.formHead,'heads');label(v.formOutline,'heads');
+      label(v.body,'body');label(v.outline,'outline');label(v.shadow,'shadow');label(v.marks,'ownership');label(v.aura,'aura');
+    }
+    this.scene.traverse(o=>{if(!('material' in o))return;const original=o.onBeforeRender;hooks.set(o,original);
+      o.onBeforeRender=function(...args){const name=labels.get(o)??'ordinary-scene';calls[name]=(calls[name]??0)+1;original.apply(this,args);};});
+    try{this.renderer.render(this.scene,this.camera);this.submissionBreakdown=calls;return calls;}
+    finally{for(const [o,hook] of hooks)o.onBeforeRender=hook;}
+  }
+  readonly profiler = new FrameProfiler();
+  private gpuTimer: GpuTimer;
   renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(43, 1, 0.1, 600);
@@ -93,10 +114,14 @@ export class GameRenderer {
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
   handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
-  clearEffects() { this.fox?.clear(); this.skybreaker?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  clearEffects() { this.environment?.clearPresentation(); this.fox?.clear(); this.skybreaker?.clear(); this.spirit?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
   readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
   private focusTarget = new THREE.Vector3();
+  private skyViewDirection = new THREE.Vector3();
+  private diagnosticFrustum = new THREE.Frustum();
+  private diagnosticProjection = new THREE.Matrix4();
+  private diagnosticSphere = new THREE.Sphere();
   private boostCamera = 0;
   private graphicsChoice: GraphicsChoice = 'auto';
   setGraphicsChoice(choice: GraphicsChoice) { this.graphicsChoice = choice; this.resize(); }
@@ -114,6 +139,8 @@ export class GameRenderer {
     return true;
   }
   private foodColors = CHARACTERS.map((c) => new THREE.Color(c.color));
+  private foodInstances!: FoodInstances;
+  private foodColorCache = new FoodColors();
   private ring: THREE.Mesh;
   private visualClock = new VisualClock();
   private visualFrame = { time: 0, dt: 0, paused: false, reducedMotion: false };
@@ -153,7 +180,7 @@ export class GameRenderer {
   private skybreaker: SkybreakerCinematic;
   private foxTint = new THREE.Color("#ffa343");
   private purpleTint = new THREE.Color("#aa65ff");
-  disposeCinematics() { this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose(); }
+  disposeCinematics() { this.gpuTimer.dispose(); this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose(); }
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
   setCosmetics(skin: BodySkinId = 'original', trail: TrailId = 'original') {
@@ -202,8 +229,10 @@ export class GameRenderer {
       alpha: false,
       powerPreference: "high-performance",
     });
+    this.gpuTimer = new GpuTimer(this.renderer.getContext() as WebGL2RenderingContext);
+    this.profiler.enabled = new URLSearchParams(location.search).has('worldDebug') || new URLSearchParams(location.search).has('perfDebug');
     this.renderer.setPixelRatio(
-      Math.min(devicePixelRatio, innerWidth < 700 ? 1.35 : 1.75),
+      Math.min(devicePixelRatio, innerWidth < 700 ? 1.35 : 1.5),
     );
     this.renderer.setClearColor("#10121d");
     this.scene.fog = new THREE.FogExp2("#10121d", 0.004);
@@ -242,7 +271,8 @@ export class GameRenderer {
       1700,
     );
     this.food.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    this.food.frustumCulled = false;
+    this.food.frustumCulled = true;
+    this.foodInstances = new FoodInstances(this.food);
     this.scene.add(this.food);
     this.scene.add(this.hero);
     this.fox = new FoxCinematic(this.scene, this.profile);
@@ -254,6 +284,7 @@ export class GameRenderer {
     this.resize();
   }
   setMap(id: MapId) {
+    this.fox?.clear(); this.spirit?.clear(); this.skybreaker?.clear();
     if (this.environment) {
       this.scene.remove(this.environment.group);
       this.environment.dispose();
@@ -329,9 +360,17 @@ export class GameRenderer {
     return result;
   }
   diagnostics() {
+    this.camera.updateMatrixWorld();
+    this.diagnosticFrustum.setFromProjectionMatrix(this.diagnosticProjection.multiplyMatrices(this.camera.projectionMatrix,this.camera.matrixWorldInverse));
+    let visibleSegments=0;
+    for(const visual of this.visuals.values()) {if(!visual.body.visible)continue;const a=visual.body.instanceMatrix.array;
+      for(let i=0;i<visual.body.count;i++){const o=i*16;this.diagnosticSphere.center.set(a[o+12],a[o+13],a[o+14]);this.diagnosticSphere.radius=Math.max(Math.abs(a[o]),Math.abs(a[o+5]),Math.abs(a[o+10]));
+        if(this.diagnosticFrustum.intersectsSphere(this.diagnosticSphere))visibleSegments++;}}
+    this.profiler.counts.visibleSegments=visibleSegments;
     const info = this.renderer.info;
     const normal = summarizeSamples(this.samples.normal);
     return {
+      drawCallsBySubsystem:this.submissionBreakdown??null,
       map: this.mapId, profile: this.profile, environment: this.environment?.stats,
       game: { calls: info.render.calls, triangles: info.render.triangles, ...normal },
       phases: {
@@ -342,9 +381,10 @@ export class GameRenderer {
         skybreaker: summarizeSamples(this.samples.skybreaker),
       },
       memory: { ...info.memory, programs: info.programs?.length ?? 0 }, snakes: this.visuals.size,
+      performance: this.profiler.snapshot(), gpu: this.gpuTimer.snapshot(),
     };
   }
-  resetMeasurements(){this.samples = { normal: [], "hollow-purple": [], "spirit-bomb": [], "nine-tail": [], skybreaker: [] }; this.frameStamp = 0;}
+  resetMeasurements(){this.samples = { normal: [], "hollow-purple": [], "spirit-bomb": [], "nine-tail": [], skybreaker: [] }; this.frameStamp = 0;this.profiler.reset();this.gpuTimer.reset();}
   setHero(id: CharacterId) {
     this.previewMotion.reset();
     this.previewEyes.length = 0;
@@ -401,6 +441,7 @@ export class GameRenderer {
       body.setColorAt(i, colors[i % 5 === 0 ? 1 : 0]);
     }
     marks.count = markCount;
+    marks.computeBoundingSphere();
     this.hero.add(bodyOutline, body, marks);
     this.heroHead = createHead(id);
     this.heroHead.traverse(node => { if (node.userData.previewEye) this.previewEyes.push(node); });
@@ -430,7 +471,7 @@ export class GameRenderer {
       h = innerHeight;
     const profile = this.graphicsChoice === 'auto' ? profileFor(w, matchMedia("(pointer:coarse)").matches) : this.graphicsChoice === 'low' ? 'mobile' : 'desktop';
     if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId); }
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.75));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.5));
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -466,7 +507,10 @@ export class GameRenderer {
     this.mode = "game";
     this.focus.set(arena.player.x, 0, arena.player.z);
   }
-  render(arena: Arena | undefined, time: number, alpha: number, dt: number, reducedMotion = false) {
+  render(arena: Arena | undefined, time: number, alpha: number, dt: number, reducedMotion = false, simulationStep?: number) {
+    const ownsFrame = !this.profiler.inFrame;
+    if(ownsFrame)this.profiler.beginFrame();
+    const snakeStamp = this.profiler.stamp();
     const menu = this.mode === "menu";
     const paused = document.hidden || (!!arena && arena.state !== "playing" && !menu);
     time = this.visualClock.advance(dt, paused, document.hidden);
@@ -476,6 +520,7 @@ export class GameRenderer {
     const stamp = performance.now();
     const frameInterval = this.frameStamp ? stamp - this.frameStamp : 0;
     this.frameStamp=stamp;
+    this.profiler.rafMs=frameInterval;
     // Miniature scenery in the menu; the identical world at full scale in play.
     this.environment?.group.scale.setScalar(menu ? 0.115 : 1);
     if (this.environment) this.environment.group.rotation.y = menu && this.mapId === "harbor" ? Math.PI : 0;
@@ -500,7 +545,7 @@ export class GameRenderer {
       this.hero.position.set(narrow ? 0 : 1, narrow ? 0 : .6, narrow ? 0 : -4);
       this.camera.position.set(
         narrow ? 10 : 14,
-        narrow ? 24 : 22,
+        narrow ? (this.mapId === 'shibuya' ? 22 : 24) : (this.mapId === 'shibuya' ? 19 : 22),
         narrow ? 42 : 30,
       );
       this.camera.lookAt(narrow ? 3 : -7, narrow ? -16 : 0, 0);
@@ -564,7 +609,6 @@ export class GameRenderer {
               new THREE.MeshToonMaterial({ color: "white" }),
               360,
             );
-          body.frustumCulled = false;
           body.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
           const aura = new THREE.Mesh(
             new THREE.RingGeometry(1.6, 1.68, 48),
@@ -587,8 +631,7 @@ export class GameRenderer {
           );
           const shadow = new THREE.InstancedMesh(new THREE.CircleGeometry(1,16),new THREE.MeshBasicMaterial({color:"#635c67",transparent:true,opacity:.14,depthWrite:false}),360);
           const marks = s.id === 0 ? createPlayerMarks(Math.ceil(360 / PLAYER_MARK_INTERVAL)) : undefined;
-          outline.frustumCulled = shadow.frustumCulled = false;
-          v = { character: s.character, head, headOutline, body, aura, outline, shadow, marks, colorKey: "", coloredCount: 0 };
+          v = { instances:new SnakeInstances(), character: s.character, head, headOutline, body, aura, outline, shadow, marks, colorKey: "", coloredCount: 0 };
           if (s.id === 0 && (s.character === 'ember' || s.character === 'cloud')) {
             v.formHead = createTransformedHead(s.character);
             v.formOutline = createTransformedHeadOutline(s.character);
@@ -662,83 +705,63 @@ export class GameRenderer {
         const repaint = v.colorKey !== colorKey;
         const firstUncolored = repaint ? 0 : v.coloredCount;
         const colors = formKind === 'nine-tail' ? this.foxFormColors : formKind === 'skybreaker' ? this.cloudFormColors : this.coilColors.get(s.character)!;
-        dummy.position.set(hx, -.37, hz); dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(size*1.25,size*1.05,1); dummy.updateMatrix(); v.shadow.setMatrixAt(0,dummy.matrix);
-        let markCount = 0;
-        for (let i = 1; i < s.body.length; i++) {
-          const b = s.body[i];
-          const scale = bodyRadiusAt(i, s.body.length, s.mass);
-          const segmentY = (0.5 + breathing(time - i * .15, s.id, s.boosting, still)) * size;
-          const segmentHeight = scale * .85 * compression * (elastic ? 1 + Math.sin(time * 11 - i * .4) * .2 : 1);
-          dummy.position.set(
-            b.x,
-            segmentY,
-            b.z,
-          );
-          dummy.scale.set(scale, segmentHeight, scale);
-          dummy.rotation.set(0, 0, 0);
-          dummy.updateMatrix();
-          v.body.setMatrixAt(i - 1, dummy.matrix);
-          dummy.scale.multiplyScalar(s.frozen ? 1.08 : 1.06); dummy.updateMatrix(); v.outline.setMatrixAt(i - 1,dummy.matrix);
-          dummy.position.y = -.37; dummy.rotation.set(-Math.PI/2,0,0); dummy.scale.set(scale*1.25,scale*1.25,1); dummy.updateMatrix(); v.shadow.setMatrixAt(i,dummy.matrix);
-          if (v.marks && isPlayerMarkSegment(i)) {
-            dummy.position.set(b.x, segmentY + segmentHeight * .97, b.z);
-            dummy.rotation.set(0, 0, 0);
-            dummy.scale.setScalar(scale);
-            dummy.updateMatrix();
-            v.marks.setMatrixAt(markCount++, dummy.matrix);
-          }
-          if (i - 1 >= firstUncolored) {
-            v.body.setColorAt(i - 1, s.frozen ? this.frozenColor : colors[i % 5 === 0 ? 1 : 0]);
-          }
-        }
-        if (v.marks) { v.marks.count = markCount; v.marks.instanceMatrix.needsUpdate = true; }
+        v.instances.update(v,s,time,still,elastic,compression,this.profiler,simulationStep);
+        for(let i=firstUncolored;i<v.body.count;i++)v.body.setColorAt(i,s.frozen?this.frozenColor:colors[(i+1)%5===0?1:0]);
         v.colorKey = colorKey;
         v.coloredCount = repaint ? v.body.count : Math.max(v.coloredCount, v.body.count);
-        v.body.instanceMatrix.needsUpdate = true;
-        v.outline.instanceMatrix.needsUpdate = v.shadow.instanceMatrix.needsUpdate = true;
-        if (v.body.instanceColor && firstUncolored < v.body.count) v.body.instanceColor.needsUpdate = true;
+        if (v.body.instanceColor && firstUncolored < v.body.count) dirtyRange(v.body.instanceColor,firstUncolored*3,(v.body.count-firstUncolored)*3,this.profiler);
       }
       this.food.count = arena.food.length;
-      for (let i = 0; i < arena.food.length; i++) {
-        const f = arena.food[i];
-        dummy.position.set(f.x, 0.25 + (reducedMotion ? 0 : Math.sin(time * 2 + f.id) * 0.12), f.z);
-        dummy.scale.setScalar(f.value > 1 ? 1.45 : 1);
-        dummy.rotation.set(0, (reducedMotion ? 0 : time * 0.6) + f.id, 0);
-        dummy.updateMatrix();
-        this.food.setMatrixAt(i, dummy.matrix);
-        this.food.setColorAt(i, this.foodColors[f.color]);
-      }
-      this.food.instanceMatrix.needsUpdate = true;
-      if (this.food.instanceColor) this.food.instanceColor.needsUpdate = true;
+      this.profiler.finish('snakes',snakeStamp);
+      const foodStamp = this.profiler.stamp();
+      this.foodInstances.update(this.food,arena.food,time,reducedMotion,this.profiler);
+      this.foodColorCache.update(this.food,arena.food,this.foodColors,this.profiler);
+      this.profiler.finish('food',foodStamp);
+      if(this.profiler.enabled){let segments=0;for(const s of arena.snakes)if(s.alive)segments+=s.body.length-1;
+        Object.assign(this.profiler.counts,{segments,snakes:this.visuals.size,food:arena.food.length,dpr:this.renderer.getPixelRatio()});}
     }
+    const effectsStamp=this.profiler.stamp();
     this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId, this.effectAnchors);
     this.gameplayCameraPosition.copy(this.camera.position);
     this.gameplayCameraRotation.copy(this.camera.quaternion);
     this.purple.update(arena, this.camera, menu, reducedMotion);
-    this.spirit.update(arena, this.camera, menu, reducedMotion);
-    this.fox.update(arena, this.camera, menu, reducedMotion);
-    this.skybreaker.update(arena, this.camera, menu, reducedMotion);
+    this.spirit.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0));
+    this.fox.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled);
+    this.skybreaker.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0));
     if (!this.cinematicCameraEnabled && arena?.cinematic) {
       this.camera.position.copy(this.gameplayCameraPosition);
       this.camera.quaternion.copy(this.gameplayCameraRotation);
       this.camera.updateMatrixWorld();
     }
+    this.profiler.finish('effects',effectsStamp);
+    const environmentStamp=this.profiler.stamp();
     const shot = menu ? undefined : arena?.cinematic;
-    const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,
+    // Skip the procedural backdrop when the entire view points down at opaque ground.
+    const skyVisible=this.camera.getWorldDirection(this.skyViewDirection).y>-Math.sin(THREE.MathUtils.degToRad(this.camera.fov*.5))-.025;
+    const frame: EnvironmentFrame = {time:menu?time*.45:time,dt,paused,reducedMotion,mode:menu?"menu":"game",camera:this.camera.position,focus:this.focus,skyVisible,
+      summonClearance:this.fox.staging.active?this.fox.staging.summonBounds:undefined,
       ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
     this.environment?.update(frame);
+    this.environment?.cull(this.camera);
     const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
     this.hemisphere.intensity=base.intensity*response.light;
     this.sunlight.intensity=base.sunIntensity*response.light;
     this.sunlight.color.set(base.sun).lerp(shot?.kind === "fox" ? this.foxTint : this.purpleTint,response.tint);
     this.rimLight.intensity=base.rimIntensity+response.tint;
+    this.profiler.finish('environment',environmentStamp);
+    const submitStamp=this.profiler.stamp();
+    this.gpuTimer.begin(this.profiler.enabled);
     this.renderer.render(this.scene, this.camera);
-    if (!paused && !menu && arena && frameInterval > 0 && frameInterval < 200) {
+    this.gpuTimer.end();this.profiler.finish('submit',submitStamp);
+    this.profiler.phase=shot?(shot.time<3.4?'cinematic-charge':'post-wipe-recovery'):'normal';
+    this.profiler.counts.calls=this.renderer.info.render.calls;this.profiler.counts.triangles=this.renderer.info.render.triangles;
+    if (!paused && !menu && arena && frameInterval > 0) {
       const phase: SamplePhase = arena.cinematic?.kind === "fox" ? "nine-tail" : arena.cinematic?.kind === "skybreaker" ? "skybreaker" : arena.cinematic?.kind === "purple" ? "hollow-purple" : arena.cinematic?.kind === "spirit" ? "spirit-bomb" : "normal";
       const samples = this.samples[phase];
       samples.push({ ms: frameInterval, calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles,
         snakes: arena.snakes.filter(s => s.alive).length });
       if (samples.length > 300) samples.shift();
     }
+    if(ownsFrame)this.profiler.endFrame();
   }
 }

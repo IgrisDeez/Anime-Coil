@@ -1,94 +1,30 @@
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { Arena, NUKE_BLAST, NUKE_DURATION } from './simulation';
+import { CastSnapshot, foxFlight } from './cinematic-staging';
+import { createFoxSummon, foxTailGeometry } from './fox-model';
+export { foxTailGeometry } from './fox-model';
+import { Arena, NUKE_BLAST, NUKE_DURATION, RADIUS } from './simulation';
 import { ultimateFrame } from './ultimate-presentation';
 import type { DetailProfile } from './worlds/types';
 
 const smooth = (a: number, b: number, t: number) => THREE.MathUtils.smoothstep(t, a, b);
 
-/** Locally owned, merged vertex-colour sculpture; three pose groups cost only four draws. */
-function foxBody(): { beast: THREE.Group; head: THREE.Group; leftPaw: THREE.Group; rightPaw: THREE.Group } {
-  const beast = new THREE.Group();
-  const color = { gold: '#ef9427', light: '#ffd05e', shadow: '#b84a1f', ink: '#35202b', ivory: '#fff0b8', eye: '#fbe58b' };
-  const sculpt = (name: string, parent: THREE.Group, build: (add: (shape: 'round' | 'cone', shade: keyof typeof color,
-    x: number, y: number, z: number, sx: number, sy: number, sz: number, rx?: number, ry?: number, rz?: number) => void) => void) => {
-    const parts: THREE.BufferGeometry[] = [];
-    const add = (shape: 'round' | 'cone', shade: keyof typeof color, x: number, y: number, z: number,
-      sx: number, sy: number, sz: number, rx = 0, ry = 0, rz = 0) => {
-      const geometry = shape === 'round' ? new THREE.SphereGeometry(1, 12, 9) : new THREE.ConeGeometry(1, 2, 7);
-      geometry.scale(sx, sy, sz); geometry.rotateX(rx); geometry.rotateY(ry); geometry.rotateZ(rz); geometry.translate(x, y, z);
-      const rgb = new THREE.Color(color[shade]); const values = new Float32Array(geometry.attributes.position.count * 3);
-      for (let i = 0; i < values.length; i += 3) { values[i] = rgb.r; values[i + 1] = rgb.g; values[i + 2] = rgb.b; }
-      geometry.setAttribute('color', new THREE.BufferAttribute(values, 3)); parts.push(geometry);
-    };
-    build(add);
-    const geometry = mergeGeometries(parts, false)!; parts.forEach(piece => piece.dispose());
-    const mesh = new THREE.Mesh(geometry, new THREE.MeshToonMaterial({vertexColors:true, emissive:'#6b2a12', emissiveIntensity:.16, transparent:true}));
-    mesh.name = name; parent.add(mesh);
-  };
-  sculpt('fox-torso', beast, add => {
-    add('round','gold',0,6,-1.6,4.5,5.7,4.2,-.12);
-    add('round','light',0,7.5,2,3.25,4,1.8,-.17);
-    add('round','shadow',0,3.2,-3.5,3.7,2.6,2.6);
-    for (const side of [-1,1]) {
-      add('round','gold',side*3.1,7.7,-.1,2.35,3.1,2.7,0,0,side*.18);
-      add('cone','light',side*2.1,8.8,2.9,.65,1.5,.55,.45,0,side*.23);
-    }
-  });
-  const head = new THREE.Group(); head.name = 'fox-head'; head.position.set(0,11.8,1.15); beast.add(head);
-  sculpt('fox-face',head,add => {
-    add('round','gold',0,.35,0,3.7,3.05,2.9,-.13);
-    add('round','light',0,-1.15,2.1,2.7,1.35,2.1,-.16);
-    add('round','gold',0,-1.05,3.55,1.82,.82,2.02,-.12);
-    add('round','ink',0,-1.95,4.57,1.3,.24,1.3);
-    add('round','ink',0,-.68,5.28,.72,.4,.5);
-    for (const side of [-1,1]) {
-      add('cone','gold',side*2.65,3.25,-.7,1.3,2.55,1.05,0,0,-side*.19);
-      add('cone','shadow',side*2.68,3.3,.1,.62,1.67,.33,0,0,-side*.2);
-      add('cone','gold',side*3.35,-.55,.25,1.36,1.6,1.2,.05,0,-side*.9);
-      add('round','shadow',side*1.67,.2,2.7,1.55,.63,.5,0,0,-side*.22);
-      add('round','ink',side*1.56,.18,3.08,1.2,.26,.2,0,0,side*.28);
-      add('round','eye',side*1.55,-.02,3.24,.74,.13,.09,0,0,side*.22);
-      add('round','ink',side*1.37,-.03,3.36,.13,.16,.07);
-      for (let i=0;i<2;i++) add('cone','shadow',side*(2.75+i*.38),-1.35-i*.32,2.8-i*.47,.48,.78,.4,0,0,-side*.6);
-    }
-  });
-  const paws: THREE.Group[] = [];
-  for (const side of [-1,1]) {
-    const paw = new THREE.Group(); paw.name = side < 0 ? 'fox-left-paw' : 'fox-right-paw';
-    paw.position.set(side*3.55,7.7,1.4); beast.add(paw); paws.push(paw);
-    sculpt(`${paw.name}-sculpt`,paw,add => {
-      add('round','gold',side*.45,-2.3,.65,1.25,2.85,1.35,-.42,0,side*.13);
-      add('round','light',side*.75,-4.45,2.22,1.6,.8,1.85);
-      for(let i=0;i<3;i++) add('cone','ivory',side*.75+(i-1)*.88,-4.62,3.96,.25,.52,.8,Math.PI*.42);
-      add('round','shadow',side*.5,-2.7,1.9,.25,1.4,.17,-.4);
-    });
-  }
-  return { beast, head, leftPaw:paws[0], rightPaw:paws[1] };
-}
-
-/** Rounded chakra tails sweep upward and back; identical topology enables instancing. */
-export function foxTailGeometry(): THREE.BufferGeometry {
-  const positions: number[] = [], indices: number[] = [];
-  const segments=20, sides=8;
-  for(let row=0;row<=segments;row++) {
-    const t=row/segments, radius=(.14+.34*Math.sin(Math.PI*Math.pow(t,.8)))*Math.pow(1-t,.48)+.008;
-    const x=.3*Math.sin(t*Math.PI*1.2), y=.16*Math.sin(t*Math.PI)+.33*t*t;
-    for(let side=0;side<=sides;side++) {
-      const a=side/sides*Math.PI*2;
-      positions.push(x+Math.cos(a)*radius,y+Math.sin(a)*radius,t*2.5);
-      if(row<segments&&side<sides){const n=row*(sides+1)+side;indices.push(n,n+sides+1,n+1,n+1,n+sides+1,n+sides+2);}
-    }
-  }
-  const geometry=new THREE.BufferGeometry();
-  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3)); geometry.setIndex(indices);
-  geometry.computeVertexNormals();geometry.computeBoundingSphere();return geometry;
+type ReadonlyVector = Readonly<{ x: number; y: number; z: number }>;
+export interface FoxStaging {
+  readonly active: boolean;
+  readonly casterPosition: ReadonlyVector;
+  readonly casterFacing: number;
+  readonly summonOrigin: ReadonlyVector;
+  readonly summonBounds: Readonly<{ min: ReadonlyVector; max: ReadonlyVector }>;
+  readonly muzzle: ReadonlyVector;
+  readonly bombCenter: ReadonlyVector;
+  readonly firingDirection: ReadonlyVector;
+  readonly cameraFocus: ReadonlyVector;
 }
 
 /** A separate, bounded summon/launch renderer; simulation time owns every stage. */
 export class FoxCinematic {
   readonly group = new THREE.Group();
-  private sculpture = foxBody();
+  private sculpture = createFoxSummon();
   private beast = this.sculpture.beast;
   private tails: THREE.InstancedMesh;
   private tailEdges: THREE.InstancedMesh;
@@ -107,13 +43,36 @@ export class FoxCinematic {
   private basePosition = new THREE.Vector3();
   private target = new THREE.Vector3();
   private look = new THREE.Vector3();
-  private baseQuaternion = new THREE.Quaternion();
-  private targetQuaternion = new THREE.Quaternion();
+  private gameplayDirection = new THREE.Vector3();
+  private returnFocus = new THREE.Vector3();
+  private summonOrigin = new THREE.Vector3();
+  private chargeAnchor = new THREE.Vector3();
+  private flightDirection = new THREE.Vector3();
+  private up = new THREE.Vector3(0, 1, 0);
+  private xAxis = new THREE.Vector3(1, 0, 0);
+  private zAxis = new THREE.Vector3(0, 0, 1);
+  private tailTilt = new THREE.Quaternion();
+  private bounds = new THREE.Box3();
+  private partBounds = new THREE.Box3();
+  private framingBounds = new THREE.Box3();
+  private tailMatrix = new THREE.Matrix4();
+  private modelMatrix = new THREE.Matrix4();
+  private corner = new THREE.Vector3();
+  private back = new THREE.Vector3();
+  private right = new THREE.Vector3();
+  private cameraUp = new THREE.Vector3();
+  private localFocus = new THREE.Vector3();
+  private staged = { active: false, casterPosition: new THREE.Vector3(), casterFacing: 0, summonOrigin: new THREE.Vector3(), summonBounds: { min: new THREE.Vector3(), max: new THREE.Vector3() },
+    muzzle: new THREE.Vector3(), bombCenter: new THREE.Vector3(), firingDirection: new THREE.Vector3(), cameraFocus: new THREE.Vector3() };
+  get staging(): FoxStaging { return this.staged; }
+  private cast = new CastSnapshot();
   private disposed = false;
   constructor(scene: THREE.Scene, private profile: DetailProfile = 'desktop') {
-    const glow = (color: string, opacity = .7) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide});
-    this.tails = new THREE.InstancedMesh(foxTailGeometry(), glow('#ffb14b', .84), 9);
-    this.tailEdges = new THREE.InstancedMesh(this.tails.geometry, glow('#5d2930', .8), 9);
+    const glow = (color: string, opacity = .7) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide, forceSinglePass: true});
+    this.tails = new THREE.InstancedMesh(foxTailGeometry(), new THREE.MeshToonMaterial({vertexColors:true,
+      emissive:'#a65117',emissiveIntensity:.16,transparent:true,opacity:.94}), 9);
+    this.tailEdges = new THREE.InstancedMesh(this.tails.geometry, glow('#ad4b1f', .85), 9);
+    this.tails.name = 'fox-nine-tails'; this.tailEdges.name = 'fox-tail-contours';
     (this.tailEdges.material as THREE.MeshBasicMaterial).side = THREE.BackSide;
     this.tailEdges.renderOrder = 1; this.tails.renderOrder = 2;
     for (const mesh of [this.tailEdges, this.tails]) {
@@ -154,7 +113,6 @@ export class FoxCinematic {
     }));
     this.shell.name = 'fox-bomb-shell';
     this.wake = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 12, 1, true), glow('#ffb34c', .3));
-    this.wake.rotation.x = Math.PI / 2;
     this.flames = new THREE.InstancedMesh(new THREE.ConeGeometry(1, 2, 5), glow('#ffffff', .66), 16);
     this.flames.frustumCulled=false;this.flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     for (let i=0;i<16;i++) this.flames.setColorAt(i,new THREE.Color(['#ffe0a1','#f78b39','#b9472d','#ffb44e'][i%4]));
@@ -178,45 +136,74 @@ export class FoxCinematic {
     this.group.name = 'fox-cinematic'; this.group.visible = false; scene.add(this.group);
   }
   setProfile(profile: DetailProfile) { this.profile = profile; }
-  clear() { this.group.visible = false; }
-  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false) {
-    const shot = !menu && arena?.cinematic;
+  clear() {
+    this.group.visible = false; this.staged.active = false; this.cast.clear();
+    this.staged.casterPosition.set(0,0,0); this.staged.summonOrigin.set(0,0,0); this.staged.casterFacing = 0;
+    this.beast.rotation.set(0,0,0); this.sculpture.head.rotation.set(0,0,0);
+    this.sculpture.leftPaw.rotation.set(0,0,0); this.sculpture.rightPaw.rotation.set(0,0,0);
+    this.orb.visible = this.shell.visible = this.wake.visible = false;
+    this.flames.count = this.smoke.count = this.fragments.count = 0;
+    this.flames.visible = this.smoke.visible = this.fragments.visible = this.ribbons.visible = this.embers.visible = false;
+    for (const ring of this.rings) ring.visible = false;
+    this.beast.position.set(0,0,0); this.beast.scale.setScalar(1); this.group.position.set(0,0,0); this.group.rotation.set(0,0,0);
+    for (const material of this.beastMaterials) material.opacity = 0;
+    this.orb.material.uniforms.time.value = this.shell.material.uniforms.time.value = 0;
+    this.orb.material.uniforms.alpha.value = this.shell.material.uniforms.alpha.value = 0;
+    this.orb.material.uniforms.pressure.value = 0;
+    this.staged.muzzle.set(0,0,0); this.staged.bombCenter.set(0,0,0); this.staged.firingDirection.set(0,0,0);
+    this.staged.cameraFocus.set(0,0,0); this.staged.summonBounds.min.set(0,0,0); this.staged.summonBounds.max.set(0,0,0);
+  }
+  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true) {
+    const shot = !menu && arena?.player.alive && arena.state !== 'over' && arena.cinematic;
     this.group.visible = !this.disposed && !!shot && shot.kind === 'fox';
-    if (!this.group.visible || !shot || !arena) return;
-    const t = shot.time, p = arena.player, b = Math.max(0, t - NUKE_BLAST);
-    const facing = Math.atan2(shot.impact.z - p.z, shot.impact.x - p.x);
+    if (!this.group.visible || !shot || !arena) { this.clear(); return; }
+    const t = shot.time, b = Math.max(0, t - NUKE_BLAST);
+    this.cast.capture(arena);
+    const facing = this.cast.angle;
+    const rearClearance = reduced || !cinematicCamera ? 50 : 30;
+    this.summonOrigin.set(this.cast.position.x-Math.cos(facing)*rearClearance,0,this.cast.position.z-Math.sin(facing)*rearClearance);
+    this.staged.casterPosition.copy(this.cast.position); this.staged.casterFacing = facing;
+    this.staged.summonOrigin.copy(this.summonOrigin);
     const manifest = smooth(0, .9, t), charge = smooth(.9, 2.5, t), launch = smooth(2.5, 3.4, t);
     const fade = 1 - smooth(4.3, NUKE_DURATION, t), frame = ultimateFrame('fox', t, reduced);
-    this.group.position.set(p.x, 0, p.z); this.group.rotation.y = Math.PI / 2 - facing;
+    this.group.position.set(this.cast.position.x, 0, this.cast.position.z); this.group.rotation.y = Math.PI / 2 - facing;
     this.group.updateMatrixWorld(true);
     this.impact.set(shot.impact.x, .2, shot.impact.z); this.group.worldToLocal(this.impact);
-    this.beast.position.set(0, reduced ? 0 : -5 * (1 - manifest), -10);
+    this.beast.position.copy(this.summonOrigin); this.group.worldToLocal(this.beast.position);
+    this.beast.position.y = .45 - (reduced ? 0 : 4 * (1 - manifest));
     this.beast.scale.setScalar((reduced ? 1 : .84 + manifest * .16) * 1.8);
-    const tension = smooth(.65,2.4,t)*(1-smooth(2.5,3.35,t));
-    this.beast.rotation.x = reduced ? .035 : .035+tension*.085;
+    const tension = smooth(.65,2.4,t)*(1-smooth(3.4,4.3,t));
+    this.beast.rotation.x = reduced ? .025 : .025+tension*.025;
     this.sculpture.head.rotation.x = reduced ? .06 : .06+tension*.13;
     this.sculpture.leftPaw.rotation.x = reduced ? -.12 : -.12-tension*.22;
     this.sculpture.rightPaw.rotation.x = reduced ? -.12 : -.12-tension*.25;
     this.sculpture.leftPaw.rotation.z = reduced ? -.04 : -.04-tension*.055;
     this.sculpture.rightPaw.rotation.z = reduced ? .04 : .04+tension*.055;
     for(const material of this.beastMaterials)material.opacity=manifest*fade;
+    this.tailTilt.setFromAxisAngle(this.xAxis, -Math.PI / 2 - .16);
     for (let i = 0; i < 9; i++) {
-      const rank=i-4,spread=rank*.285,flex=reduced?0:Math.sin(t*1.2+i*.65)*.045*tension;
-      this.dummy.position.set(rank*.38,4.5+Math.abs(rank)*.23,-3.4-(i%2)*.28);
-      this.dummy.rotation.set(.59+Math.abs(rank)*.07+flex,Math.PI+spread+flex,rank*.045);
-      this.dummy.scale.set(4.35+Math.abs(rank)*.2,4.25,7.7-Math.abs(rank)*.26+(i%2)*.3);
+      const rank=i-4, flex=reduced?0:Math.sin(t*1.05+i*.72)*.023*tension;
+      this.dummy.position.set(rank*.4,8.1+Math.abs(rank)*.14,-2.65-(i%2)*.43);
+      this.dummy.quaternion.setFromAxisAngle(this.zAxis,-rank*.245+flex).multiply(this.tailTilt);
+      this.dummy.rotateY(rank*.055);
+      this.dummy.scale.set(6.3+Math.abs(rank)*.22,6.0-(i%2)*.3,9.1-Math.abs(rank)*.48+(i%2)*.16);
       this.dummy.updateMatrix(); this.tailEdges.setMatrixAt(i, this.dummy.matrix);
       this.dummy.scale.multiplyScalar(.945); this.dummy.updateMatrix(); this.tails.setMatrixAt(i, this.dummy.matrix);
     }
     this.tails.instanceMatrix.needsUpdate = this.tailEdges.instanceMatrix.needsUpdate = true;
+    this.group.updateMatrixWorld(true);
+    this.sculpture.muzzle.getWorldPosition(this.staged.muzzle);
+    this.sculpture.muzzle.getWorldDirection(this.staged.firingDirection);
+    this.updateSummonBounds(); this.staged.active = true;
     const radius = (.6 + charge * 3.5) * 2.8;
-    // Keep the growing bomb ahead of the fox's muzzle, then launch it from
-    // that visible charge point along the existing path to the impact.
-    const chargeX = 3.5 + radius*.24, chargeY = 14.5 + radius*.18, chargeZ = 8 + radius*1.34;
+    this.chargeAnchor.copy(this.staged.muzzle).addScaledVector(this.staged.firingDirection, radius + 2.8);
+    this.group.worldToLocal(this.chargeAnchor);
+    const chargeX = this.chargeAnchor.x, chargeY = this.chargeAnchor.y, chargeZ = this.chargeAnchor.z;
     this.orb.visible = t >= .65 && t < NUKE_BLAST;
-    this.orb.position.set(THREE.MathUtils.lerp(chargeX,this.impact.x,launch), THREE.MathUtils.lerp(chargeY,radius+.28,launch)+launch*(1-launch)*3,
-      chargeZ + (this.impact.z - chargeZ) * launch);
+    foxFlight(this.orb.position,this.flightDirection,this.chargeAnchor,this.impact,launch,radius);
+    this.orb.position.y = Math.max(radius + .28, this.orb.position.y);
     this.orb.scale.setScalar(radius);
+    this.staged.bombCenter.copy(this.orb.position); this.group.localToWorld(this.staged.bombCenter);
     this.shell.visible = this.orb.visible || (b < 1.8 && shot.detonated);
     if (this.orb.visible) {
       this.shell.position.copy(this.orb.position);
@@ -229,12 +216,14 @@ export class FoxCinematic {
       this.shell.material.uniforms.alpha.value = (reduced ? .11 : .23) * (1 - smooth(.1, 1.8, b));
     }
     this.orb.material.uniforms.time.value = reduced ? 0 : t;
-    this.orb.material.uniforms.alpha.value = Math.min(1, (t-.65) / .3);
+    this.orb.material.uniforms.alpha.value = THREE.MathUtils.clamp((t-.65) / .3, 0, 1);
     this.orb.material.uniforms.pressure.value = reduced ? .25 : charge;
     this.shell.material.uniforms.time.value = reduced ? 0 : t;
     this.wake.visible = !reduced && t >= 2.5 && t < 3.4;
-    this.wake.position.copy(this.orb.position); this.wake.position.z -= 6 * launch;
-    this.wake.scale.set(radius * .8, 1 + launch * 17, radius * .8);
+    const wakeLength = 1 + launch * 17;
+    this.wake.position.copy(this.orb.position).addScaledVector(this.flightDirection,-wakeLength*.5);
+    this.wake.quaternion.setFromUnitVectors(this.up,this.flightDirection);
+    this.wake.scale.set(radius * .65, wakeLength, radius * .65);
     this.flames.count = shot.detonated && b < 1.75 ? (reduced ? 6 : this.profile === 'mobile' ? 8 : 16) : 0;
     for(let i=0;i<this.flames.count;i++) {
       const layer=i%3,age=Math.max(0,b-layer*.07),a=i*2.39996+layer*.21;
@@ -273,8 +262,8 @@ export class FoxCinematic {
     for (let i = 0; i < 3; i++) {
       const ring = this.rings[i];
       const age=Math.max(0,b-i*.09);
-      ring.visible = b > 0 ? shot.detonated && age<1.9 : i === 0;
-      ring.position.set(b > 0 ? this.impact.x : 0, .15 + i * .17, b > 0 ? this.impact.z : -8);
+      ring.visible = b > 0 ? shot.detonated && age<1.9 && (this.profile !== 'mobile' || i < 2) : i === 0;
+      ring.position.set(b > 0 ? this.impact.x : this.beast.position.x, .15 + i * .17, b > 0 ? this.impact.z : this.beast.position.z);
       const size = b > 0 ? (reduced ? 17 + i * 6 : Math.min(135,5+age*(112-i*16))) : 10 + manifest * 8;
       ring.scale.set(size, size, b > 0 ? 3 + Math.max(0, 1-b) * 14 : 1);
       ring.material.opacity = b > 0 ? Math.min(1,age/.12)*Math.max(0, 1-age/1.9) * .77 : manifest * .45;
@@ -292,33 +281,77 @@ export class FoxCinematic {
           lines.setXYZ(i*2+j,this.impact.x+Math.cos(a+twist)*r,3+s*(9+b*5),this.impact.z+Math.sin(a+twist)*r);
         }
       } else {
-        const a=i*2.39996, r=4+((i*.37-t*4)%11+11)%11;
-        for (let j=0;j<2;j++) {const d=r+j*1.1; lines.setXYZ(i*2+j,chargeX+Math.cos(a)*d,chargeY+Math.sin(a)*d*.65,chargeZ-Math.sin(a*.7)*d);}
+        const a=i*2.39996, flow=((i*.17-t*.8)%1+1)%1;
+        for (let j=0;j<2;j++) {
+          const q=Math.max(0,flow-j*.09), distance=radius+2+q*(5+radius*.5);
+          lines.setXYZ(i*2+j,chargeX+Math.cos(a)*distance,chargeY+Math.sin(a)*distance*.7,chargeZ-distance*(.35+Math.sin(a*.7)*.25));
+        }
       }
     }
     lines.needsUpdate=true;
     const particles=this.embers.geometry.attributes.position as THREE.BufferAttribute;
     const count=reduced?8:this.profile==='mobile'?40:96;
+    this.embers.visible = true;
     this.embers.geometry.setDrawRange(0,count); this.embers.material.opacity=manifest*fade*.75;
     for(let i=0;i<count;i++) {
       const a=i*2.39996, drift=reduced?0:t;
       const r=b>0?4+b*(17+i%16):6+i%14;
-      particles.setXYZ(i,(b>0?this.impact.x:0)+Math.cos(a)*r,
+      particles.setXYZ(i,(b>0?this.impact.x:this.beast.position.x)+Math.cos(a)*r,
         b>0?2+((i*.83+drift*4)%25):(i*.83+drift*3)%18,
-        (b>0?this.impact.z:-8)+Math.sin(a)*r);
+        (b>0?this.impact.z:this.beast.position.z)+Math.sin(a)*r);
     }
     particles.needsUpdate=true;
-    if (frame.cameraWeight>0) {
-      this.basePosition.copy(camera.position); this.baseQuaternion.copy(camera.quaternion);
-      const focus=smooth(2.5,3.45,t),zoom=(73+focus*29)*Math.max(1,.65/camera.aspect);
-      this.look.set((chargeX*.38)*(1-focus)+this.impact.x*focus*.55,15*(1-focus)+3*focus,3*(1-focus)+this.impact.z*focus*.55);
-      this.group.localToWorld(this.look);
-      this.target.set(this.look.x+Math.cos(facing+.72)*zoom*.85,zoom*.77,this.look.z+Math.sin(facing+.72)*zoom*.85);
-      if (shot.detonated && b < .11 && !reduced) this.target.y += (1-b/.11)*1.6;
+    this.stageCamera(camera,t,radius);
+    if (frame.cameraWeight>0 && cinematicCamera) {
+      this.basePosition.copy(camera.position);
+      camera.getWorldDirection(this.gameplayDirection);
+      this.returnFocus.copy(this.basePosition).addScaledVector(this.gameplayDirection,-this.basePosition.y / Math.min(-.001,this.gameplayDirection.y));
+      if (shot.detonated && t>=NUKE_BLAST && b < .11 && !reduced) this.target.y += (1-b/.11)*1.0;
       camera.position.lerpVectors(this.basePosition,this.target,frame.cameraWeight);
-      camera.lookAt(this.look); this.targetQuaternion.copy(camera.quaternion);
-      camera.quaternion.copy(this.baseQuaternion).slerp(this.targetQuaternion,frame.cameraWeight);
+      this.returnFocus.lerp(this.look,frame.cameraWeight);
+      camera.lookAt(this.returnFocus);
     }
+  }
+  private updateSummonBounds() {
+    this.bounds.makeEmpty();
+    for (const mesh of this.sculpture.meshes) {
+      this.partBounds.copy(mesh.geometry.boundingBox!).applyMatrix4(mesh.matrixWorld); this.bounds.union(this.partBounds);
+    }
+    for (let i=0;i<9;i++) {
+      this.tailEdges.getMatrixAt(i,this.tailMatrix); this.modelMatrix.multiplyMatrices(this.beast.matrixWorld,this.tailMatrix);
+      this.partBounds.copy(this.tails.geometry.boundingBox!).applyMatrix4(this.modelMatrix); this.bounds.union(this.partBounds);
+    }
+    this.staged.summonBounds.min.copy(this.bounds.min); this.staged.summonBounds.max.copy(this.bounds.max);
+  }
+  private stageCamera(camera: THREE.PerspectiveCamera,t:number,radius:number) {
+    const chargeView=smooth(.6,1.55,t), launchView=smooth(2.5,3.4,t), aftermath=smooth(3.4,4.1,t);
+    this.framingBounds.copy(this.bounds);
+    // Retain the small unrevealed core and the captured blast volume in the fit;
+    // adding/removing an invisible orb at .65 or 3.4 would cause a camera cut.
+    this.corner.copy(this.staged.bombCenter).addScalar(radius*1.09); this.framingBounds.expandByPoint(this.corner);
+    this.corner.copy(this.staged.bombCenter).addScalar(-radius*1.09); this.framingBounds.expandByPoint(this.corner);
+    this.framingBounds.getCenter(this.look);
+    // Move the look direction through three connected compositions, never hard cuts.
+    this.localFocus.set(this.impact.x,12,this.impact.z); this.group.localToWorld(this.localFocus);
+    this.look.lerp(this.localFocus,aftermath*.66);
+    this.staged.cameraFocus.copy(this.look);
+    const azimuth=THREE.MathUtils.lerp(.47,1.05,chargeView)+launchView*.15;
+    this.back.set(Math.sin(azimuth),.22+launchView*.12,Math.cos(azimuth)).normalize();
+    this.back.transformDirection(this.group.matrixWorld);
+    this.right.crossVectors(this.up,this.back).normalize(); this.cameraUp.crossVectors(this.back,this.right).normalize();
+    const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5)),tanX=tanY*camera.aspect;
+    let distance=45;
+    for (let i=0;i<8;i++) {
+      this.corner.set(i&1?this.framingBounds.max.x:this.framingBounds.min.x,i&2?this.framingBounds.max.y:this.framingBounds.min.y,i&4?this.framingBounds.max.z:this.framingBounds.min.z).sub(this.look);
+      const depth=this.corner.dot(this.back);
+      distance=Math.max(distance,depth+Math.abs(this.corner.dot(this.right))/(tanX*.84),depth+Math.abs(this.corner.dot(this.cameraUp))/(tanY*.76));
+    }
+    distance+=aftermath*12;
+    this.target.copy(this.look).addScaledVector(this.back,distance);
+    this.target.y=Math.max(30,this.target.y);
+    // Only raise the eye when the path leaves the tall-scenery-free arena.
+    const sceneryClearance = smooth(RADIUS-24,RADIUS-8,Math.hypot(this.target.x,this.target.z));
+    this.target.y = THREE.MathUtils.lerp(this.target.y,Math.max(64,this.target.y),sceneryClearance);
   }
   dispose() {
     if(this.disposed)return; this.disposed=true; this.clear();
