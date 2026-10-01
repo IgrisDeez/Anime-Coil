@@ -32,12 +32,12 @@ test('wind streaks follow projected heading and clear on pause or reduced motion
   assert.ok(curves.length>0);
   assert.ok(curves.every(c=>c.sx>c.ex && Math.abs(c.sy-c.ey)<20));
   curves.length=0;
-  view.draw(frame,1,true,'leaf',0,-1);
+  view.draw(frame,1,true,'shibuya',0,-1);
   assert.ok(curves.length>18);
   assert.ok(curves.every(c=>c.sy<c.ey && Math.abs(c.sx-c.ex)<20));
   curves.length=0;
-  view.draw({...frame,paused:true},1,true,'leaf',0,-1);
-  view.draw({...frame,reducedMotion:true},1,true,'leaf',0,-1);
+  view.draw({...frame,paused:true},1,true,'shibuya',0,-1);
+  view.draw({...frame,reducedMotion:true},1,true,'shibuya',0,-1);
   assert.equal(curves.length,0);
   view.clear();assert.ok(clears>=4);
 });

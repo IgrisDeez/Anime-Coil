@@ -5,7 +5,7 @@ export const PRACTICE_STEPS = [
   'Collect five glowing energy orbs.',
   'Hold Boost for one second.',
   'Use your E skill once.',
-  'You’re ready for the arena!',
+  'Practice complete. Return to the lobby to play a match.',
 ] as const;
 
 /** A presentation-only guide. The Arena remains responsible for movement and pickups. */
@@ -35,10 +35,10 @@ export class PracticeGuide {
   get complete() { return this.step === 4; }
   get label() { return PRACTICE_STEPS[this.step]; }
   detailForKey(abilityKey: string, touch: boolean) {
-    return this.step === 0 ? 'Turn about halfway around.'
+    return this.step === 0 ? 'Make a clear turn.'
       : this.step === 1 ? `${Math.min(5, this.pickups)} / 5 orbs`
       : this.step === 2 ? `${Math.min(1, this.boostTime).toFixed(1)} / 1.0 sec`
-      : this.step === 3 ? `${CHARACTERS.find(c => c.id === this.character)?.power}: ${touch ? 'tap Skill' : `press ${abilityKey} or tap Skill`}.` : 'Choose a spirit whenever you like.';
+      : this.step === 3 ? `${touch ? 'Tap' : `Press ${abilityKey} or click`} ${CHARACTERS.find(c => c.id === this.character)?.power}.` : 'Practice does not affect records or challenges.';
   }
   get detail() { return this.detailForKey('E', false); }
 }

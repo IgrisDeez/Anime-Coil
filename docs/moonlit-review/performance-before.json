@@ -1,0 +1,11 @@
+{
+  "viewport": [1280, 720],
+  "profile": "desktop",
+  "calls": 76,
+  "triangles": 95326,
+  "cpu": { "median": 1.8, "p95": 3.1, "samples": 120 },
+  "raf": { "median": 6.9, "p95": 8.4, "samples": 120 },
+  "gpu": { "ms": { "median": 0.559104, "p95": 0.570368, "samples": 3 } },
+  "memory": { "geometries": 78, "programs": 26, "textures": 5 },
+  "note": "Transcribed from the pre-revamp profiler snapshot; warmup differs from final sample."
+}

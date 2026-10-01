@@ -1,5 +1,73 @@
-# Anime Coil v1.6.7 — Profiling-Driven Performance Pass
-A solo browser arena built with TypeScript, Three.js, and Vite. Pick one of four original anime-inspired chibi serpents and compete with 20 bots in Endless, three-minute Sprint, or Bounty Hunt. Guided Practice is available from Help.
+# Anime Coil v1.7.3 — Shibuya Arena
+Anime Coil is a solo browser game. Choose Kitsu, Kairo, Pomu, or Shiro and play against 20 computer-controlled snakes in Shibuya. Collect orbs to grow, avoid collisions, and use your character’s skill and ultimate. Play without a time limit in Endless, set an energy record in the three-minute Sprint, or earn points for orbs and direct eliminations in Bounty Hunt. Guided Practice is available from Help.
+
+## v1.7.3 — Eye Fix, One Arena, Clear Instructions
+
+Kitsu’s normal eyes sit slightly forward of the face so blinking does not reveal skin through the whites. The cached material also keeps the sculpt’s double-sided skin setting, closing cheek holes that exposed the orange body. Blue irises, independent blinking, transformed heads, and shared model resources are retained; the fix adds no geometry or draw calls.
+
+Shibuya is the only arena. Hidden Leaf, Tournament, and Grand Line builders and their exclusive effects are removed. The lobby shows a fixed Shibuya card. Old map selections fall back to Shibuya without clearing records, controls, or cosmetics. The Starlight challenge now requires one completed three-minute Sprint in Shibuya; previously earned Starlight remains available.
+
+Help, character details, match hints, practice, pause, respawn, results, challenges, cosmetics, loading, and errors use direct instructions and feedback. Help and Details share the same ability descriptions. Bounty instructions explain charge, respawns, and why ultimate eliminations do not award points.
+
+**313 tests pass**, and the production build succeeds. Four characters fit at seven desktop and phone viewport sizes. Shibuya’s ten scene-source files are identical to the pre-change versions; its camera, lighting values, and scenery placement are retained. Matched lobby rendering remains **64 calls / 78,418 triangles**. See [release notes](docs/SHIBUYA-1.7.3.md) and [review evidence](docs/shibuya-only-review/).
+
+Release targets: [GPT Sites](https://anime-coil-naruto.igrisdeez.chatgpt.site) and [Git main](https://github.com/IgrisDeez/Anime-Coil/tree/main). Local preview: http://127.0.0.1:4175/.
+
+## Approved chibi Kitsu integration
+
+The approved Balanced Chibi Naruto sculpture is integrated into menu, portraits and gameplay with blue irises and independent blinking. Desktop/mobile heads including the coil use **5,859 / 3,949 triangles**. Cached preload, fallback, shared resources, cinematics and gameplay are preserved. The current v1.7.2 local UI changes remain intact. See [the integration report](docs/KITSU-CHIBI-1.7.2.md), [four-view renders](assets/kitsu/candidates/chibi-naruto/four-view-renders.jpg) and [in-game review](docs/kitsu-chibi-review/). Deployment to GPT Sites is explicitly approved.
+
+## v1.7.2 — Aligned Dark-Only Lobby
+
+The character roster and match panel now share a centered row with aligned top edges. The redundant character-name banner and map-name pill have been removed, giving the cinematic showcase more room. Cosmetics preview still reserves space for its controls.
+
+The entire interface is permanently dark. The theme toggle and saved-theme reader are removed; previous light preferences are ignored. Appearance settings retain graphics quality and its reset action.
+
+**336 tests pass**, and the production build succeeds. All **112** character/map combinations passed layout and full-character framing checks at seven target viewports, including 1920×1080 and 320×640. Dark startup, Details, Settings, cosmetics preview, gameplay restoration, pause/resume and results/restart were reviewed. See [the release report](docs/DARK-LOBBY-1.7.2.md) and [review evidence](docs/dark-lobby-review/).
+
+Local preview: http://127.0.0.1:4175/. No publishing or deployment.
+
+## v1.7.1 — Compact Moonlit Lobby
+
+The character now rests at the map's arena center, with a closer 28° three-quarter camera and a wider cinematic lobby lens. Actual character geometry is fitted to the showcase; scenery surrounds the character instead of sitting behind a detached display platform. Gameplay restores the original camera, lighting and world transforms.
+
+The main menu fits the viewport at desktop, short landscape and phone sizes. Smaller panels and map cards keep character/map/mode selection and Play visible; complete ability descriptions open through **Details**. Credits are available in Settings. Phone cosmetics preview temporarily uses the control panel's space for a larger unobstructed showcase.
+
+**335 tests pass** and the production build succeeds. All **192** character/map/theme combinations were checked across the six target viewports with no menu overflow, clipped character bounds or sub-44px controls. Observed Shibuya lobby calls/triangles changed from **87 / 113,882** to **63 / 78,336**; whole-frame CPU median/p95 changed from **1.9/3.0 ms** to **2.0/3.2 ms**. These short measurements are not sustained FPS guarantees. See [the release report](docs/COMPACT-LOBBY-1.7.1.md) and [review evidence](docs/compact-lobby-review/).
+
+Local preview: http://127.0.0.1:4175/. No publishing or deployment.
+
+## v1.7.0 — Moonlit Arena
+
+A named character roster, dominant three-quarter 3D showcase and compact match panel replace the previous lobby. Midnight navy surfaces, lavender selection edges, icy blue status accents and gold ultimate/achievement highlights coordinate the HUD, settings, help, challenges, cosmetics, pause, results, credits and fallback screens. Inter and Rajdhani are bundled locally with system fallbacks; light mode uses pale lavender surfaces and navy text. New players start in dark mode, while saved appearance and controls remain supported.
+
+Lobby staging reuses the existing ambient, key and rim lights and animation clock. Each map restores its original gameplay lighting and scenery placement when a match begins. Desktop controls use a centered ability dock; phone layouts retain handedness and large controls, scroll naturally and include safe-area spacing. Explicit ability states/countdowns, progression, practice, respawn and ultimate cinematics remain intact.
+
+**332 tests pass**, including focused theme-default and lighting-restoration coverage; the production build passes. Browser review covers all four characters and maps in both themes at desktop, short landscape and phone widths, plus settings, cosmetic preview, practice, pause/resume, restart, respawn and all four ultimate recoveries. The broader lobby framing raises observed calls from **76 to 87**, triangles from **95,326 to 113,882**, and CPU submission median/p95 from **1.8/3.1 to 2.0/3.7 ms**. These short rendering samples are observational, not sustained device-performance guarantees. See [the release report](docs/MOONLIT-1.7.0.md) and [visual review evidence](docs/moonlit-review/).
+
+Local preview: http://127.0.0.1:4175/. Publishing and deployment are outside this release.
+
+## v1.6.9 — Reference-Sculpted Kitsu Head
+
+The visual correction fits the eyes to the face, balances cheeks and ears, lifts the sculpture clear of the retained coil, and softens hair normals and outline seams. See [the correction comparison](assets/kitsu/alignment-correction.png).
+
+Kitsu's normal menu, portrait and player/bot head now uses an editable Blender sculpture based on the supplied four-view reference. The broad friendly face, recessed ears, oval eyes, shaped hair clumps, wrapped band, riveted silver plate and rear fabric ties are exported with a separate per-instance blink pivot. Desktop/mobile head assets use 5,341 / 3,620 triangles and ten batches; the original coil attachment and one restrained outline draw remain. The separate transformed head and fox summon are preserved.
+
+One selected-profile GLB preload runs before renderer initialization, with accessible feedback and a procedural fallback. Profile downloads, immutable geometry and Lambert materials are cached; clones retain independent transforms. Imported resources are not disposed on map changes or snake removal. IDs, gameplay, body cosmetics, anchors and all existing simulation/render optimizations remain intact.
+
+**328 tests pass**, the production build and diff checks succeed. Hardware-browser checks cover all four maps at desktop/phone widths, themes, large 21-Kitsu crowds, reduced motion, profile caching, Fox Rush, ultimate completion, death/respawn, restart/quit and forced load failure. Corrected matched rendering samples measure draws **68 -> 63** and scene triangles **64,672 -> 65,920**; all CPU/GPU timing windows and measured regressions are recorded in the detailed report. Physical-phone review remains unperformed. See [the detailed report](docs/KITSU-1.6.9.md), [recorded evidence](docs/performance-results-1.6.9.json), [asset notes](assets/kitsu/README.md) and [four-view comparison](assets/kitsu/four-view-comparison.png).
+
+The local preview and source archive are refreshed to 1.6.9. Git publishing and deployment are excluded.
+
+## v1.6.8 — Simulation & Event Performance
+
+The actual advancing frame/event loop is now benchmarked against a frozen v1.6.7 simulation with seed 812, recorded tick inputs and captured RAF schedules. New opt-in bounded diagnostics separate body following, indexing, collisions, food, AI, abilities, respawns, event consumers and catch-up work. Normal play runs no detailed timing wrappers.
+
+Measured changes remove empty projectile target construction, reuse only proven identical food/body indexes, avoid empty food filters, and reuse the post-movement collision index for projectile targets while preserving traversal and hit order. Exact differential replays retain numeric state, RNG calls and ordered events. Fixed 60 Hz timing, bot behavior and all renderer optimizations remain intact; no visual redesign. Pool/grid-key/direct-record experiments with mixed or worse p95 were reverted.
+
+Matched replay with detailed timers disabled measured CPU median/p95 **16.2/36.9, 19.7/41.9, 22.6/44.3 ms → 12.3/22.7, 13.4/24.1, 15.9/28.0 ms**. Freely advancing headless hardware Edge measured **15.3/24.5, 14.3/23.0, 17.5/27.6 ms**. **The whole-game <10 ms median / <16.7 ms p95 target remains unmet.** Slow frames are retained; indexing allocations, catch-up and WebGL submission remain important. This is not foreground-browser or physical-phone validation.
+
+**322 tests pass**, including every-tick full-population parity through 6,002 ticks. Browser checks cover 40 map switches, 20 restarts per desktop/phone-sized viewport and all four ultimates on all four maps, with stable resource counts and no page/shader errors. See [the full report](docs/PERFORMANCE-1.6.8.md) and [recorded evidence](docs/performance-results-1.6.8.json) for isolated/cumulative measurements, threshold counts, subsystem/catch-up costs, allocation traces and review limitations. Local preview and source archive are refreshed to 1.6.8; no Git publishing or deployment.
 
 ## v1.6.7 — Profiling-Driven Performance Pass
 

@@ -1,5 +1,7 @@
 import { BoostMotion, boostKind, breathing, PreviewMotion, previewBlink, type PresentationFrame } from './presentation';
 import { FoodInstances } from './food-instances';
+import { LobbyLighting } from './lobby-staging';
+import { frameLobby, lobbyFitPoints, stageLobbyEnvironment, type LobbyFrame } from './lobby-framing';
 import { FrameProfiler, GpuTimer } from './frame-profiler';
 import { dirtyRange, FoodColors, SnakeInstances } from './instance-updates';
 import type { BodySkinId, TrailId } from './progression';
@@ -17,6 +19,7 @@ import {
 } from "./simulation";
 import { SkillEffects } from "./skill-effects";
 import { createHead, createHeadOutline, createTransformedHead, createTransformedHeadOutline } from "./models";
+import { kitsuHeads, selectKitsuProfile } from './kitsu-head';
 import { SpiritCinematic } from "./spirit";
 import { FoxCinematic } from "./fox";
 import { SkybreakerCinematic } from "./skybreaker";
@@ -52,6 +55,7 @@ interface SnakeVisual {
   character: CharacterId;
   head: THREE.Group;
   headOutline: THREE.Mesh;
+  eyes: THREE.Object3D[];
   formHead?: THREE.Group;
   formOutline?: THREE.Mesh;
   body: THREE.InstancedMesh;
@@ -124,6 +128,7 @@ export class GameRenderer {
   private diagnosticSphere = new THREE.Sphere();
   private boostCamera = 0;
   private graphicsChoice: GraphicsChoice = 'auto';
+  onHeadProfileLoad: (loading:boolean,ready:boolean)=>void = ()=>{};
   setGraphicsChoice(choice: GraphicsChoice) { this.graphicsChoice = choice; this.resize(); }
   private ray = new THREE.Raycaster();
   private plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -175,6 +180,11 @@ export class GameRenderer {
   private hemisphere = new THREE.HemisphereLight("#dde7ff", "#394354", 2.5);
   private sunlight = new THREE.DirectionalLight("#fff1d9", 3);
   private rimLight = new THREE.DirectionalLight("#9773ff", 1.8);
+  private lobbyLighting = new LobbyLighting(this.hemisphere, this.sunlight, this.rimLight);
+  private lobbyViewport = { x: 0, y: 0, width: 1, height: 1 };
+  private lobbyBounds = new THREE.Box3();
+  private lobbyPoints: THREE.Vector3[] = [];
+  private lobbyFrame?: LobbyFrame;
   mapId: MapId = "shibuya";
   private fox: FoxCinematic;
   private skybreaker: SkybreakerCinematic;
@@ -222,7 +232,10 @@ export class GameRenderer {
     material.needsUpdate = true;
     (v.outline.material as THREE.MeshBasicMaterial).color.set(finish.outline);
   }
-  constructor(public canvas: HTMLCanvasElement) {
+  constructor(public canvas: HTMLCanvasElement, graphicsChoice: GraphicsChoice = 'auto') {
+    this.graphicsChoice=graphicsChoice;
+    this.profile=graphicsChoice==='low'?'mobile':graphicsChoice==='high'?'desktop':profileFor(innerWidth,matchMedia('(pointer:coarse)').matches);
+    selectKitsuProfile(this.profile);
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
@@ -303,7 +316,9 @@ export class GameRenderer {
     this.sunlight.position.set(...def.sunDirection);
     this.rimLight.color.set(def.accent);
     this.rimLight.intensity = def.rimIntensity;
+    this.lobbyLighting.invalidate();
     (this.ring.material as THREE.MeshBasicMaterial).color.set(def.accent);
+    this.updateLobbyViewport();
   }
   mapThumbnails() {
     const images: string[] = [];
@@ -389,6 +404,9 @@ export class GameRenderer {
     this.previewMotion.reset();
     this.previewEyes.length = 0;
     this.heroId = id;
+    this.hero.position.set(0, 0, 0);
+    this.hero.rotation.set(0, 0, 0);
+    this.hero.scale.setScalar(1);
     while (this.hero.children.length) {
       const o = this.hero.children[0];
       this.hero.remove(o);
@@ -453,28 +471,48 @@ export class GameRenderer {
     headOutline.rotation.copy(this.heroHead.rotation);
     headOutline.scale.setScalar(1.5 * 1.006);
     this.hero.add(headOutline, this.heroHead);
-    const halo = new THREE.Mesh(
-      new THREE.RingGeometry(8.5, 8.55, 90),
-      new THREE.MeshBasicMaterial({
-        color: c.color,
-        transparent: true,
-        opacity: 0.22,
-        side: THREE.DoubleSide,
-      }),
-    );
-    halo.rotation.x = -Math.PI / 2;
-    halo.position.set(3, -0.42, 0);
-    this.hero.add(halo);
+    this.hero.updateMatrixWorld(true);
+    this.lobbyBounds.setFromObject(this.hero);
+    this.lobbyPoints = lobbyFitPoints(this.hero);
+    this.updateLobbyViewport();
   }
   resize() {
     const w = innerWidth,
       h = innerHeight;
     const profile = this.graphicsChoice === 'auto' ? profileFor(w, matchMedia("(pointer:coarse)").matches) : this.graphicsChoice === 'low' ? 'mobile' : 'desktop';
-    if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId); }
+    selectKitsuProfile(profile);
+    if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId);
+      this.onHeadProfileLoad(true,false);
+      void kitsuHeads.preload(profile).then(ready=>{if(this.profile===profile){this.refreshKitsuHeads();this.onHeadProfileLoad(false,ready);}});
+    }
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.5));
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.updateLobbyViewport();
+  }
+  updateLobbyViewport() {
+    const rect = document.getElementById('lobby-showcase')?.getBoundingClientRect();
+    const preview = document.getElementById('skin-preview-controls')?.getBoundingClientRect().height ?? 0;
+    const availableHeight = Math.max(1, (rect?.height || innerHeight * .6) - preview - 24);
+    this.lobbyViewport.x = rect ? rect.left + rect.width / 2 : innerWidth / 2;
+    this.lobbyViewport.y = rect ? rect.top + 12 + availableHeight / 2 : innerHeight / 2;
+    this.lobbyViewport.width = Math.max(1, rect?.width || innerWidth * .5);
+    this.lobbyViewport.height = availableHeight;
+    if (!this.lobbyBounds.isEmpty()) this.lobbyFrame = frameLobby(this.lobbyBounds, getMap(this.mapId),
+      this.lobbyViewport.width, availableHeight, innerHeight, 55, this.lobbyPoints);
+    if (this.mode === 'menu') this.applyLobbyProjection();
+  }
+  private applyLobbyProjection() {
+    this.camera.setViewOffset(innerWidth, innerHeight, innerWidth / 2 - this.lobbyViewport.x,
+      innerHeight / 2 - this.lobbyViewport.y, innerWidth, innerHeight);
+  }
+  private refreshKitsuHeads() {
+    const replace=(old:THREE.Object3D,next:THREE.Object3D)=>{next.position.copy(old.position);next.quaternion.copy(old.quaternion);next.scale.copy(old.scale);next.visible=old.visible;old.parent?.add(next);old.removeFromParent();};
+    for(const visual of this.visuals.values())if(visual.character==='ember'){
+      const head=createHead('ember'),outline=createHeadOutline('ember');replace(visual.head,head);replace(visual.headOutline,outline);visual.head=head;visual.headOutline=outline;visual.eyes=[];head.traverse(o=>{if(o.userData.previewEye)visual.eyes.push(o);});
+    }
+    if(this.heroId==='ember')this.setHero('ember');
   }
   steering(x: number, y: number, arena: Arena) {
     this.ray.setFromCamera(
@@ -512,6 +550,10 @@ export class GameRenderer {
     if(ownsFrame)this.profiler.beginFrame();
     const snakeStamp = this.profiler.stamp();
     const menu = this.mode === "menu";
+    if (this.lobbyLighting.apply(getMap(this.mapId), menu)) {
+      if (menu) this.updateLobbyViewport();
+      else this.camera.clearViewOffset();
+    }
     const paused = document.hidden || (!!arena && arena.state !== "playing" && !menu);
     time = this.visualClock.advance(dt, paused, document.hidden);
     this.visualFrame.time = time; this.visualFrame.dt = paused ? 0 : Math.min(dt, .1);
@@ -521,13 +563,11 @@ export class GameRenderer {
     const frameInterval = this.frameStamp ? stamp - this.frameStamp : 0;
     this.frameStamp=stamp;
     this.profiler.rafMs=frameInterval;
-    // Miniature scenery in the menu; the identical world at full scale in play.
-    this.environment?.group.scale.setScalar(menu ? 0.115 : 1);
-    if (this.environment) this.environment.group.rotation.y = menu && this.mapId === "harbor" ? Math.PI : 0;
+    if (this.environment) stageLobbyEnvironment(this.environment.group, menu, this.lobbyFrame?.environmentScale ?? .32);
     this.hero.visible = menu;
     this.food.visible = !menu;
     this.ring.visible = !menu;
-    const nextFov = this.boostMotion.fov(reducedMotion);
+    const nextFov = menu ? 55 : this.boostMotion.fov(reducedMotion);
     if(Math.abs(nextFov-this.camera.fov)>.005) { this.camera.fov=nextFov; this.camera.updateProjectionMatrix(); }
 
     if (menu) {
@@ -540,15 +580,12 @@ export class GameRenderer {
         v.outline.visible = v.headOutline.visible = v.shadow.visible = false;
         if (v.marks) v.marks.visible = false;
       }
-      const narrow = innerWidth < 760;
-      this.hero.scale.setScalar(narrow ? 0.8 : 1.23);
-      this.hero.position.set(narrow ? 0 : 1, narrow ? 0 : .6, narrow ? 0 : -4);
-      this.camera.position.set(
-        narrow ? 10 : 14,
-        narrow ? (this.mapId === 'shibuya' ? 22 : 24) : (this.mapId === 'shibuya' ? 19 : 22),
-        narrow ? 42 : 30,
-      );
-      this.camera.lookAt(narrow ? 3 : -7, narrow ? -16 : 0, 0);
+      this.hero.scale.setScalar(1);
+      if (this.lobbyFrame) {
+        this.hero.position.copy(this.lobbyFrame.heroPosition);
+        this.camera.position.copy(this.lobbyFrame.position);
+        this.camera.lookAt(this.lobbyFrame.target);
+      }
       if (this.heroHead) {
         this.previewMotion.update(this.visualFrame.dt, reducedMotion);
         const reaction = this.previewMotion.reaction;
@@ -631,7 +668,8 @@ export class GameRenderer {
           );
           const shadow = new THREE.InstancedMesh(new THREE.CircleGeometry(1,16),new THREE.MeshBasicMaterial({color:"#635c67",transparent:true,opacity:.14,depthWrite:false}),360);
           const marks = s.id === 0 ? createPlayerMarks(Math.ceil(360 / PLAYER_MARK_INTERVAL)) : undefined;
-          v = { instances:new SnakeInstances(), character: s.character, head, headOutline, body, aura, outline, shadow, marks, colorKey: "", coloredCount: 0 };
+          const eyes:THREE.Object3D[]=[];head.traverse(o=>{if(o.userData.previewEye)eyes.push(o);});
+          v = { instances:new SnakeInstances(), character: s.character, head, headOutline, eyes, body, aura, outline, shadow, marks, colorKey: "", coloredCount: 0 };
           if (s.id === 0 && (s.character === 'ember' || s.character === 'cloud')) {
             v.formHead = createTransformedHead(s.character);
             v.formOutline = createTransformedHeadOutline(s.character);
@@ -651,6 +689,7 @@ export class GameRenderer {
           v.colorKey = '';
         }
         v.head.visible = !formKind;
+        if(s.character==='ember')for(const eye of v.eyes)eye.scale.y=previewBlink(time+s.id*.37,s.character,reducedMotion||!!formKind);
         if (v.formHead) v.formHead.visible = !!formKind;
         v.body.visible = true;
         v.outline.visible = true;

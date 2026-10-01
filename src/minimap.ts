@@ -5,9 +5,6 @@ import type { PresentationFrame } from './presentation';
 export interface CompassTheme { readonly inner: string; readonly outer: string; readonly ring: string; readonly rival: string }
 export const COMPASS_THEMES: Readonly<Record<MapId, CompassTheme>> = {
   shibuya: { inner: '#dedbe6', outer: '#bbb9ce', ring: '#827990', rival: '#6b637d' },
-  leaf: { inner: '#e2ecd8', outer: '#bdcfb0', ring: '#819773', rival: '#586f52' },
-  tournament: { inner: '#f5ecd9', outer: '#ded1b3', ring: '#a89773', rival: '#81735d' },
-  harbor: { inner: '#d9ebe2', outer: '#acd0c7', ring: '#729c92', rival: '#486f70' },
 };
 interface CompassSnake {
   readonly id: number; readonly x: number; readonly z: number; readonly angle: number;

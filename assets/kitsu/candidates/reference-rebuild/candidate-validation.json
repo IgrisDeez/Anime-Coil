@@ -1,0 +1,65 @@
+{
+  "status": "candidate asset checks passed; awaiting visual approval",
+  "profiles": [
+    {
+      "profile": "desktop",
+      "triangles": 5515,
+      "draws": 10,
+      "trianglesWithCoil": 5867,
+      "bounds": {
+        "min": [
+          -1.2566356658935547,
+          0.6801272556185722,
+          -1.0690962076187134
+        ],
+        "max": [
+          1.2566356658935547,
+          2.9074858352541924,
+          0.886860728263855
+        ]
+      },
+      "minEyeProtrusion": -0.01490299608819301,
+      "maxEyeProtrusion": 0.03522313026336077
+    },
+    {
+      "profile": "mobile",
+      "triangles": 3574,
+      "draws": 10,
+      "trianglesWithCoil": 3926,
+      "bounds": {
+        "min": [
+          -1.247308373451233,
+          0.6796315833926201,
+          -1.0653715133666992
+        ],
+        "max": [
+          1.247308373451233,
+          2.9074858352541924,
+          0.886860728263855
+        ]
+      },
+      "minEyeProtrusion": -0.01448234650664082,
+      "maxEyeProtrusion": 0.03583593403967256
+    }
+  ],
+  "cachedLoads": [
+    "desktop",
+    "mobile"
+  ],
+  "sharedGeometryCount": 22,
+  "sharedMaterialCount": 10,
+  "checks": [
+    "schema",
+    "Y-up +Z-forward",
+    "attachment origin and mount",
+    "finite unit normals",
+    "profile budgets",
+    "symmetry",
+    "ray-tested eye embedding",
+    "profile caching",
+    "shared resources",
+    "independent blinking",
+    "one-time disposal",
+    "load failure"
+  ]
+}

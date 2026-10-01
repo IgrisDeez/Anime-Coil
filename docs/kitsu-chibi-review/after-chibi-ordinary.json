@@ -1,0 +1,2568 @@
+{
+  "stage": "after-chibi",
+  "hardware": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (Intel)"
+  },
+  "warmMs": 3000,
+  "sampleMs": 9000,
+  "runs": 3,
+  "reports": [
+    {
+      "run": 1,
+      "seed": 812,
+      "population": 21,
+      "segments": 987,
+      "food": 850,
+      "stress": false,
+      "map": "shibuya",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 1,
+      "graphics": "auto",
+      "motion": "system",
+      "skin": "original",
+      "drawCallsBySubsystem": null,
+      "profile": "desktop",
+      "environment": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      },
+      "game": {
+        "calls": 64,
+        "triangles": 66002,
+        "frameMsMedian": 22,
+        "frameMsP95": 34.3999999910593,
+        "callsMedian": 64,
+        "trianglesMedian": 66002,
+        "snakeCountMin": 21,
+        "samples": 300
+      },
+      "phases": {
+        "normal": {
+          "frameMsMedian": 22,
+          "frameMsP95": 34.3999999910593,
+          "callsMedian": 64,
+          "trianglesMedian": 66002,
+          "snakeCountMin": 21,
+          "samples": 300
+        },
+        "hollowPurple": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "spiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "foxSpiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "skybreaker": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        }
+      },
+      "memory": {
+        "geometries": 50,
+        "textures": 3,
+        "programs": 23
+      },
+      "snakes": 21,
+      "performance": {
+        "simulation": {
+          "enabled": true,
+          "tickCpuMs": {
+            "samples": 0,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "perTick": {
+            "movement-state": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "perFrame": {
+            "movement-state": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-compass": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-progression": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-unlocks": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-practice": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-effects": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-stamps": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-audio": {
+              "samples": 387,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "ticksPerFrame": {
+            "0": 387
+          },
+          "backlogMs": {
+            "samples": 387,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "eventCount": {
+            "samples": 387,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "forcedSubsteps": {
+            "samples": 387,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          }
+        },
+        "enabled": true,
+        "instanceCounterScope": "snake body, outline, shadow, ownership and food; whole-scene GL uploads measured separately",
+        "cpuLatency": {
+          "worst": 58.29999999701977,
+          "above16_7": 36,
+          "above25": 17,
+          "above33_3": 6
+        },
+        "rafLatency": {
+          "worst": 63.20000000298023,
+          "above16_7": 291,
+          "above25": 161,
+          "above33_3": 36
+        },
+        "cpuMs": {
+          "median": 8.800000011920929,
+          "p95": 21.700000002980232,
+          "samples": 387
+        },
+        "rafMs": {
+          "median": 23,
+          "p95": 36.8999999910593,
+          "samples": 387
+        },
+        "fps": 43.04783092324806,
+        "stages": {
+          "simulation": {
+            "median": 0.20000000298023224,
+            "p95": 0.5,
+            "samples": 387
+          },
+          "snakes": {
+            "median": 1.2000000029802322,
+            "p95": 3.3999999910593033,
+            "samples": 387
+          },
+          "food": {
+            "median": 0.09999999403953552,
+            "p95": 0.29999999701976776,
+            "samples": 387
+          },
+          "effects": {
+            "median": 0.20000000298023224,
+            "p95": 0.5,
+            "samples": 387
+          },
+          "environment": {
+            "median": 0.7000000029802322,
+            "p95": 1.9000000059604645,
+            "samples": 387
+          },
+          "submit": {
+            "median": 5.5999999940395355,
+            "p95": 17.299999997019768,
+            "samples": 387
+          },
+          "dom": {
+            "median": 0,
+            "p95": 0,
+            "samples": 387
+          }
+        },
+        "uploadBytesPerFrame": {
+          "median": 191296,
+          "p95": 191296,
+          "samples": 387
+        },
+        "instanceWork": {
+          "matrices": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 387
+          },
+          "updatedInstances": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 387
+          },
+          "dirtyRanges": {
+            "median": 64,
+            "p95": 64,
+            "samples": 387
+          }
+        },
+        "populationRange": {
+          "snakes": {
+            "min": 21,
+            "max": 21
+          },
+          "segments": {
+            "min": 987,
+            "max": 987
+          },
+          "food": {
+            "min": 850,
+            "max": 850
+          }
+        },
+        "phases": {
+          "normal": {
+            "cpuLatency": {
+              "worst": 58.29999999701977,
+              "above16_7": 36,
+              "above25": 17,
+              "above33_3": 6
+            },
+            "rafLatency": {
+              "worst": 63.20000000298023,
+              "above16_7": 291,
+              "above25": 161,
+              "above33_3": 36
+            },
+            "cpuMs": {
+              "median": 8.800000011920929,
+              "p95": 21.700000002980232,
+              "samples": 387
+            },
+            "rafMs": {
+              "median": 23,
+              "p95": 36.8999999910593,
+              "samples": 387
+            },
+            "fps": 43.04783092324806,
+            "stages": {
+              "simulation": {
+                "median": 0.20000000298023224,
+                "p95": 0.5,
+                "samples": 387
+              },
+              "snakes": {
+                "median": 1.2000000029802322,
+                "p95": 3.3999999910593033,
+                "samples": 387
+              },
+              "food": {
+                "median": 0.09999999403953552,
+                "p95": 0.29999999701976776,
+                "samples": 387
+              },
+              "effects": {
+                "median": 0.20000000298023224,
+                "p95": 0.5,
+                "samples": 387
+              },
+              "environment": {
+                "median": 0.7000000029802322,
+                "p95": 1.9000000059604645,
+                "samples": 387
+              },
+              "submit": {
+                "median": 5.5999999940395355,
+                "p95": 17.299999997019768,
+                "samples": 387
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 387
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 191296,
+              "p95": 191296,
+              "samples": 387
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 387
+              },
+              "updatedInstances": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 387
+              },
+              "dirtyRanges": {
+                "median": 64,
+                "p95": 64,
+                "samples": 387
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 21,
+                "max": 21
+              },
+              "segments": {
+                "min": 987,
+                "max": 987
+              },
+              "food": {
+                "min": 850,
+                "max": 850
+              }
+            }
+          },
+          "charge": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          },
+          "recovery": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          }
+        },
+        "ordinary21": {
+          "cpuLatency": {
+            "worst": 58.29999999701977,
+            "above16_7": 36,
+            "above25": 17,
+            "above33_3": 6
+          },
+          "rafLatency": {
+            "worst": 63.20000000298023,
+            "above16_7": 291,
+            "above25": 161,
+            "above33_3": 36
+          },
+          "cpuMs": {
+            "median": 8.800000011920929,
+            "p95": 21.700000002980232,
+            "samples": 387
+          },
+          "rafMs": {
+            "median": 23,
+            "p95": 36.8999999910593,
+            "samples": 387
+          },
+          "fps": 43.04783092324806,
+          "stages": {
+            "simulation": {
+              "median": 0.20000000298023224,
+              "p95": 0.5,
+              "samples": 387
+            },
+            "snakes": {
+              "median": 1.2000000029802322,
+              "p95": 3.3999999910593033,
+              "samples": 387
+            },
+            "food": {
+              "median": 0.09999999403953552,
+              "p95": 0.29999999701976776,
+              "samples": 387
+            },
+            "effects": {
+              "median": 0.20000000298023224,
+              "p95": 0.5,
+              "samples": 387
+            },
+            "environment": {
+              "median": 0.7000000029802322,
+              "p95": 1.9000000059604645,
+              "samples": 387
+            },
+            "submit": {
+              "median": 5.5999999940395355,
+              "p95": 17.299999997019768,
+              "samples": 387
+            },
+            "dom": {
+              "median": 0,
+              "p95": 0,
+              "samples": 387
+            }
+          },
+          "uploadBytesPerFrame": {
+            "median": 191296,
+            "p95": 191296,
+            "samples": 387
+          },
+          "instanceWork": {
+            "matrices": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 387
+            },
+            "updatedInstances": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 387
+            },
+            "dirtyRanges": {
+              "median": 64,
+              "p95": 64,
+              "samples": 387
+            }
+          },
+          "populationRange": {
+            "snakes": {
+              "min": 21,
+              "max": 21
+            },
+            "segments": {
+              "min": 987,
+              "max": 987
+            },
+            "food": {
+              "min": 850,
+              "max": 850
+            }
+          }
+        },
+        "calls": 64,
+        "triangles": 66002,
+        "snakes": 21,
+        "segments": 987,
+        "visibleSegments": 94,
+        "food": 850,
+        "dpr": 1,
+        "matrices": 2989,
+        "updatedInstances": 2989,
+        "dirtyRanges": 64,
+        "uploadBytes": 191296
+      },
+      "gpu": {
+        "available": true,
+        "ms": {
+          "median": 7.574114,
+          "p95": 8.772656,
+          "samples": 12
+        },
+        "status": "asynchronous GPU queries"
+      }
+    },
+    {
+      "run": 2,
+      "seed": 812,
+      "population": 21,
+      "segments": 987,
+      "food": 850,
+      "stress": false,
+      "map": "shibuya",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 1,
+      "graphics": "auto",
+      "motion": "system",
+      "skin": "original",
+      "drawCallsBySubsystem": null,
+      "profile": "desktop",
+      "environment": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      },
+      "game": {
+        "calls": 64,
+        "triangles": 66002,
+        "frameMsMedian": 23.799999997019768,
+        "frameMsP95": 32,
+        "callsMedian": 64,
+        "trianglesMedian": 66002,
+        "snakeCountMin": 21,
+        "samples": 300
+      },
+      "phases": {
+        "normal": {
+          "frameMsMedian": 23.799999997019768,
+          "frameMsP95": 32,
+          "callsMedian": 64,
+          "trianglesMedian": 66002,
+          "snakeCountMin": 21,
+          "samples": 300
+        },
+        "hollowPurple": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "spiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "foxSpiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "skybreaker": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        }
+      },
+      "memory": {
+        "geometries": 50,
+        "textures": 3,
+        "programs": 23
+      },
+      "snakes": 21,
+      "performance": {
+        "simulation": {
+          "enabled": true,
+          "tickCpuMs": {
+            "samples": 0,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "perTick": {
+            "movement-state": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "perFrame": {
+            "movement-state": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-compass": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-progression": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-unlocks": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-practice": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-effects": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-stamps": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-audio": {
+              "samples": 412,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "ticksPerFrame": {
+            "0": 412
+          },
+          "backlogMs": {
+            "samples": 412,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "eventCount": {
+            "samples": 412,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "forcedSubsteps": {
+            "samples": 412,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          }
+        },
+        "enabled": true,
+        "instanceCounterScope": "snake body, outline, shadow, ownership and food; whole-scene GL uploads measured separately",
+        "cpuLatency": {
+          "worst": 43.29999999701977,
+          "above16_7": 11,
+          "above25": 4,
+          "above33_3": 1
+        },
+        "rafLatency": {
+          "worst": 56,
+          "above16_7": 282,
+          "above25": 158,
+          "above33_3": 13
+        },
+        "cpuMs": {
+          "median": 6.5,
+          "p95": 11.799999997019768,
+          "samples": 412
+        },
+        "rafMs": {
+          "median": 22.799999997019768,
+          "p95": 31.599999994039536,
+          "samples": 412
+        },
+        "fps": 45.83838631081911,
+        "stages": {
+          "simulation": {
+            "median": 0.20000000298023224,
+            "p95": 0.4000000059604645,
+            "samples": 412
+          },
+          "snakes": {
+            "median": 1.0999999940395355,
+            "p95": 2.3999999910593033,
+            "samples": 412
+          },
+          "food": {
+            "median": 0.09999999403953552,
+            "p95": 0.20000000298023224,
+            "samples": 412
+          },
+          "effects": {
+            "median": 0.10000000894069672,
+            "p95": 0.3999999910593033,
+            "samples": 412
+          },
+          "environment": {
+            "median": 0.5,
+            "p95": 1.3999999910593033,
+            "samples": 412
+          },
+          "submit": {
+            "median": 4.100000008940697,
+            "p95": 8,
+            "samples": 412
+          },
+          "dom": {
+            "median": 0,
+            "p95": 0,
+            "samples": 412
+          }
+        },
+        "uploadBytesPerFrame": {
+          "median": 191296,
+          "p95": 191296,
+          "samples": 412
+        },
+        "instanceWork": {
+          "matrices": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 412
+          },
+          "updatedInstances": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 412
+          },
+          "dirtyRanges": {
+            "median": 64,
+            "p95": 64,
+            "samples": 412
+          }
+        },
+        "populationRange": {
+          "snakes": {
+            "min": 21,
+            "max": 21
+          },
+          "segments": {
+            "min": 987,
+            "max": 987
+          },
+          "food": {
+            "min": 850,
+            "max": 850
+          }
+        },
+        "phases": {
+          "normal": {
+            "cpuLatency": {
+              "worst": 43.29999999701977,
+              "above16_7": 11,
+              "above25": 4,
+              "above33_3": 1
+            },
+            "rafLatency": {
+              "worst": 56,
+              "above16_7": 282,
+              "above25": 158,
+              "above33_3": 13
+            },
+            "cpuMs": {
+              "median": 6.5,
+              "p95": 11.799999997019768,
+              "samples": 412
+            },
+            "rafMs": {
+              "median": 22.799999997019768,
+              "p95": 31.599999994039536,
+              "samples": 412
+            },
+            "fps": 45.83838631081911,
+            "stages": {
+              "simulation": {
+                "median": 0.20000000298023224,
+                "p95": 0.4000000059604645,
+                "samples": 412
+              },
+              "snakes": {
+                "median": 1.0999999940395355,
+                "p95": 2.3999999910593033,
+                "samples": 412
+              },
+              "food": {
+                "median": 0.09999999403953552,
+                "p95": 0.20000000298023224,
+                "samples": 412
+              },
+              "effects": {
+                "median": 0.10000000894069672,
+                "p95": 0.3999999910593033,
+                "samples": 412
+              },
+              "environment": {
+                "median": 0.5,
+                "p95": 1.3999999910593033,
+                "samples": 412
+              },
+              "submit": {
+                "median": 4.100000008940697,
+                "p95": 8,
+                "samples": 412
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 412
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 191296,
+              "p95": 191296,
+              "samples": 412
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 412
+              },
+              "updatedInstances": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 412
+              },
+              "dirtyRanges": {
+                "median": 64,
+                "p95": 64,
+                "samples": 412
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 21,
+                "max": 21
+              },
+              "segments": {
+                "min": 987,
+                "max": 987
+              },
+              "food": {
+                "min": 850,
+                "max": 850
+              }
+            }
+          },
+          "charge": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          },
+          "recovery": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          }
+        },
+        "ordinary21": {
+          "cpuLatency": {
+            "worst": 43.29999999701977,
+            "above16_7": 11,
+            "above25": 4,
+            "above33_3": 1
+          },
+          "rafLatency": {
+            "worst": 56,
+            "above16_7": 282,
+            "above25": 158,
+            "above33_3": 13
+          },
+          "cpuMs": {
+            "median": 6.5,
+            "p95": 11.799999997019768,
+            "samples": 412
+          },
+          "rafMs": {
+            "median": 22.799999997019768,
+            "p95": 31.599999994039536,
+            "samples": 412
+          },
+          "fps": 45.83838631081911,
+          "stages": {
+            "simulation": {
+              "median": 0.20000000298023224,
+              "p95": 0.4000000059604645,
+              "samples": 412
+            },
+            "snakes": {
+              "median": 1.0999999940395355,
+              "p95": 2.3999999910593033,
+              "samples": 412
+            },
+            "food": {
+              "median": 0.09999999403953552,
+              "p95": 0.20000000298023224,
+              "samples": 412
+            },
+            "effects": {
+              "median": 0.10000000894069672,
+              "p95": 0.3999999910593033,
+              "samples": 412
+            },
+            "environment": {
+              "median": 0.5,
+              "p95": 1.3999999910593033,
+              "samples": 412
+            },
+            "submit": {
+              "median": 4.100000008940697,
+              "p95": 8,
+              "samples": 412
+            },
+            "dom": {
+              "median": 0,
+              "p95": 0,
+              "samples": 412
+            }
+          },
+          "uploadBytesPerFrame": {
+            "median": 191296,
+            "p95": 191296,
+            "samples": 412
+          },
+          "instanceWork": {
+            "matrices": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 412
+            },
+            "updatedInstances": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 412
+            },
+            "dirtyRanges": {
+              "median": 64,
+              "p95": 64,
+              "samples": 412
+            }
+          },
+          "populationRange": {
+            "snakes": {
+              "min": 21,
+              "max": 21
+            },
+            "segments": {
+              "min": 987,
+              "max": 987
+            },
+            "food": {
+              "min": 850,
+              "max": 850
+            }
+          }
+        },
+        "calls": 64,
+        "triangles": 66002,
+        "snakes": 21,
+        "segments": 987,
+        "visibleSegments": 94,
+        "food": 850,
+        "dpr": 1,
+        "matrices": 2989,
+        "updatedInstances": 2989,
+        "dirtyRanges": 64,
+        "uploadBytes": 191296
+      },
+      "gpu": {
+        "available": true,
+        "ms": {
+          "median": 7.373229,
+          "p95": 9.134322,
+          "samples": 14
+        },
+        "status": "asynchronous GPU queries"
+      }
+    },
+    {
+      "run": 3,
+      "seed": 812,
+      "population": 21,
+      "segments": 987,
+      "food": 850,
+      "stress": false,
+      "map": "shibuya",
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 1,
+      "graphics": "auto",
+      "motion": "system",
+      "skin": "original",
+      "drawCallsBySubsystem": null,
+      "profile": "desktop",
+      "environment": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      },
+      "game": {
+        "calls": 64,
+        "triangles": 66002,
+        "frameMsMedian": 27,
+        "frameMsP95": 36.20000000298023,
+        "callsMedian": 64,
+        "trianglesMedian": 66002,
+        "snakeCountMin": 21,
+        "samples": 300
+      },
+      "phases": {
+        "normal": {
+          "frameMsMedian": 27,
+          "frameMsP95": 36.20000000298023,
+          "callsMedian": 64,
+          "trianglesMedian": 66002,
+          "snakeCountMin": 21,
+          "samples": 300
+        },
+        "hollowPurple": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "spiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "foxSpiritBomb": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        },
+        "skybreaker": {
+          "frameMsMedian": 0,
+          "frameMsP95": 0,
+          "callsMedian": 0,
+          "trianglesMedian": 0,
+          "snakeCountMin": 0,
+          "samples": 0
+        }
+      },
+      "memory": {
+        "geometries": 50,
+        "textures": 3,
+        "programs": 23
+      },
+      "snakes": 21,
+      "performance": {
+        "simulation": {
+          "enabled": true,
+          "tickCpuMs": {
+            "samples": 0,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "perTick": {
+            "movement-state": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 0,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "perFrame": {
+            "movement-state": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "body": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "index": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "collision": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "food": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "ai": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "abilities": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "respawn": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-compass": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-progression": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-unlocks": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-practice": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-effects": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-stamps": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "events-audio": {
+              "samples": 360,
+              "median": 0,
+              "p95": 0,
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            }
+          },
+          "ticksPerFrame": {
+            "0": 360
+          },
+          "backlogMs": {
+            "samples": 360,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "eventCount": {
+            "samples": 360,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          },
+          "forcedSubsteps": {
+            "samples": 360,
+            "median": 0,
+            "p95": 0,
+            "worst": 0,
+            "above16_7": 0,
+            "above25": 0,
+            "above33_3": 0
+          }
+        },
+        "enabled": true,
+        "instanceCounterScope": "snake body, outline, shadow, ownership and food; whole-scene GL uploads measured separately",
+        "cpuLatency": {
+          "worst": 37.3999999910593,
+          "above16_7": 19,
+          "above25": 5,
+          "above33_3": 3
+        },
+        "rafLatency": {
+          "worst": 45.70000000298023,
+          "above16_7": 285,
+          "above25": 199,
+          "above33_3": 52
+        },
+        "cpuMs": {
+          "median": 7.899999991059303,
+          "p95": 16.900000005960464,
+          "samples": 360
+        },
+        "rafMs": {
+          "median": 26.700000002980232,
+          "p95": 36.20000000298023,
+          "samples": 360
+        },
+        "fps": 39.90113385716772,
+        "stages": {
+          "simulation": {
+            "median": 0.20000000298023224,
+            "p95": 0.4000000059604645,
+            "samples": 360
+          },
+          "snakes": {
+            "median": 1.0999999940395355,
+            "p95": 2.9000000059604645,
+            "samples": 360
+          },
+          "food": {
+            "median": 0.09999999403953552,
+            "p95": 0.20000000298023224,
+            "samples": 360
+          },
+          "effects": {
+            "median": 0.19999998807907104,
+            "p95": 0.30000001192092896,
+            "samples": 360
+          },
+          "environment": {
+            "median": 0.7000000029802322,
+            "p95": 1.7000000029802322,
+            "samples": 360
+          },
+          "submit": {
+            "median": 5.299999997019768,
+            "p95": 12.400000005960464,
+            "samples": 360
+          },
+          "dom": {
+            "median": 0,
+            "p95": 0,
+            "samples": 360
+          }
+        },
+        "uploadBytesPerFrame": {
+          "median": 191296,
+          "p95": 191296,
+          "samples": 360
+        },
+        "instanceWork": {
+          "matrices": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 360
+          },
+          "updatedInstances": {
+            "median": 2989,
+            "p95": 2989,
+            "samples": 360
+          },
+          "dirtyRanges": {
+            "median": 64,
+            "p95": 64,
+            "samples": 360
+          }
+        },
+        "populationRange": {
+          "snakes": {
+            "min": 21,
+            "max": 21
+          },
+          "segments": {
+            "min": 987,
+            "max": 987
+          },
+          "food": {
+            "min": 850,
+            "max": 850
+          }
+        },
+        "phases": {
+          "normal": {
+            "cpuLatency": {
+              "worst": 37.3999999910593,
+              "above16_7": 19,
+              "above25": 5,
+              "above33_3": 3
+            },
+            "rafLatency": {
+              "worst": 45.70000000298023,
+              "above16_7": 285,
+              "above25": 199,
+              "above33_3": 52
+            },
+            "cpuMs": {
+              "median": 7.899999991059303,
+              "p95": 16.900000005960464,
+              "samples": 360
+            },
+            "rafMs": {
+              "median": 26.700000002980232,
+              "p95": 36.20000000298023,
+              "samples": 360
+            },
+            "fps": 39.90113385716772,
+            "stages": {
+              "simulation": {
+                "median": 0.20000000298023224,
+                "p95": 0.4000000059604645,
+                "samples": 360
+              },
+              "snakes": {
+                "median": 1.0999999940395355,
+                "p95": 2.9000000059604645,
+                "samples": 360
+              },
+              "food": {
+                "median": 0.09999999403953552,
+                "p95": 0.20000000298023224,
+                "samples": 360
+              },
+              "effects": {
+                "median": 0.19999998807907104,
+                "p95": 0.30000001192092896,
+                "samples": 360
+              },
+              "environment": {
+                "median": 0.7000000029802322,
+                "p95": 1.7000000029802322,
+                "samples": 360
+              },
+              "submit": {
+                "median": 5.299999997019768,
+                "p95": 12.400000005960464,
+                "samples": 360
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 360
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 191296,
+              "p95": 191296,
+              "samples": 360
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 360
+              },
+              "updatedInstances": {
+                "median": 2989,
+                "p95": 2989,
+                "samples": 360
+              },
+              "dirtyRanges": {
+                "median": 64,
+                "p95": 64,
+                "samples": 360
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 21,
+                "max": 21
+              },
+              "segments": {
+                "min": 987,
+                "max": 987
+              },
+              "food": {
+                "min": 850,
+                "max": 850
+              }
+            }
+          },
+          "charge": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          },
+          "recovery": {
+            "cpuLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "rafLatency": {
+              "worst": 0,
+              "above16_7": 0,
+              "above25": 0,
+              "above33_3": 0
+            },
+            "cpuMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "rafMs": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "fps": 0,
+            "stages": {
+              "simulation": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "snakes": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "food": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "effects": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "environment": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "submit": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dom": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "uploadBytesPerFrame": {
+              "median": 0,
+              "p95": 0,
+              "samples": 0
+            },
+            "instanceWork": {
+              "matrices": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "updatedInstances": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              },
+              "dirtyRanges": {
+                "median": 0,
+                "p95": 0,
+                "samples": 0
+              }
+            },
+            "populationRange": {
+              "snakes": {
+                "min": 0,
+                "max": 0
+              },
+              "segments": {
+                "min": 0,
+                "max": 0
+              },
+              "food": {
+                "min": 0,
+                "max": 0
+              }
+            }
+          }
+        },
+        "ordinary21": {
+          "cpuLatency": {
+            "worst": 37.3999999910593,
+            "above16_7": 19,
+            "above25": 5,
+            "above33_3": 3
+          },
+          "rafLatency": {
+            "worst": 45.70000000298023,
+            "above16_7": 285,
+            "above25": 199,
+            "above33_3": 52
+          },
+          "cpuMs": {
+            "median": 7.899999991059303,
+            "p95": 16.900000005960464,
+            "samples": 360
+          },
+          "rafMs": {
+            "median": 26.700000002980232,
+            "p95": 36.20000000298023,
+            "samples": 360
+          },
+          "fps": 39.90113385716772,
+          "stages": {
+            "simulation": {
+              "median": 0.20000000298023224,
+              "p95": 0.4000000059604645,
+              "samples": 360
+            },
+            "snakes": {
+              "median": 1.0999999940395355,
+              "p95": 2.9000000059604645,
+              "samples": 360
+            },
+            "food": {
+              "median": 0.09999999403953552,
+              "p95": 0.20000000298023224,
+              "samples": 360
+            },
+            "effects": {
+              "median": 0.19999998807907104,
+              "p95": 0.30000001192092896,
+              "samples": 360
+            },
+            "environment": {
+              "median": 0.7000000029802322,
+              "p95": 1.7000000029802322,
+              "samples": 360
+            },
+            "submit": {
+              "median": 5.299999997019768,
+              "p95": 12.400000005960464,
+              "samples": 360
+            },
+            "dom": {
+              "median": 0,
+              "p95": 0,
+              "samples": 360
+            }
+          },
+          "uploadBytesPerFrame": {
+            "median": 191296,
+            "p95": 191296,
+            "samples": 360
+          },
+          "instanceWork": {
+            "matrices": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 360
+            },
+            "updatedInstances": {
+              "median": 2989,
+              "p95": 2989,
+              "samples": 360
+            },
+            "dirtyRanges": {
+              "median": 64,
+              "p95": 64,
+              "samples": 360
+            }
+          },
+          "populationRange": {
+            "snakes": {
+              "min": 21,
+              "max": 21
+            },
+            "segments": {
+              "min": 987,
+              "max": 987
+            },
+            "food": {
+              "min": 850,
+              "max": 850
+            }
+          }
+        },
+        "calls": 64,
+        "triangles": 66002,
+        "snakes": 21,
+        "segments": 987,
+        "visibleSegments": 94,
+        "food": 850,
+        "dpr": 1,
+        "matrices": 2989,
+        "updatedInstances": 2989,
+        "dirtyRanges": 64,
+        "uploadBytes": 191296
+      },
+      "gpu": {
+        "available": true,
+        "ms": {
+          "median": 7.865416,
+          "p95": 9.888125,
+          "samples": 12
+        },
+        "status": "asynchronous GPU queries"
+      }
+    }
+  ]
+}

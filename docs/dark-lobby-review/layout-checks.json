@@ -1,0 +1,7170 @@
+[
+  {
+    "characterBounds": {
+      "bottom": 853.4323852188727,
+      "left": 627.3955024936504,
+      "right": 1276.3300471821397,
+      "top": 477.7100808401666
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 853.2134841563623,
+      "left": 633.0289811469816,
+      "right": 1280.525494860434,
+      "top": 475.73990943505976
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 851.6000714644032,
+      "left": 592.4652124561319,
+      "right": 1316.8458228454765,
+      "top": 449.404575827218
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 851.7900678972674,
+      "left": 642.0545729922724,
+      "right": 1296.91766242091,
+      "top": 465.2925477565632
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 854.2208602491719,
+      "left": 624.695403176202,
+      "right": 1275.433463043776,
+      "top": 477.6977631819087
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 854.1694775381982,
+      "left": 629.2490803193987,
+      "right": 1279.3683069034596,
+      "top": 475.6906100055356
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 852.6753381078371,
+      "left": 587.5266198078477,
+      "right": 1315.5569057959449,
+      "top": 449.433780791915
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 853.0218902101769,
+      "left": 637.2392333394076,
+      "right": 1295.3701702760854,
+      "top": 465.1860630307394
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 854.9620615830439,
+      "left": 610.1408431659212,
+      "right": 1269.1718782139762,
+      "top": 475.1737555115791
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 855.0998551517661,
+      "left": 610.8135193820553,
+      "right": 1272.8733623161322,
+      "top": 473.215387453949
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 854.2462633036762,
+      "left": 567.7960084889093,
+      "right": 1309.4669001925652,
+      "top": 449.07982203349866
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 854.7430930926462,
+      "left": 608.5582789810643,
+      "right": 1287.8527121822956,
+      "top": 462.8218797212046
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 858.1278410931053,
+      "left": 595.6121613731502,
+      "right": 1255.9691583910617,
+      "top": 473.0894975574262
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 858.4699771100193,
+      "left": 592.113946390966,
+      "right": 1259.2446401069717,
+      "top": 471.2271722983349
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 857.8599242810658,
+      "left": 549.0507009356974,
+      "right": 1296.3756539312585,
+      "top": 447.5884753646067
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 858.3876408915652,
+      "left": 579.7218610946388,
+      "right": 1273.1359392140832,
+      "top": 461.11424188427173
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 777.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 356.20001220703125
+    },
+    "play": {
+      "bottom": 739,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 695
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 684.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 356.20001220703125
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.4626075072315,
+      "left": 365.5480618542312,
+      "right": 931.2824549388464,
+      "top": 400.86318146960787
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.8786469324735,
+      "left": 360.93972876391143,
+      "right": 933.7901202872608,
+      "top": 399.1955838702632
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.8434114418168,
+      "left": 315.06486726003476,
+      "right": 962.7675062849446,
+      "top": 378.7066164294239
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.9556907209529,
+      "left": 348.71129971747956,
+      "right": 945.6975842195806,
+      "top": 390.55286475384014
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 731.0086101944468,
+      "left": 361.0300428216256,
+      "right": 928.7771893643024,
+      "top": 400.7840375732032
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 731.0958233093711,
+      "left": 357.08839348492324,
+      "right": 931.8893565796224,
+      "top": 399.1499478082586
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.9137841885603,
+      "left": 311.1182583349791,
+      "right": 961.1628142873686,
+      "top": 378.5549571215731
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.8523351471955,
+      "left": 345.5274544804065,
+      "right": 944.4350541976564,
+      "top": 390.5377184477298
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 731.3071127845765,
+      "left": 357.89687910350636,
+      "right": 919.078499436972,
+      "top": 398.5391504953632
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 731.2941844179944,
+      "left": 348.01349314549043,
+      "right": 922.458595216442,
+      "top": 397.8004707126387
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.990151101648,
+      "left": 307.7209578912789,
+      "right": 953.0822061863872,
+      "top": 376.1964933230954
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.6929135813727,
+      "left": 337.56780172000947,
+      "right": 935.63159590799,
+      "top": 389.36476865161734
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.4232643476573,
+      "left": 360.32725605101336,
+      "right": 908.3925450930002,
+      "top": 394.5926962058856
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 730.0862291525291,
+      "left": 345.3515200837976,
+      "right": 912.5609786241082,
+      "top": 396.91641510063783
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.5293897155761,
+      "left": 311.42201112151145,
+      "right": 943.996802263084,
+      "top": 374.1797264112424
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 729.0198204022329,
+      "left": 337.14770908995945,
+      "right": 926.369955928952,
+      "top": 388.7103210373071
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 687.8000183105469,
+      "height": 421.6000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 266.20001220703125
+    },
+    "play": {
+      "bottom": 649,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 605
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 594.2000122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 266.20001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 486.0591725136987,
+      "left": 240.1363724557534,
+      "right": 525.3901198748472,
+      "top": 317.324664657535
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 484.37595741173254,
+      "left": 242.33649347452973,
+      "right": 525.8098639928851,
+      "top": 316.7528105957467
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 472.5806763135898,
+      "left": 237.90349800740273,
+      "right": 527.058246970489,
+      "top": 313.67279838162494
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 478.06358121773167,
+      "left": 248.38678961261968,
+      "right": 526.6946810295651,
+      "top": 313.28100682527037
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 485.17745912731783,
+      "left": 243.09565123274965,
+      "right": 527.3042008775711,
+      "top": 317.51870229724983
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 483.47370779051744,
+      "left": 245.68338094407073,
+      "right": 527.7514064762291,
+      "top": 316.9492351221114
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 471.74761343379663,
+      "left": 241.29283500675217,
+      "right": 528.9044858652456,
+      "top": 313.8468197517853
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 477.120878653965,
+      "left": 252.61251548024072,
+      "right": 528.6838095887373,
+      "top": 313.4832934576136
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 486.8329731674954,
+      "left": 241.14251563114175,
+      "right": 528.2941893304259,
+      "top": 316.0919864751764
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 484.9004931424582,
+      "left": 243.69554000070403,
+      "right": 529.1343824960492,
+      "top": 315.57448082176
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 472.6025604342862,
+      "left": 240.7913068015475,
+      "right": 530.4916050369893,
+      "top": 312.89160159760144
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 478.36108036718554,
+      "left": 249.69058425729744,
+      "right": 530.4373727821973,
+      "top": 312.15983828129947
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 489.73265903716185,
+      "left": 239.64499766213297,
+      "right": 531.2143188333577,
+      "top": 314.5675956953087
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 487.75758531510337,
+      "left": 241.41160585221948,
+      "right": 532.0545308673561,
+      "top": 314.0817103153292
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 474.8342474163063,
+      "left": 239.4269025930427,
+      "right": 533.3034677597946,
+      "top": 311.8851896941489
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 481.118757873109,
+      "left": 245.5145305508239,
+      "right": 533.3396648359113,
+      "top": 310.6860034303225
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 571.8000030517578,
+      "height": 421.6000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 150.1999969482422
+    },
+    "play": {
+      "bottom": 533,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 489
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 478.1999969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 150.1999969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 383.1809442844515,
+      "left": 243.9052165513411,
+      "right": 509.30190556776967,
+      "top": 229.59664808095505
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 382.8268966972568,
+      "left": 245.9440402434076,
+      "right": 511.5356390210143,
+      "top": 228.83249952023888
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 382.09520789973135,
+      "left": 229.58726193528213,
+      "right": 526.5268564881178,
+      "top": 221.08690250203037
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 381.8280156012195,
+      "left": 249.7218351060812,
+      "right": 519.0769368205029,
+      "top": 224.58992603185345
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 381.4213928308788,
+      "left": 250.82753574176735,
+      "right": 512.4653402616949,
+      "top": 229.9310476117456
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 380.90269395494454,
+      "left": 254.259750362692,
+      "right": 514.8216865646823,
+      "top": 229.18653567965384
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 379.7228432890494,
+      "left": 240.9610052561892,
+      "right": 530.3018646832213,
+      "top": 221.22844403642
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 379.4564237418818,
+      "left": 261.5809276491841,
+      "right": 522.9019350312441,
+      "top": 225.02015278777404
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 379.598870464071,
+      "left": 254.06449895714115,
+      "right": 513.339344008936,
+      "top": 229.28522144555345
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 379.08807940679935,
+      "left": 257.20847345010384,
+      "right": 515.8433956822731,
+      "top": 228.5732282774701
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 378.0571309510712,
+      "left": 244.0956136535987,
+      "right": 531.4481942742024,
+      "top": 221.15803891263852
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 378.1345645609099,
+      "left": 261.3324540719935,
+      "right": 523.1203950984516,
+      "top": 224.36754621344872
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 379.8121544509328,
+      "left": 251.23035232906315,
+      "right": 509.88623929802384,
+      "top": 228.5248801409368
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 380.141199418608,
+      "left": 249.90608787692017,
+      "right": 510.79498990187005,
+      "top": 227.7245253448799
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 380.37284728552254,
+      "left": 232.1250053319526,
+      "right": 524.4453113189203,
+      "top": 220.33884505934893
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 381.259858021176,
+      "left": 241.18422057004975,
+      "right": 513.8546820733213,
+      "top": 223.38214920298816
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 431.31251525878906,
+      "height": 328.63751220703125,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 102.6750030517578
+    },
+    "play": {
+      "bottom": 396.5125122070313,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 352.51251220703125
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 349.27500915527344,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 102.6750030517578
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 302.9050020389362,
+      "left": 157.06453880680942,
+      "right": 342.67926600394424,
+      "top": 194.7131403995625
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 301.7583044014268,
+      "left": 159.7010013179202,
+      "right": 342.95906439126395,
+      "top": 194.34905708401368
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.02509701049047,
+      "left": 157.19664341384473,
+      "right": 343.4740118722349,
+      "top": 192.32233171413205
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 297.50685558968246,
+      "left": 165.9340547593021,
+      "right": 343.5380595502345,
+      "top": 192.1265381561286
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 302.1647234281502,
+      "left": 159.90670801465268,
+      "right": 343.94635045363935,
+      "top": 194.88274468038273
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 301.05575428063224,
+      "left": 162.65794564201556,
+      "right": 344.1330882555922,
+      "top": 194.51165712989172
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 293.4340536697508,
+      "left": 159.91062834733572,
+      "right": 344.50881310297984,
+      "top": 192.46167209054389
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 296.95455503176515,
+      "left": 168.20037954086854,
+      "right": 344.45468341407155,
+      "top": 192.2673883667987
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 303.32032032238914,
+      "left": 157.70003311728684,
+      "right": 345.09276458074726,
+      "top": 193.8866763269442
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 302.17105152833875,
+      "left": 159.95297330872336,
+      "right": 345.30173994286133,
+      "top": 193.538995863875
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.1876695257406,
+      "left": 157.98527848824494,
+      "right": 345.6758968534522,
+      "top": 191.754190496151
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 297.96581206018294,
+      "left": 165.57016747530406,
+      "right": 345.6737483816019,
+      "top": 191.32491435366455
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 305.60035126584876,
+      "left": 154.8817180089153,
+      "right": 346.77267358349127,
+      "top": 192.793391515442
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 304.4101003306182,
+      "left": 156.4806304138256,
+      "right": 346.95914906174755,
+      "top": 192.46935771995987
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.98259486843443,
+      "left": 155.18123369372947,
+      "right": 347.2256955149698,
+      "top": 190.9996001531186
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 300.1373949795134,
+      "left": 160.40535739309087,
+      "right": 347.25871127818846,
+      "top": 190.2740703159268
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 375.7124938964844,
+      "height": 307.0249938964844,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 68.6875
+    },
+    "play": {
+      "bottom": 344.9125061035156,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 300.9125061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 306.2875061035156,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 68.6875
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 428.66431836194096,
+      "left": 116.964381863916,
+      "right": 335.7035203274795,
+      "top": 297.85871465455205
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 427.4483524139205,
+      "left": 121.326820623901,
+      "right": 335.8302682238375,
+      "top": 297.349088508732
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 418.6918276408233,
+      "left": 117.35345209113564,
+      "right": 336.033220391057,
+      "top": 294.66256899449877
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 422.7591503717465,
+      "left": 124.93802844760935,
+      "right": 336.12322390262995,
+      "top": 294.23552815351405
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 428.410253290844,
+      "left": 118.83303403866417,
+      "right": 336.47702227957836,
+      "top": 298.0482632794133
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 427.2098373829425,
+      "left": 123.32099048064562,
+      "right": 336.60000318640704,
+      "top": 297.5359789628774
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 418.4971714298091,
+      "left": 119.12375145661152,
+      "right": 336.72734301723915,
+      "top": 294.8206002121615
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 422.56434400306864,
+      "left": 126.48392913184426,
+      "right": 336.7437086220154,
+      "top": 294.40185176108383
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 430.1422172426912,
+      "left": 113.75888192845196,
+      "right": 337.9317169625598,
+      "top": 296.281142954667
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 428.9059323449,
+      "left": 117.49006993063614,
+      "right": 337.96476113643166,
+      "top": 295.79196617096557
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 419.77541383012874,
+      "left": 114.43534884812269,
+      "right": 337.96787480883734,
+      "top": 293.4609501838064
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 424.1760651021574,
+      "left": 121.0499838967956,
+      "right": 337.99485505227403,
+      "top": 292.6740376534032
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 433.3728761010989,
+      "left": 107.25629001993693,
+      "right": 338.93845996126134,
+      "top": 294.3128618538149
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 432.0941096793298,
+      "left": 110.09940744164275,
+      "right": 338.88813249480194,
+      "top": 293.8591251477848
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 422.4243367515785,
+      "left": 108.31248611153072,
+      "right": 338.73294093965916,
+      "top": 292.0033358911067
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 427.28197517731326,
+      "left": 113.97417755710426,
+      "right": 338.71575733646785,
+      "top": 290.753642756633
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832.0000305175781,
+      "height": 284.8625183105469,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 547.1375122070312
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 539.1375122070312,
+      "height": 407.1375122070313,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.97354738882325,
+      "left": 113.42437113774687,
+      "right": 247.4206226940179,
+      "top": 214.2364981378439
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.94054125047785,
+      "left": 115.4050386692796,
+      "right": 248.32942846911095,
+      "top": 213.6590645584434
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.63558411107607,
+      "left": 107.70617175907128,
+      "right": 256.42116491125967,
+      "top": 209.84032159751703
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.71025748666756,
+      "left": 114.4287161606858,
+      "right": 252.07043371441543,
+      "top": 210.5791309805528
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Shibuya After Dark",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.1159280213025,
+      "left": 112.56231177659622,
+      "right": 246.94880929369592,
+      "top": 214.21366731909615
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.0952346719632,
+      "left": 114.38146239823722,
+      "right": 247.80249492434996,
+      "top": 213.629194419766
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.80965751732805,
+      "left": 106.5281810102458,
+      "right": 255.84176412363385,
+      "top": 209.7977940456748
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 294.93896545255353,
+      "left": 113.13539344024278,
+      "right": 251.37934893345113,
+      "top": 210.5300166676767
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Hidden Leaf Village",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.34637794173267,
+      "left": 108.44609456876026,
+      "right": 244.47974956921007,
+      "top": 213.3980423663405
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.34582798039673,
+      "left": 109.65672328778896,
+      "right": 245.29925244460745,
+      "top": 212.82909454189328
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.1089437825602,
+      "left": 102.12083897069624,
+      "right": 253.4312292307172,
+      "top": 209.17531596422776
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.20503104312803,
+      "left": 108.6823261695212,
+      "right": 248.78405694824565,
+      "top": 209.7661289774689
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "World Tournament",
+    "character": "Shiro"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.6823296632937,
+      "left": 105.07966140763897,
+      "right": 241.22271486391503,
+      "top": 212.78142788191508
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kitsu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.70321281391927,
+      "left": 105.6088164006091,
+      "right": 241.96501597032983,
+      "top": 212.23753853532395
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Kairo"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.51332362229397,
+      "left": 98.26406511638754,
+      "right": 250.07101268553947,
+      "top": 208.84366682115697
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Pomu"
+  },
+  {
+    "characterBounds": {
+      "bottom": 295.5860451763398,
+      "left": 104.74841513675412,
+      "right": 245.2143639718334,
+      "top": 209.23604412353612
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 275.6000061035156,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 352.3999938964844
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 344.40000915527344,
+      "height": 212.40000915527344,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark",
+    "map": "Grand Line Harbor",
+    "character": "Shiro"
+  }
+]

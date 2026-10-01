@@ -1,3 +1,4 @@
+import { simulationProbe } from './simulation-profiler';
 import { ultimateFor, ULTIMATE_COOLDOWN, type UltimateId, type CinematicKind } from "./ultimates";
 
 export type CharacterId = "ember" | "nova" | "cloud" | "eclipse";
@@ -17,7 +18,7 @@ export const CHARACTERS: Character[] = [
   {
     id: "ember",
     name: "Kitsu",
-    title: "THE RESTLESS SPIRIT",
+    title: "SPEED BOOST",
     color: "#ff9352",
     secondary: "#ffc75d",
     power: "Fox Rush",
@@ -29,11 +30,11 @@ export const CHARACTERS: Character[] = [
   {
     id: "nova",
     name: "Kairo",
-    title: "THE STARFORGED FIGHTER",
+    title: "RANGED ATTACK",
     color: "#58caff",
     secondary: "#ffab55",
     power: "Ki Cannon",
-    description: "Charge a forward shot that knocks one rival off course.",
+    description: "Charge for 0.3 seconds, then fire a forward shot that pushes the first opponent it hits. The shot does not directly eliminate them.",
     cooldown: 10,
     duration: 0.3,
     symbol: "星",
@@ -41,7 +42,7 @@ export const CHARACTERS: Character[] = [
   {
     id: "cloud",
     name: "Pomu",
-    title: "THE FREEWIND DREAMER",
+    title: "FAST TURNING",
     color: "#ff697f",
     secondary: "#ffe198",
     power: "Elastic Twist",
@@ -53,7 +54,7 @@ export const CHARACTERS: Character[] = [
   {
     id: "eclipse",
     name: "Shiro",
-    title: "THE INFINITE MYSTIC",
+    title: "AREA SLOW",
     color: "#b698ff",
     secondary: "#dcf0ff",
     power: "Infinity Veil",
@@ -223,6 +224,17 @@ interface BodyPoint extends Point {
   owner: number;
   radius: number;
 }
+interface IndexSnapshot {
+  food: Food[]; foodLength: number; revision: number; indexedRevision: number;
+  points: BodyPoint[]; snakes: { snake: Serpent; mass: number; length: number }[];
+  bodyCells: number; foodCells: number;
+}
+const indexSnapshots = new WeakMap<object, IndexSnapshot>();
+function indexSnapshot(arena: Arena) {
+  let snapshot = indexSnapshots.get(arena);
+  if (!snapshot) { snapshot = {food: arena.food, foodLength: -1, revision: 0, indexedRevision: -1, points: [], snakes: [], bodyCells: -1, foodCells: -1}; indexSnapshots.set(arena, snapshot); }
+  return snapshot;
+}
 const NAMES = [
   "Kitsune",
   "Moonwake",
@@ -283,7 +295,7 @@ export class Arena {
     for (let i = 0; i < this.botCount; i++)
       if (!this.spawnBot(i)) this.pendingBotRespawns.push({ remaining: 0, index: i });
     while (this.food.length < foodTarget) this.spawnFood();
-    this.reindex();
+    this.reindex(true);
     this.assignBounty();
   }
   get player() {
@@ -421,7 +433,7 @@ export class Arena {
     this.snakes[0] = returned;
     this.playerRespawnRemaining = 0;
     this.deathReason = "";
-    this.reindex();
+    this.reindex(true);
     this.events.push({ type: "player-respawn", id: 0, x: returned.x, z: returned.z });
     this.assignBounty();
     return true;
@@ -450,6 +462,7 @@ export class Arena {
     this.assignBounty();
   }
   spawnFood(p?: Point, value = 1, color?: number, source: Food["source"] = p ? "drop" : "natural") {
+    indexSnapshot(this).revision++;
     const a = this.random() * Math.PI * 2,
       r = Math.sqrt(this.random()) * (RADIUS - 4);
     this.food.push({
@@ -461,20 +474,38 @@ export class Arena {
       source,
     });
   }
-  reindex() {
-    this.foodGrid.clear();
-    for (const f of this.food) this.foodGrid.add(f);
-    this.bodyGrid.clear();
-    for (const s of this.snakes)
-      if (s.alive)
-        // Index zero is the head, not a rendered body segment. Head contacts
-        // are handled separately and simultaneously for both participants.
-        for (let i = 1; i < s.body.length; i++)
-          this.bodyGrid.add({
-            ...s.body[i],
-            owner: s.id,
-            radius: bodyHitRadiusAt(i, s.body.length, s.mass),
-          });
+  /** Explicit calls always refresh; internal calls may reuse proven identical snapshots. */
+  reindex(reuse = false) {
+    const cache = indexSnapshot(this);
+    if (!reuse || cache.food !== this.food || cache.foodLength !== this.food.length ||
+      cache.indexedRevision !== cache.revision || cache.foodCells !== this.foodGrid.cells.size) {
+      this.foodGrid.clear();
+      for (const f of this.food) this.foodGrid.add(f);
+      cache.food = this.food; cache.foodLength = this.food.length;
+      cache.indexedRevision = cache.revision; cache.foodCells = this.foodGrid.cells.size;
+    }
+    let unchanged = reuse && cache.bodyCells === this.bodyGrid.cells.size;
+    let snakeIndex = 0, pointIndex = 0;
+    if (unchanged) for (const s of this.snakes) if (s.alive) {
+      const previous = cache.snakes[snakeIndex++];
+      if (!previous || previous.snake !== s || previous.mass !== s.mass || previous.length !== s.body.length) { unchanged = false; break; }
+      for (let i = 1; i < s.body.length; i++) {
+        const point = cache.points[pointIndex++];
+        if (!point || point.x !== s.body[i].x || point.z !== s.body[i].z) { unchanged = false; break; }
+      }
+      if (!unchanged) break;
+    }
+    unchanged &&= snakeIndex === cache.snakes.length && pointIndex === cache.points.length;
+    if (unchanged) return;
+    this.bodyGrid.clear(); cache.points.length = 0; cache.snakes.length = 0;
+    for (const s of this.snakes) if (s.alive) {
+      cache.snakes.push({snake:s,mass:s.mass,length:s.body.length});
+      for (let i = 1; i < s.body.length; i++) {
+        const point = {...s.body[i],owner:s.id,radius:bodyHitRadiusAt(i,s.body.length,s.mass)};
+        cache.points.push(point); this.bodyGrid.add(point);
+      }
+    }
+    cache.bodyCells = this.bodyGrid.cells.size;
   }
   activate(s: Serpent) {
     if (this.cinematic || this.state !== "playing") return false;
@@ -595,7 +626,7 @@ export class Arena {
     }
     this.updateRespawns(playableDt);
     dt = playableDt;
-    this.reindex();
+    this.reindex(true);
     const controls = new Map<number, Input>();
     for (const s of this.snakes) {
       if (!s.alive) continue;
@@ -625,6 +656,8 @@ export class Arena {
     const forced = this.projectiles.length > 0 || this.snakes.some(s => s.knockback);
     const steps = forced ? Math.max(1, Math.ceil((BASE_SPEED * 1.7 + KI_IMPULSE) * dt / 0.2)) : 1;
     const h = dt / steps, consumed = new Set<number>();
+    const profile = simulationProbe(this);
+    if (profile) profile.substeps += steps;
     for (let tick = 0; tick < steps; tick++) {
       this.updateSlows();
       for (const s of this.snakes) {
@@ -655,6 +688,7 @@ export class Arena {
             this.spawnFood(s.body[s.body.length - 1], 1, CHARACTERS.findIndex(c => c.id === s.character), "boost");
           }
         }
+        profile?.enter("food");
         const pickup = 1.55 * serpentScale(s.mass);
         for (const f of this.foodGrid.query(s, pickup)) {
           if (!consumed.has(f.id) && dist2(s, f) < pickup ** 2) {
@@ -670,15 +704,16 @@ export class Arena {
             }
           }
         }
+        profile?.leave();
         this.followBody(s);
       }
-      this.reindex();
+      this.reindex(true);
       this.resolveCollisions();
       if (this.state !== "playing") break;
       this.stepProjectiles(h);
     }
     this.updateSlows();
-    this.food = this.food.filter(f => !consumed.has(f.id));
+    if (consumed.size) this.food = this.food.filter(f => !consumed.has(f.id));
     const removed = this.snakes.filter(s => s.id !== 0 && !s.alive);
     this.snakes = this.snakes.filter(s => s.id === 0 || s.alive);
     if (this.mode !== "practice") for (const s of removed)
@@ -708,12 +743,39 @@ export class Arena {
     s.body.length = length;
   }
   private stepProjectiles(dt: number) {
-    const targets = new SpatialGrid<BodyPoint>(5);
-    for (const s of this.snakes) {
-      if (!s.alive) continue;
-      targets.add({ x: s.x, z: s.z, owner: s.id, radius: HEAD_HIT_RADIUS * serpentScale(s.mass) });
-      for (let i = 1; i < s.body.length; i++) targets.add({ ...s.body[i], owner: s.id, radius: bodyHitRadiusAt(i, s.body.length, s.mass) });
+    // No targets or contacts can be processed without a live projectile.
+    if (!this.projectiles.length) return;
+    // The collision index already contains the exact post-movement body positions.
+    // Merge heads in the original per-cell/per-snake insertion order, excluding deaths.
+    const heads = this.snakes.map(s => s.alive ? {x:s.x,z:s.z,owner:s.id,
+      radius:HEAD_HIT_RADIUS * serpentScale(s.mass),cellX:Math.floor(s.x / 5),cellZ:Math.floor(s.z / 5)} : undefined);
+    const candidates: BodyPoint[] = [];
+    let fallback: SpatialGrid<BodyPoint> | undefined;
+    if (this.bodyGrid.size !== 5) {
+      fallback = new SpatialGrid<BodyPoint>(5);
+      for (let i = 0; i < this.snakes.length; i++) {
+        const s = this.snakes[i]; if (!s.alive) continue;
+        fallback.add(heads[i]!);
+        for (let j = 1; j < s.body.length; j++) fallback.add({...s.body[j],owner:s.id,radius:bodyHitRadiusAt(j,s.body.length,s.mass)});
+      }
     }
+    const query = (point: Point, radius: number) => {
+      if (fallback) return fallback.query(point, radius);
+      candidates.length = 0;
+      for (let x = Math.floor((point.x - radius) / 5); x <= Math.floor((point.x + radius) / 5); x++)
+        for (let z = Math.floor((point.z - radius) / 5); z <= Math.floor((point.z + radius) / 5); z++) {
+          const cell = this.bodyGrid.cells.get(x + ',' + z);
+          let cursor = 0;
+          for (let i = 0; i < this.snakes.length; i++) {
+            const s = this.snakes[i], head = heads[i];
+            if (head && head.cellX === x && head.cellZ === z) candidates.push(head);
+            while (cell && cursor < cell.length && cell[cursor].owner === s.id) {
+              const body = cell[cursor++]; if (s.alive) candidates.push(body);
+            }
+          }
+        }
+      return candidates;
+    };
     const retained: KiProjectile[] = [];
     for (const p of this.projectiles) {
       const vx = Math.cos(p.direction), vz = Math.sin(p.direction);
@@ -724,7 +786,7 @@ export class Arena {
       const travel = Math.min(KI_SPEED * dt, p.remaining, boundary);
       const midpoint = { x: p.x + vx * travel / 2, z: p.z + vz * travel / 2 };
       let hit: BodyPoint | undefined, distance = Infinity;
-      for (const target of targets.query(midpoint, travel / 2 + HEAD_HIT_RADIUS * MAX_SIZE + p.radius)) {
+      for (const target of query(midpoint, travel / 2 + HEAD_HIT_RADIUS * MAX_SIZE + p.radius)) {
         if (target.owner === p.ownerId) continue;
         const dx = target.x - p.x, dz = target.z - p.z;
         const along = dx * vx + dz * vz, radius = target.radius + p.radius;
@@ -876,7 +938,7 @@ export class Arena {
       this.cinematic = undefined;
       if ((this.mode !== "sprint" && this.mode !== "bounty") || this.elapsed < SPRINT_DURATION)
         while (this.food.length < this.foodTarget) this.spawnFood();
-      this.reindex();
+      this.reindex(true);
       this.assignBounty();
     }
   }

@@ -1,0 +1,57 @@
+{
+  "protectedFileCount": 72,
+  "unchanged": 65,
+  "concurrentEdits": [
+    {
+      "path": "src/main.ts",
+      "before": "3BD841993C49CA5C1FE6DCF5659BD1775C027F074812339459A30F09B5A58A21",
+      "after": "95670C832B85D8AAAD0EB0A0CA2E0FEE82248F9F96CDC0D9387D94A93E37E340"
+    },
+    {
+      "path": "src/moonlit.css",
+      "before": "5668EC6788E9632E8373FACEF09E26D76383C29ADDFCB3F078BD88AA90DD42A2",
+      "after": "FDF525E8387DBD6A090C44F09AB36651B96363CD11CA9E87A4746B5C29099D34"
+    },
+    {
+      "path": "src/renderer.ts",
+      "before": "09B66EC04DEDF59262322212C3A94CEDA88720F0934408399AF5EB50B0B8380D",
+      "after": "F48F059E7E73D3EC323E5703ABD5ADC7C0519488A400C0A87DAD857AEB13899F"
+    },
+    {
+      "path": "src/ui.ts",
+      "before": "FDA3DE35B3FCC8D26C94343901C0576B6DEDC4D2867943A4C444AAB441CBC178",
+      "after": "BE04DD2569D036DBC51490DA53061EA4592951A6AC527DA77FA6C5BD0D231456"
+    },
+    {
+      "path": "package.json",
+      "before": "C42ACD6D73D64F0F9899512B615279EBD252D8CC0794DCFD0192E2975BDF0EB9",
+      "after": "137EB3E0FE9421E2A01AFCB3E1E679C64349C2967C048AD0320BD1B672757019"
+    },
+    {
+      "path": "package-lock.json",
+      "before": "8CC464E81F4DF0787B4EE156D0E854F4B8CEBA6DA655CE2835601EC2B1B85FD7",
+      "after": "51E8F458E24194A3484DF05D158224F2F83FD51D96437ED9198ADD8C8845FAD1"
+    },
+    {
+      "path": "index.html",
+      "before": "BD6108AE0E1641FC75537D8DD56AED9A7939C65E4BC7C925713FD8BC5216F878",
+      "after": "846A3329133FE386105E0A8CBB79DFE07224578DDEEDAE7AE65AB15490E0ED11"
+    }
+  ],
+  "liveHeadAndPreviousCandidateAssetsUnchanged": true,
+  "authoritativeSimulationFilesUnchanged": true,
+  "gameSourceEditsFromThisCandidateWork": 0,
+  "versionNote": "Candidate metadata remains 1.7.0-chibi-review. Concurrent local work advanced the actual app package to 1.7.1; preserved.",
+  "tests": {
+    "pass": 335,
+    "fail": 0
+  },
+  "build": "passed; existing large Three.js chunk warning",
+  "diffCheck": "passed",
+  "blenderMcpConnection": {
+    "setupOwnedProcess": 18612,
+    "port": 9876,
+    "stopped": true,
+    "verifiedBy": "No localhost TCP listener after stop_server; Blender remains open"
+  }
+}

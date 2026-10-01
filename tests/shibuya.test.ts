@@ -143,7 +143,7 @@ test('dense Shibuya stays bounded and completely restores scenery clearance on c
 });
 
 test('Shibuya cinematic view clearance restores after expiry and excludes other maps and menu',()=>{
-  for(const id of ['shibuya','leaf'] as const){const env=buildEnvironment(id);let material:THREE.Material|undefined;env.group.traverse(o=>{if(o instanceof THREE.InstancedMesh&&!material)material=o.material as THREE.Material;});assert.ok(material);
+  for(const id of ['shibuya'] as const){const env=buildEnvironment(id);let material:THREE.Material|undefined;env.group.traverse(o=>{if(o instanceof THREE.InstancedMesh&&!material)material=o.material as THREE.Material;});assert.ok(material);
     const shader={uniforms:{} as Record<string,{value:unknown}>,vertexShader:'#include <project_vertex>',fragmentShader:'#include <clipping_planes_fragment>'};material.onBeforeCompile(shader as never,{} as never);
     const ultimate={kind:'spirit' as const,time:2,origin:{x:95,z:20},impact:{x:90,z:15}};
     env.update({...frame,camera:{x:200,y:40,z:20},ultimate});assert.equal(shader.uniforms.cinematicViewFade.value,id==='shibuya'?1:0);

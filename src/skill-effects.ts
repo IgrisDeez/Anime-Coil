@@ -9,7 +9,7 @@ import type { RenderAnchor } from './vfx-anchors';
 import type { DetailProfile } from './worlds/types';
 import { impactStarGeometry, taperedSlashGeometry } from './vfx-geometry';
 
-const BOOST_MAP_COLOR: Record<MapId,string> = { shibuya:'#e1b5fb', leaf:'#d6aa6c', tournament:'#dcc9a4', harbor:'#b9edf2' };
+const BOOST_MAP_COLOR: Record<MapId,string> = { shibuya:'#e1b5fb' };
 type BurstKind = 'activation' | 'launch' | 'impact';
 interface Burst { id: number; x: number; z: number; direction: number; color: string; age: number; kind: BurstKind; character: CharacterId }
 interface Trail { id: number; x: number; z: number; angle: number; color: string; age: number; elastic: boolean; scale: number }
@@ -182,12 +182,12 @@ export class SkillEffects {
       const forwardX = Math.cos(direction), forwardZ = Math.sin(direction);
       const motes=reduced?1:Math.round((boost.enhanced?8:4)*boost.intensity);
       for(let i=0;i<motes;i++) {
-        const phase=(time*(mapId==='leaf'?.55:1.3)+i/Math.max(1,motes))%1;
+        const phase=(time*1.3+i/Math.max(1,motes))%1;
         const spread=(i%2?1:-1)*(.35+(i%3)*.34);
         const x=player.x-forwardX*(1+phase*5)-Math.sin(direction)*spread;
         const z=player.z-forwardZ*(1+phase*5)+Math.cos(direction)*spread;
-        const size=(mapId==='leaf'?.15:.1)*boost.intensity*(1-phase*.65);
-        this.put(this.sparks,x,.25+phase*(mapId==='harbor'?.55:.25),z,size,size,size,BOOST_MAP_COLOR[mapId]);
+        const size=.1*boost.intensity*(1-phase*.65);
+        this.put(this.sparks,x,.25+phase*.25,z,size,size,size,BOOST_MAP_COLOR[mapId]);
       }
     }
     // Capture actual path positions so the effect follows a turn instead of a straight head-relative line.

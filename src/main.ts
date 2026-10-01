@@ -1,3 +1,4 @@
+import { deathDescription, MODE_HINTS } from './game-copy';
 import { removeClasses, setStyle, setClass, setAttribute, setHidden, setDisabled } from './dom-presentation';
 import { SpiritCompass } from './minimap';
 import { MotionPreference, HudMotion, HudLifetime, HUD_MODE_LABELS, UI_ACCENTS, boostKind, boostStatus } from './presentation';
@@ -6,6 +7,7 @@ import { abilityFeedback } from "./ability-feedback";
 import { EliminationStampView } from './elimination-stamps';
 import { SpeedWindView } from './speed-wind';
 import "./style.css";
+import "./moonlit.css";
 import {
   Arena,
   CHARACTERS,
@@ -19,6 +21,8 @@ import {
   type BountyResult,
 } from "./simulation";
 import { GameRenderer } from "./renderer";
+import { kitsuHeads, selectKitsuProfile } from './kitsu-head';
+import { profileFor } from './worlds/types';
 import { AudioEngine } from "./audio";
 import { DEFAULT_AUDIO, loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
 import {
@@ -54,6 +58,11 @@ const hudLifetime = new HudLifetime();
 const hudChanges = new HudChanges();
 let refreshDiagnostics: (now:number)=>void = ()=>{};
 let renderSimulationStep=0;
+let simulationConstructor= Arena, simulationRandom:()=>number=Math.random;
+let simulationBenchmark:ReturnType<typeof import('../tests/simulation-benchmark').installSimulationBenchmark>|undefined;
+async function installSimulationReview(){if(import.meta.env.DEV && new URLSearchParams(location.search).has('simBench')) { const {installSimulationBenchmark}=await import('../tests/simulation-benchmark');
+ simulationBenchmark=installSimulationBenchmark({start:()=>start(),choose,arena:()=>arena,view,constructor:ctor=>simulationConstructor=ctor,random:rng=>simulationRandom=rng,clock:()=>{last=performance.now();}});
+}}
 const deathPresentation = new DeathPresentation();
 const ultimateCues = new UltimateCueTracker();
 const spiritImpact = new SpiritImpactPresentation();
@@ -99,48 +108,14 @@ motionPreference.userReduced = settings.motion === 'reduced';
 let rebinding: Action | undefined;
 let practiceGuide: PracticeGuide | undefined;
 let matchFinalized = false;
-let darkTheme = false;
-try { darkTheme = mapStorage?.getItem("anime-coil-theme-v1") === "dark"; } catch {}
-function applyTheme() {
-  setAttribute(document.documentElement, 'data-theme', darkTheme ? "dark" : "light");
-  const toggle = el<HTMLButtonElement>("theme-toggle");
-  setText(toggle, `Dark mode: ${darkTheme ? "On" : "Off"}`);
-  setAttribute(toggle, "aria-pressed", String(darkTheme));
-}
-applyTheme();
 audio.prefs = loadAudio(mapStorage);
 let selectedMap: MapId = loadMap(mapStorage);
 function chooseMap(id: MapId, persist = true) {
-  const changed = selectedMap !== id;
-  if (changed) spiritImpact.reset();
-  if (changed) foxImpact.reset();
-  if (changed) purpleImpact.reset();
-  if (changed) skybreakerImpact.reset();
   selectedMap = id;
   view.setMap(id);
   compass.setMap(id);
-  const m = getMap(id);
-  document
-    .querySelectorAll<HTMLButtonElement>(".map-card")
-    .forEach((b) =>
-      setAttribute(b, "aria-pressed", String(b.dataset.map === id)),
-    );
-  setText(el("map-preview-name"), m.name);
-
-  if (persist) {
-    if (changed) {
-      hudMotion.reduced = motionPreference.reduced;
-      const image = document.querySelector<HTMLElement>(`.map-card[data-map="${id}"] img`)!;
-      hudMotion.selection(image);
-    }
-    saveMap(id, mapStorage);
-    audio.unlock();
-    audio.play("select");
-  }
+  if (persist) saveMap(id, mapStorage);
 }
-document
-  .querySelectorAll<HTMLButtonElement>(".map-card")
-  .forEach((b) => (b.onclick = () => chooseMap(b.dataset.map as MapId)));
 try {
   best = Math.max(0, Number(localStorage.getItem("anime-coil-best")) || 0);
 } catch {
@@ -153,6 +128,7 @@ function showBest() {
 }
 function chooseMode(mode: 'endless' | 'sprint' | 'bounty') {
   selectedMode = mode;
+  setText(el("mode-description"), MODE_HINTS[mode]);
   document.querySelectorAll<HTMLButtonElement>('.mode-choice').forEach(button =>
     setAttribute(button, 'aria-pressed', String(button.dataset.mode === mode)));
   showBest();
@@ -170,6 +146,7 @@ function clearSkinPreview() {
   view?.setMenuSkinPreview(null);
   setHidden(el('skin-preview-controls'), true);
   removeClasses(el('menu'), 'previewing-skin');
+  view?.updateLobbyViewport();
 }
 function showSkinPreview(id: BodySkinId) {
   const skin = BODY_SKINS.find(item => item.id === id);
@@ -186,6 +163,7 @@ function showSkinPreview(id: BodySkinId) {
   setHidden(el('skin-preview-equip'), !unlocked);
   setHidden(el('skin-preview-controls'), false);
   el('menu').classList.add('previewing-skin');
+  view.updateLobbyViewport();
   el<HTMLDialogElement>('challenges-dialog').close();
 }
 function renderChallenges() {
@@ -320,11 +298,6 @@ document.querySelectorAll(".sound-toggle").forEach((b) =>
   }),
 );
 updateSound();
-el("theme-toggle").addEventListener("click", () => {
-  darkTheme = !darkTheme;
-  applyTheme();
-  try { mapStorage?.setItem("anime-coil-theme-v1", darkTheme ? "dark" : "light"); } catch {}
-});
 for (const channel of ["effects", "voices"] as AudioChannel[]) {
   const slider = el<HTMLInputElement>(`volume-${channel}`);
   slider.value = String(Math.round(audio.prefs[channel] * 100));
@@ -406,7 +379,7 @@ document.querySelectorAll<HTMLButtonElement>('.settings-reset').forEach(button =
   const defaults = defaultSettings();
   clearInput();
   if (button.dataset.section === 'controls') { settings.keys = defaults.keys; settings.touchHand = defaults.touchHand; settings.touchSize = defaults.touchSize; applyTouchSettings(); }
-  if (button.dataset.section === 'appearance') { darkTheme = false; applyTheme(); try { mapStorage?.setItem('anime-coil-theme-v1', 'light'); } catch {} settings.graphics = defaults.graphics; view.setGraphicsChoice(settings.graphics); }
+  if (button.dataset.section === 'appearance') { settings.graphics = defaults.graphics; view.setGraphicsChoice(settings.graphics); }
   if (button.dataset.section === 'accessibility') { settings.motion = defaults.motion; settings.reducedFlashes = defaults.reducedFlashes; settings.cinematicCamera = defaults.cinematicCamera; motionPreference.userReduced = false; view.cinematicCameraEnabled = true; }
   if (button.dataset.section === 'audio') { audio.enabled = DEFAULT_AUDIO.enabled; for (const channel of ['effects', 'voices'] as const) { audio.setVolume(channel, DEFAULT_AUDIO[channel]); el<HTMLInputElement>(`volume-${channel}`).value = String(Math.round(DEFAULT_AUDIO[channel] * 100)); setText(el(`value-${channel}`), `${Math.round(DEFAULT_AUDIO[channel] * 100)}%`); } saveAudio(audio.prefs, mapStorage); updateSound(); }
   saveGameSettings(settings, mapStorage); refreshSettings();
@@ -417,7 +390,7 @@ installSettingsTabs(el<HTMLDialogElement>('settings-dialog'), () => {
   setText(el('binding-note'), 'Key change cancelled.');
   refreshSettings();
 });
-for (const name of ["help", "settings", "credits", "challenges"]) {
+for (const name of ["help", "settings", "credits", "challenges", "character"]) {
   const dialog = el<HTMLDialogElement>(`${name}-dialog`);
   let opener: HTMLElement | undefined;
   document.querySelectorAll<HTMLElement>(`.${name}-open`).forEach(
@@ -463,8 +436,15 @@ function choose(id: CharacterId) {
     );
   setText(el("power-name"), c.power);
   setText(el("hero-name"), c.name);
+  setText(el("hero-description"), c.description);
+  setText(el("character-title"), `${c.name} abilities`);
+  setText(el("ability-cooldown"), `${c.cooldown}s cooldown`);
+  const ultimate = ultimateFor(id);
+  setText(el("ultimate-timing"), `${ultimate.duration}s attack · ${ultimate.cooldown}s cooldown`);
+  setText(el("ultimate-description"), ultimate.description);
   setHidden(el("purple-badge"), false);
   setText(el("ultimate-badge-name"), ultimateFor(id).name);
+  view.updateLobbyViewport();
   applyAccent();
   if (changed) {
     hudMotion.reduced = motionPreference.reduced;
@@ -493,6 +473,7 @@ function updatePracticeGuide() {
   setHidden(el('practice-skip'), practiceGuide.complete);
 }
 function start(mode: MatchMode = selectedMode) {
+  if(!view)return;
   ultimateCues.reset();
   spiritImpact.reset();
   foxImpact.reset();
@@ -500,7 +481,9 @@ function start(mode: MatchMode = selectedMode) {
   skybreakerImpact.reset();
   clearSkinPreview();
   if (arena) finalizeMatch();
-  arena = new Arena(selected, Math.random, 20, 850, mode);
+  arena = new simulationConstructor(selected, simulationBenchmark ? simulationRandom : Math.random, 20, 850, mode);
+  view.profiler.simulation.enabled=view.profiler.enabled;
+  view.profiler.simulation.attach(arena);
   matchFinalized = false;
   sessionStart = progressSnapshot(progression.state);
   finalSummary = undefined;
@@ -555,7 +538,7 @@ function start(mode: MatchMode = selectedMode) {
   audio.resetTransient();
   audio.play("select");
   if (mode === 'practice') { hudLifetime.dismissHint(); setText(el('toast'), ''); removeClasses(el('toast'), 'visible'); setHidden(el('toast'), true); }
-  else showToast("Gather energy. Watch your head!");
+  else showToast("Collect orbs. Avoid other snakes and the arena boundary.");
   updateHUD();
   canvas.focus();
 }
@@ -601,6 +584,7 @@ function menu() {
   finalizeMatch();
   audio.resetTransient();
   screen = "menu";
+  view.profiler.simulation.detach();
   arena = undefined;
   deathPresentation.reset();
   removeClasses(document.body, 'player-dead');
@@ -790,9 +774,9 @@ function updateHUD() {
   const p = arena.player,
     c = CHARACTERS.find((c) => c.id === p.character)!;
   setText(el("score"), (arena.mode === 'bounty' ? arena.bountyPoints : Math.floor(p.mass * 10)).toLocaleString());
-  if (!p.alive) setText(el('respawn-reason'), arena.deathReason);
+  if (!p.alive) setText(el('respawn-reason'), deathDescription(arena.deathReason));
   setText(el("time"), arena.remaining !== undefined ? timeLabel(Math.ceil(arena.remaining)) : timeLabel(arena.elapsed));
-  if (arena.mode === 'bounty') setText(el('bounty-target'), `✦ ${arena.bountyTarget?.name ?? 'New rival arriving…'}`);
+  if (arena.mode === 'bounty') setText(el('bounty-target'), `Target: ${arena.bountyTarget?.name ?? 'Waiting for an opponent'}`);
   const ranking = [...arena.snakes]
     .filter((s) => s.alive)
     .sort((a, b) => b.mass - a.mass);
@@ -816,7 +800,7 @@ function updateHUD() {
   setDisabled(el<HTMLButtonElement>("nuke"), arena.state !== 'playing' || !p.alive || arena.nukeCooldown > 0 || !!arena.cinematic ||
     (arena.mode === 'bounty' && arena.bountyCharge < 100));
   setAttribute(el('nuke'), 'data-state', !p.alive ? 'respawning' : arena.state !== 'playing' ? 'disabled' : arena.cinematic ? 'active' : arena.nukeCooldown > 0 ? 'cooldown' : arena.mode === 'bounty' && arena.bountyCharge < 100 ? 'charging' : 'ready');
-  setText(el("nuke-status"), !p.alive ? 'Respawning…' : arena.cinematic ? "Unleashing…"
+  setText(el("nuke-status"), !p.alive ? 'Respawning…' : arena.cinematic ? "Attacking…"
       : arena.nukeCooldown > 0 ? `${arena.nukeCooldown.toFixed(1)}s` : arena.mode === 'bounty' && arena.bountyCharge < 100 ? `Charge ${arena.bountyCharge}/100` : "Ready");
   setAttribute(el('nuke'), 'aria-label', `${ultimate.name}: ${el('nuke-status').textContent}`);
 
@@ -826,7 +810,7 @@ function updateHUD() {
   setAttribute(boostButton, 'data-state', status);
   setAttribute(boostButton, 'aria-disabled', String(unavailable || !p.alive));
   setAttribute(boostButton, 'aria-label', status === 'respawning' ? 'Boost: respawning' : p.boosting ? 'Boosting' : unavailable ? 'Boost unavailable: need energy' : `Boost: hold ${keyLabel(settings.keys.boost)}`);
-  setText(el('boost-status'), !p.alive ? 'Respawning…' : p.boosting ? 'Rushing' : unavailable ? 'Need energy' : 'Hold');
+  setText(el('boost-status'), !p.alive ? 'Respawning…' : p.boosting ? 'Boosting' : unavailable ? 'Need energy' : 'Hold');
 }
 function updatePresentation() {
   const frame = view.presentation;
@@ -862,8 +846,8 @@ function updatePresentation() {
   setStyle(deathCard, 'transform', `translate(-50%, -50%) translateY(${deathFrame.offsetY}px)`);
   if (deathFrame.secondChanged) {
     const waitingForSpace = deathFrame.dead && deathFrame.seconds === 0;
-    setAttribute(deathCard, 'aria-label', waitingForSpace ? 'Spirit resting. Finding clear space' : 'Spirit resting. Respawn countdown');
-    setText(el('respawn-count-label'), waitingForSpace ? 'Finding clear space' : 'Returning in');
+    setAttribute(deathCard, 'aria-label', waitingForSpace ? 'Waiting for a safe spawn' : `Respawning in ${deathFrame.seconds} ${deathFrame.seconds === 1 ? 'second' : 'seconds'}`);
+    setText(el('respawn-count-label'), waitingForSpace ? 'Waiting for a safe spawn' : 'Respawning in');
     setText(el('respawn-count'), waitingForSpace ? '…' : String(deathFrame.seconds));
     setText(el('respawn-units'), waitingForSpace ? '' : deathFrame.seconds === 1 ? 'second' : 'seconds');
     const count = el('respawn-count');
@@ -871,8 +855,8 @@ function updatePresentation() {
     if (!frame.reducedMotion) { void count.offsetWidth; count.classList.add('tick'); }
   }
   if (deathFrame.fading) {
-    setAttribute(deathCard, 'aria-label', 'Welcome back');
-    setText(el('respawn-count-label'), 'Welcome back');
+    setAttribute(deathCard, 'aria-label', 'Respawned');
+    setText(el('respawn-count-label'), 'Respawned');
     setText(el('respawn-count'), '');
     setText(el('respawn-units'), '');
   }
@@ -928,10 +912,10 @@ function gameOver() {
   hudLifetime.clear(); hudMotion.clear();
   setHidden(el('toast'), true);
   clearInput();
-  setText(el('results-title'), manualRecap ? 'Run recap' : arena.mode === 'practice' ? 'A little more practice?' : arena.mode === 'bounty' && arena.endReason === 'time' ? 'Bounty complete!' : arena.endReason === 'time' ? 'Sprint complete!' : 'One more adventure?');
-  setText(el("death-reason"), manualRecap ? 'Run ended by player.' : arena.deathReason);
+  setText(el('results-title'), manualRecap ? 'Run recap' : arena.mode === 'practice' ? 'Practice complete' : arena.mode === 'bounty' && arena.endReason === 'time' ? 'Bounty Hunt complete' : arena.endReason === 'time' ? 'Sprint complete' : 'Run complete');
+  setText(el("death-reason"), manualRecap ? 'You ended this run.' : deathDescription(arena.deathReason));
   setText(el('result-record'), record ? arena.mode === 'sprint' ? 'New sprint record! ✦' : arena.mode === 'bounty' ? 'New bounty record! ✦' : 'New personal best! ✦' : '');
-  setText(el('result-score-label'), arena.mode === 'bounty' ? 'Bounty points' : 'Best energy');
+  setText(el('result-score-label'), arena.mode === 'bounty' ? 'Bounty points' : 'Peak energy');
   setText(el("result-score"), String(arena.mode === 'bounty' ? arena.bountyPoints : Math.floor(arena.player.peak * 10)));
   setText(el("result-time"), timeLabel(arena.elapsed));
   setText(el("result-kills"), String(arena.player.kills));
@@ -947,7 +931,7 @@ function gameOver() {
 function frame(now: number) {
   view.profiler.beginFrame();
   const simulationStamp=view.profiler.stamp();
-  const dt = Math.min((now - last) / 1000, 0.1);
+  const dt = simulationBenchmark?.delta(Math.min((now - last) / 1000, 0.1)) ?? Math.min((now - last) / 1000, 0.1);
   last = now;
   accumulator += dt;
   if (arena?.state === "playing") {
@@ -958,28 +942,42 @@ function frame(now: number) {
           ? arena.player.angle
           : view.steering(mouse.x, mouse.y, arena));
       const beforeElapsed = arena.elapsed;
-      arena.step(STEP, {
+      arena.step(STEP, simulationBenchmark?.running ? simulationBenchmark.input() : {
         angle,
         boost: boostKey || boostPointer,
         ability: abilityQueued,
         nuke: arena.mode !== 'practice' && nukeQueued,
       });
+      simulationBenchmark?.afterTick();
       renderSimulationStep++;
       abilityQueued = false;
       nukeQueued = false;
       accumulator -= STEP;
       skillVisualRemaining = Math.max(0, skillVisualRemaining - STEP);
       if (!skillVisualRemaining) clearSkillVisual();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-compass');
       compass.state.sync(arena);
       compass.targetId = arena.bountyTargetId;
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-progression');
       progression.recordStep(arena.events, Math.max(0, arena.elapsed - beforeElapsed), arena.player.alive);
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-unlocks');
       if (arena.mode !== 'practice' && (Math.floor(arena.elapsed) !== Math.floor(beforeElapsed) ||
         arena.events.some(event => event.type === 'collect' || event.type === 'player-elimination')))
         unlockNotices.add(sessionSummary(arena.mode, sessionStart, progressSnapshot(progression.state)).unlocks);
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-practice');
       if (practiceGuide) { practiceGuide.update(STEP, arena.player, arena.events); updatePracticeGuide(); }
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-effects');
       view.handleEvents(arena.events, arena);
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-stamps');
       const eliminations = eliminationStamps.ingest(arena.events);
       if (eliminations && !arena.cinematic) audio.elimination(eliminations);
+      view.profiler.simulation.leave();
+      if(view.profiler.enabled)view.profiler.simulation.enter('events-audio');
       for (const event of arena.events) {
         if (event.type === 'player-elimination') continue;
         if (event.type === 'player-respawn') { audio.play('respawn'); continue; }
@@ -992,7 +990,7 @@ function frame(now: number) {
             boostKey = false;
             boostPointer = false;
             audio.stopBoost(true);
-            if (event.killerName) arena.deathReason = `${event.reason ?? 'Your spirit fell.'} ${event.killerName} was involved.`;
+            if (event.killerName) arena.deathReason = `${event.reason ?? 'You crashed.'} Opponent: ${event.killerName}.`;
             deathContactPoint.x = event.x; deathContactPoint.z = event.z;
             deathContactRemaining = .7;
           }
@@ -1008,12 +1006,15 @@ function frame(now: number) {
           }
         }
       }
+      view.profiler.simulation.leave();
+      if(view.profiler.simulation.enabled)view.profiler.simulation.events+=arena.events.length;
       if (arena.endReason) {
         gameOver();
         break;
       }
     }
   } else accumulator = 0;
+  if(view.profiler.simulation.enabled)view.profiler.simulation.backlogMs=accumulator*1000;
   const shot = arena?.cinematic;
   view.profiler.finish('simulation',simulationStamp);
   const beforeRenderDomStamp=view.profiler.stamp();
@@ -1104,12 +1105,28 @@ function frame(now: number) {
   }
   view.profiler.finish('dom',afterRenderDomStamp);
   view.profiler.endFrame();
+  simulationBenchmark?.afterFrame();
   refreshDiagnostics(now);
   requestAnimationFrame(frame);
 }
-try {
+async function initializeRenderer() {
+ const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading Kitsu’s model…';
+
+ document.body.append(feedback);el('menu').inert=true;
+ const profile=settings.graphics==='auto'?profileFor(innerWidth,matchMedia('(pointer:coarse)').matches):settings.graphics==='low'?'mobile':'desktop';
+ selectKitsuProfile(profile);
+ const ready=await kitsuHeads.preload(profile);
+ feedback.textContent=ready?'Kitsu’s model ready.':'Kitsu’s model unavailable. Using the original head.';
+ if(ready)feedback.remove();else setTimeout(()=>feedback.remove(),6000);
+ el('menu').inert=false;
+ try {
   applyAccent();
-  view = new GameRenderer(canvas);
+  view = new GameRenderer(canvas, settings.graphics);
+  view.onHeadProfileLoad=(loading,ready)=>{
+    feedback.textContent=loading?'Loading Kitsu’s character model…':ready?'Kitsu’s model ready.':'Kitsu’s model unavailable. Using the original head.';
+    if(loading||!ready){if(!feedback.isConnected)document.body.append(feedback);}else feedback.remove();
+    if(!loading){const images=view.portraits();CHARACTERS.forEach((c,i)=>(el<HTMLImageElement>(`portrait-${c.id}`).src=images[i]));if(!ready)setTimeout(()=>feedback.remove(),6000);}
+  };
   view.cinematicCameraEnabled = settings.cinematicCamera;
   view.setGraphicsChoice(settings.graphics);
   applyCosmetics();
@@ -1122,11 +1139,14 @@ try {
     (c, i) => (el<HTMLImageElement>(`portrait-${c.id}`).src = portraits[i]),
   );
   refreshDiagnostics=installWorldDiagnostics(view,()=>screen, id=>chooseMap(id,false), reduced => { motionPreference.previewReduced = reduced; });
+  await installSimulationReview();
   requestAnimationFrame(frame);
 } catch (error) {
   console.error("WebGL initialization failed", error);
   setHidden(el("fatal"), false);
 }
+}
+void initializeRenderer();
 canvas.addEventListener("webglcontextlost", (e) => {
   e.preventDefault();
   pause();
@@ -1137,3 +1157,9 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
   view?.disposeCinematics();
   motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear(); eliminationStamps.dispose();
 });
+
+// Read lobby geometry only on scrolling and resizing.
+const updateLobbyViewport = () => view?.updateLobbyViewport();
+void document.fonts.ready.then(updateLobbyViewport);
+el("menu").addEventListener("scroll", updateLobbyViewport, { passive: true });
+if (import.meta.hot) import.meta.hot.dispose(() => el("menu").removeEventListener("scroll", updateLobbyViewport));

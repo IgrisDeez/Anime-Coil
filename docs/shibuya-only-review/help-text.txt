@@ -1,0 +1,64 @@
+- generic "3D snake arena"
+- main:
+  - text: animecoil
+  - generic: MOONLIT ARENA · v1.7.3
+  - navigation "Game tools":
+    - button "Challenges and cosmetics": ✦
+    - button "How to play": "?"
+    - button "Settings":
+  - complementary "Choose a character":
+    - generic: CHARACTERS
+    - heading "Choose a character" [level=1]
+    - group "Choose a character":
+      - button "Select Kitsu" [pressed]:
+        - generic: Kitsu
+        - generic: ✓
+      - button "Select Kairo":
+        - generic: Kairo
+      - button "Select Pomu":
+        - generic: Pomu
+      - button "Select Shiro":
+        - generic: Shiro
+  - region "Selected character 3D showcase"
+  - heading "Kitsu" [level=2]
+  - button "Details"
+  - heading "Arena" [level=3]
+  - 'region "Arena: Shibuya"':
+    - generic: Shibuya
+  - heading "Match mode" [level=3]
+  - group "Match mode":
+    - button "Endless"
+    - button "3-Min Sprint"
+    - button "Bounty Hunt" [pressed]
+  - paragraph: 3 minutes · Earn bounty points
+  - button "Play":
+    - text: Play
+    - generic: ↗
+  - generic: ✦
+  - generic: Bounty record
+  - generic: "0"
+- text: Steer
+- dialog "How to play":
+  - generic: "?"
+  - heading "How to play" [level=2]
+  - button "Close help": ×
+  - paragraph: Collect energy orbs to grow your snake. Avoid other snakes’ heads and bodies and stay inside the arena boundary. You can cross your own body safely. Move the mouse to steer, or use the joystick on touch screens.
+  - generic: Mouse
+  - generic: Steer
+  - generic: Space
+  - generic: / click Boost · spends energy
+  - generic: E
+  - generic: / right-click · Use skill
+  - generic: V
+  - generic: Use ultimate
+  - generic: Esc
+  - generic: Pause
+  - paragraph: Normal Boost moves you 70% faster and spends 24 energy per second. It stops at minimum energy. On touch screens, steer with the joystick and tap the ability buttons.
+  - button "Try guided practice"
+  - generic "Match modes −" [active]
+  - paragraph: Endless. Play without a time limit. Collect orbs to grow and compete for the highest energy. After a crash, respawn in 3 seconds if there is clear space.
+  - paragraph: 3-Min Sprint. Play for 3 minutes. Your record uses your highest energy, then eliminations and time played to break ties. Crashes reset your size; you respawn while time remains.
+  - paragraph: Bounty Hunt. Play for 3 minutes. Natural orbs earn 1 point and 1 ultimate charge. Direct eliminations earn 100 points and 20 charge; eliminating the marked target adds 200 points and 15 charge. Ultimates require 100 charge and a ready cooldown. Ultimate eliminations earn no points or charge. Crashing halves your charge; you respawn while time remains.
+  - paragraph: Practice. Practice steering, collecting orbs, boosting, and using your skill without opponents. Practice does not count toward records or challenges.
+  - generic "Character skills +"
+  - generic "Ultimates +"

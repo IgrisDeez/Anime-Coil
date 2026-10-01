@@ -1,3 +1,4 @@
+import { SimulationProfiler } from './simulation-profiler';
 /** Opt-in, local CPU measurements. No timers, telemetry, or unbounded sample arrays. */
 export const CPU_STAGES = ['simulation', 'snakes', 'food', 'effects', 'environment', 'submit', 'dom'] as const;
 export type CpuStage = typeof CPU_STAGES[number];
@@ -12,6 +13,7 @@ export function distribution(values: readonly number[]) {
   return {median: sorted[Math.floor(sorted.length*.5)] ?? 0, p95: sorted[Math.min(sorted.length-1,Math.floor(sorted.length*.95))] ?? 0, samples:sorted.length};
 }
 export class FrameProfiler {
+  readonly simulation = new SimulationProfiler();
   enabled = false;
   inFrame = false;
   private start = 0;
@@ -25,7 +27,7 @@ export class FrameProfiler {
   rafMs = 0;
   beginFrame() {
     if (!this.enabled) return;
-    this.start=performance.now();this.elapsed.fill(0);this.inFrame=true;
+    this.start=performance.now();this.elapsed.fill(0);this.inFrame=true;this.simulation.enabled=this.enabled&&this.simulation.detailEnabled;this.simulation.beginFrame();
     this.counts.matrices=this.counts.updatedInstances=this.counts.dirtyRanges=this.counts.uploadBytes=0;
   }
   stamp() { return this.enabled ? performance.now() : 0; }
@@ -33,6 +35,7 @@ export class FrameProfiler {
   endFrame() {
     if (!this.enabled || !this.inFrame) return;
     const offset=this.cursor*(CPU_STAGES.length+9);
+    this.simulation.endFrame();
     this.data[offset]=performance.now()-this.start;this.data[offset+1]=this.rafMs;
     for(let i=0;i<this.elapsed.length;i++)this.data[offset+2+i]=this.elapsed[i];
     const extra=offset+CPU_STAGES.length+2;
@@ -41,15 +44,15 @@ export class FrameProfiler {
     this.phases[this.cursor]=this.phase==='normal'?0:this.phase==='cinematic-charge'?1:2;
     this.cursor=(this.cursor+1)%8192;this.count=Math.min(8192,this.count+1);this.inFrame=false;
   }
-  reset() {this.cursor=this.count=0;this.inFrame=false;}
+  reset() {this.cursor=this.count=0;this.inFrame=false;this.simulation.reset();}
   snapshot() {
     const describe=(phase?:number,population?:number)=>{const columns=Array.from({length:CPU_STAGES.length+9},()=>[] as number[]);
       for(let i=0;i<this.count;i++){if(phase!==undefined&&this.phases[i]!==phase)continue;if(population!==undefined&&this.data[i*(CPU_STAGES.length+9)+CPU_STAGES.length+6]!==population)continue;for(let k=0;k<columns.length;k++)columns[k].push(this.data[i*columns.length+k]);}
-      const raf=distribution(columns[1]);return {cpuMs:distribution(columns[0]),rafMs:raf,fps:columns[1].length&&columns[1].reduce((n,v)=>n+v,0)>0?1000*columns[1].length/columns[1].reduce((n,v)=>n+v,0):0,
+      const raf=distribution(columns[1]);const latency=(values:number[])=>({worst:values.length?Math.max(...values):0,above16_7:values.filter(v=>v>16.7).length,above25:values.filter(v=>v>25).length,above33_3:values.filter(v=>v>33.3).length});return {cpuLatency:latency(columns[0]),rafLatency:latency(columns[1]),cpuMs:distribution(columns[0]),rafMs:raf,fps:columns[1].length&&columns[1].reduce((n,v)=>n+v,0)>0?1000*columns[1].length/columns[1].reduce((n,v)=>n+v,0):0,
         stages:Object.fromEntries(CPU_STAGES.map((key,i)=>[key,distribution(columns[i+2])])),uploadBytesPerFrame:distribution(columns[CPU_STAGES.length+2]),
         instanceWork:Object.fromEntries(['matrices','updatedInstances','dirtyRanges'].map((key,i)=>[key,distribution(columns[CPU_STAGES.length+3+i])])),
         populationRange:Object.fromEntries(['snakes','segments','food'].map((key,i)=>{const values=columns[CPU_STAGES.length+6+i];return [key,{min:values.length?Math.min(...values):0,max:values.length?Math.max(...values):0}];}))};};
-    return {enabled:this.enabled,instanceCounterScope:'snake body, outline, shadow, ownership and food; whole-scene GL uploads measured separately',...describe(),phases:{normal:describe(0),charge:describe(1),recovery:describe(2)},ordinary21:describe(0,21),...this.counts};
+    return {simulation:this.simulation.snapshot(),enabled:this.enabled,instanceCounterScope:'snake body, outline, shadow, ownership and food; whole-scene GL uploads measured separately',...describe(),phases:{normal:describe(0),charge:describe(1),recovery:describe(2)},ordinary21:describe(0,21),...this.counts};
   }
 }
 

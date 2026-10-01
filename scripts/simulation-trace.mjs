@@ -1,0 +1,15 @@
+import fs from 'node:fs/promises';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+const [label='baseline',port='4176',out='../v168-review']=process.argv.slice(2);
+const replay=JSON.parse(await fs.readFile(out+'/baseline-ordinary.json','utf8'));
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
+try {const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:2});const page=await context.newPage();await page.goto('http://127.0.0.1:'+port+'/?perfDebug&simBench');await page.waitForFunction(()=>!!window.simPerf);await page.waitForTimeout(10000);await page.evaluate(b=>simPerf.reset('ordinary',b),label.startsWith('baseline'));await page.evaluate(s=>simPerf.run(600,s,true),replay.warm.deltas);
+ const cdp=await context.newCDPSession(page);await cdp.send('Profiler.enable');await cdp.send('HeapProfiler.enable');await cdp.send('Profiler.start');await cdp.send('HeapProfiler.startSampling',{samplingInterval:32768,includeObjectsCollectedByMajorGC:true,includeObjectsCollectedByMinorGC:true});await cdp.send('Tracing.start',{categories:'devtools.timeline,v8,disabled-by-default-v8.gc',transferMode:'ReturnAsStream'});
+ await page.evaluate(s=>simPerf.run(1800,s),replay.reports[0].deltas);
+ const cpu=await cdp.send('Profiler.stop'),heap=await cdp.send('HeapProfiler.stopSampling');const completed=new Promise(r=>cdp.once('Tracing.tracingComplete',r));await cdp.send('Tracing.end');const {stream}=await completed;let trace='';for(;;){const r=await cdp.send('IO.read',{handle:stream});trace+=r.data;if(r.eof)break;}await cdp.send('IO.close',{handle:stream});
+ await fs.writeFile(out+'/'+label+'-cpu.cpuprofile',JSON.stringify(cpu.profile));await fs.writeFile(out+'/'+label+'-heap.json',JSON.stringify(heap.profile));await fs.writeFile(out+'/'+label+'-trace.json',trace);
+ const allocations=new Map();const walk=n=>{const key=n.callFrame.functionName+' @ '+n.callFrame.url;allocations.set(key,(allocations.get(key)||0)+n.selfSize);n.children.forEach(walk);};walk(heap.profile.head);
+ const events=JSON.parse(trace).traceEvents.filter(e=>e.ph==='X'&&['MinorGC','MajorGC'].includes(e.name));const gc={count:events.length,totalMs:events.reduce((n,e)=>n+(e.dur||0)/1000,0),worstMs:Math.max(0,...events.map(e=>(e.dur||0)/1000)),names:[...new Set(events.map(e=>e.name))]};
+ const costs=new Map(),nodes=new Map(cpu.profile.nodes.map(n=>[n.id,n]));for(let i=0;i<(cpu.profile.samples||[]).length;i++){const f=nodes.get(cpu.profile.samples[i]).callFrame,key=f.functionName+' @ '+f.url;costs.set(key,(costs.get(key)||0)+(cpu.profile.timeDeltas[i]||0));}
+ const summary={instrumentedTraceOnly:true,gc,sampledAllocationBytes:[...allocations].sort((a,b)=>b[1]-a[1]).slice(0,25),sampledCpuUs:[...costs].sort((a,b)=>b[1]-a[1]).slice(0,25)};await fs.writeFile(out+'/'+label+'-trace-summary.json',JSON.stringify(summary,null,2));console.log(JSON.stringify(summary,null,2));
+}finally {await browser.close();}

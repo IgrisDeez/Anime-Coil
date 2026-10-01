@@ -44,6 +44,6 @@ test('practice measures each step only while it is active', () => {
 test('practice prompts show the selected E skill and rebound key', () => {
   const guide = new PracticeGuide('nova');
   guide.skip(); guide.skip(); guide.skip();
-  assert.match(guide.detailForKey('R', false), /Ki Cannon: press R/);
-  assert.match(guide.detailForKey('R', true), /Ki Cannon: tap Skill/);
+  assert.match(guide.detailForKey('R', false), /Press R or click Ki Cannon/);
+  assert.match(guide.detailForKey('R', true), /Tap Ki Cannon/);
 });

@@ -1,0 +1,11 @@
+{
+  "heads": 25,
+  "food": 1,
+  "environment": 24,
+  "body": 2,
+  "outline": 2,
+  "ownership": 1,
+  "shadow": 2,
+  "aura": 1,
+  "ordinary-scene": 2
+}

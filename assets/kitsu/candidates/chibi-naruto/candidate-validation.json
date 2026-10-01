@@ -1,0 +1,152 @@
+{
+  "status": "Separate review candidate; integration awaits visual approval",
+  "profiles": [
+    {
+      "profile": "desktop",
+      "triangles": 5507,
+      "trianglesWithCoil": 5859,
+      "headDrawsWithCoil": 12,
+      "outlineDraws": 1,
+      "geometryCount": 11,
+      "materialCount": 11,
+      "bytes": 124944,
+      "batches": {
+        "EyeWhites": 288,
+        "Highlights": 112,
+        "Iris": 168,
+        "Pupils": 632,
+        "CheekMarks": 468,
+        "Details": 242,
+        "Fabric": 932,
+        "Hair": 790,
+        "Metal": 196,
+        "Mouth": 90,
+        "Skin": 1589
+      },
+      "bounds": {
+        "min": [
+          -1.2200000286102295,
+          0.739986889064312,
+          -1.0809999704360962
+        ],
+        "max": [
+          1.2200000286102295,
+          2.7800000831484795,
+          0.8624433279037476
+        ]
+      },
+      "eyeDepthMin": -0.011652315966800275,
+      "eyeDepthMax": 0.024593044081461235,
+      "eyeBounds": [
+        {
+          "size": [
+            0.439999982714653,
+            0.3389691114425659,
+            0.160849928855896
+          ],
+          "center": [
+            -0.35999999195337296,
+            -0.0006820559501647949,
+            0.7001671195030212
+          ]
+        },
+        {
+          "size": [
+            0.439999982714653,
+            0.3389691114425659,
+            0.160849928855896
+          ],
+          "center": [
+            0.35999999195337296,
+            -0.0006820559501647949,
+            0.7001671195030212
+          ]
+        }
+      ]
+    },
+    {
+      "profile": "mobile",
+      "triangles": 3597,
+      "trianglesWithCoil": 3949,
+      "headDrawsWithCoil": 12,
+      "outlineDraws": 1,
+      "geometryCount": 11,
+      "materialCount": 11,
+      "bytes": 90292,
+      "batches": {
+        "EyeWhites": 176,
+        "Highlights": 68,
+        "Iris": 88,
+        "Pupils": 332,
+        "CheekMarks": 228,
+        "Details": 104,
+        "Fabric": 932,
+        "Hair": 790,
+        "Metal": 138,
+        "Mouth": 44,
+        "Skin": 697
+      },
+      "bounds": {
+        "min": [
+          -1.2200000286102295,
+          0.7403617426753044,
+          -1.0809999704360962
+        ],
+        "max": [
+          1.2200000286102295,
+          2.7800000831484795,
+          0.8625147938728333
+        ]
+      },
+      "eyeDepthMin": -0.01258603003622949,
+      "eyeDepthMax": 0.028024398370877446,
+      "eyeBounds": [
+        {
+          "size": [
+            0.439999982714653,
+            0.3389691114425659,
+            0.160849928855896
+          ],
+          "center": [
+            -0.35999999195337296,
+            -0.0006820559501647949,
+            0.7001671195030212
+          ]
+        },
+        {
+          "size": [
+            0.439999982714653,
+            0.3389691114425659,
+            0.160849928855896
+          ],
+          "center": [
+            0.35999999195337296,
+            -0.0006820559501647949,
+            0.7001671195030212
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "required nodes and eleven material batches",
+    "four independently cloned eye batches at 1.28 Y",
+    "Y up, +Z forward",
+    "original origin and 0.12 Y mount",
+    "finite positions and unit normals",
+    "no zero-area triangles",
+    "applied mesh transforms; no cameras/lights/skins/animation",
+    "desktop/mobile budgets including 352-triangle existing coil",
+    "eye dimensions and centers; shallow embedding",
+    "15 authored hair locks retained in both profiles",
+    "balanced facial and hair silhouette",
+    "clone geometry/material sharing",
+    "independent eye pivot transforms",
+    "removing clones does not dispose shared resources; owner disposes once"
+  ],
+  "limitations": [
+    "Add Iris palette entry and four-child eye schema only after approval. Existing live cache remains unchanged.",
+    "Side and rear interpretation use the original four-view reference; exact unseen Naruto anatomy is inferred.",
+    "Game load-failure, profile cache/switches, cinematic recovery, maps, crowds, CPU comparison and physical-phone review of this candidate await integration approval."
+  ]
+}

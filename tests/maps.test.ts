@@ -1,15 +1,28 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as THREE from "three";
-import { MAPS, loadMap, saveMap, type MapStorage } from "../src/maps.ts";
+import { MAPS, loadMap, saveMap, type MapStorage, type MapId } from "../src/maps.ts";
 import { buildEnvironment } from "../src/environments.ts";
 import { RADIUS } from "../src/simulation.ts";
 
-test("four unique map choices with Shibuya as the initial and invalid-value fallback", () => {
-  assert.equal(MAPS.length, 4);
-  assert.equal(new Set(MAPS.map((m) => m.id)).size, 4);
+test("one arena with Shibuya as the initial and invalid-value fallback", () => {
+  assert.equal(MAPS.length, 1);
+  assert.equal(new Set(MAPS.map((m) => m.id)).size, 1);
   assert.equal(loadMap(), "shibuya");
   assert.equal(loadMap({ getItem: () => "old-map", setItem() {} }), "shibuya");
+});
+test('retired and invalid saved maps migrate only the map preference', () => {
+  for (const saved of ['leaf', 'tournament', 'harbor', 'invalid', 'shibuya', null]) {
+    const writes: [string, string][] = [];
+    const storage = { getItem: () => saved, setItem: (key: string, value: string) => writes.push([key, value]) };
+    assert.equal(loadMap(storage), 'shibuya');
+    assert.deepEqual(writes, saved && saved !== 'shibuya' ? [['anime-coil-map', 'shibuya']] : []);
+  }
+  assert.equal(loadMap({ getItem: () => 'leaf', setItem() { throw Error('write blocked'); } }), 'shibuya');
+});
+test('environment creation rejects retired and invalid runtime IDs', () => {
+  for (const id of ['leaf', 'tournament', 'harbor', 'invalid'])
+    assert.throws(() => buildEnvironment(id as MapId), /Unsupported arena/);
 });
 test("each map preference roundtrips; unavailable storage does not block play", () => {
   let value: string | null = null;
@@ -32,7 +45,7 @@ test("each map preference roundtrips; unavailable storage does not block play", 
     },
   };
   assert.equal(loadMap(denied), "shibuya");
-  assert.doesNotThrow(() => saveMap("harbor", denied));
+  assert.doesNotThrow(() => saveMap("shibuya", denied));
 });
 for (const def of MAPS) {
   test(`${def.name}: all landmarks stay outside the playable disk`, () => {

@@ -1,0 +1,17 @@
+{
+  "calls": 5,
+  "bytes": 12480,
+  "counts": {
+    "calls": 63,
+    "triangles": 65920,
+    "snakes": 21,
+    "segments": 987,
+    "visibleSegments": 94,
+    "food": 850,
+    "dpr": 1,
+    "matrices": 2002,
+    "updatedInstances": 1981,
+    "dirtyRanges": 43,
+    "uploadBytes": 126784
+  }
+}

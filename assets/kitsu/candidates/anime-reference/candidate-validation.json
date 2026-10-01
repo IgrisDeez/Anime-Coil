@@ -1,0 +1,69 @@
+{
+  "status": "Staged candidate checks passed; game integration awaits visual approval",
+  "profiles": [
+    {
+      "profile": "desktop",
+      "triangles": 5134,
+      "trianglesWithCoil": 5486,
+      "headDrawsWithCoil": 12,
+      "outlineDraws": 1,
+      "geometryCount": 11,
+      "materialCount": 11,
+      "bytes": 126156,
+      "bounds": {
+        "min": [
+          -1.1556999683380127,
+          0.7200000211596489,
+          -1.1200000047683716
+        ],
+        "max": [
+          1.1556999683380127,
+          3.0519498512148857,
+          0.7683975696563721
+        ]
+      },
+      "eyeDepthMin": 0.0013046608858506836,
+      "eyeDepthMax": 0.011915952097379057
+    },
+    {
+      "profile": "mobile",
+      "triangles": 3535,
+      "trianglesWithCoil": 3887,
+      "headDrawsWithCoil": 12,
+      "outlineDraws": 1,
+      "geometryCount": 11,
+      "materialCount": 11,
+      "bytes": 95588,
+      "bounds": {
+        "min": [
+          -1.1556999683380127,
+          0.7199936434626579,
+          -1.1200000047683716
+        ],
+        "max": [
+          1.1556999683380127,
+          3.0519498512148857,
+          0.7354931831359863
+        ]
+      },
+      "eyeDepthMin": 0.002106470619220202,
+      "eyeDepthMax": 0.011983008354083058
+    }
+  ],
+  "checks": [
+    "required nodes and eleven material batches",
+    "Y up, +Z forward",
+    "original origin and 0.12 Y mount",
+    "finite positions and unit normals",
+    "no zero-area triangles",
+    "desktop/mobile budgets including existing coil",
+    "shallow embedded eyes",
+    "clone geometry/material sharing",
+    "independent eye pivot transforms",
+    "removing clones does not dispose resources"
+  ],
+  "limitations": [
+    "Game palette, eye-pivot schema and bounds validation need updating after approval.",
+    "No new game load-failure, profile-cache, cinematic, map, crowd, CPU or phone validation: candidate is not integrated."
+  ]
+}

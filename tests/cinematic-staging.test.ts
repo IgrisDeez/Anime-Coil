@@ -37,7 +37,7 @@ test('scenery clearance composes existing shaders, supports instancing and exclu
   clearance.update();assert.equal(clearance.intensity.value,0);material.dispose();
 });
 test('map clearance restores even when a restart arrives while paused',()=>{
-  for(const map of ['shibuya','leaf','tournament','harbor'] as const){
+  for(const map of ['shibuya'] as const){
     const env=buildEnvironment(map,'mobile'),frame:any={time:1,dt:0,camera:{x:0,z:0},focus:{x:0,z:0},mode:'game',paused:false,reducedMotion:false,ultimate:{kind:'fox',time:1,origin:{x:100,z:0},impact:{x:97,z:0}},summonClearance:{min:{x:110,y:0,z:-25},max:{x:150,y:40,z:25}}};
     env.update(frame);let uniform:any;env.group.traverse(o=>{if(o instanceof THREE.Mesh&&!uniform){const shader:any={uniforms:{},vertexShader:'#include <begin_vertex>\n#include <project_vertex>',fragmentShader:'#include <clipping_planes_fragment>\n#include <opaque_fragment>\n#include <map_fragment>'};(o.material as THREE.Material).onBeforeCompile(shader,null as any);uniform=shader.uniforms.summonFade;}});
     assert.equal(uniform.value,1);env.update({...frame,paused:true,ultimate:undefined,summonClearance:undefined});assert.equal(uniform.value,0);env.dispose();

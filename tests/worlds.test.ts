@@ -22,33 +22,11 @@ test('forty repeated map constructions retain bounded resources and dispose clea
     world.update(frame);
     world.dispose(); world.dispose();
   }
-  assert.equal(baseline.size, 8);
-});
-test("Harbor water shader has a valid generated shoreline radius",()=>{
-  const world=buildEnvironment("harbor","desktop");
-  const ocean=world.group.getObjectByName("ocean") as THREE.Mesh<THREE.BufferGeometry,THREE.ShaderMaterial>;
-  assert.ok(ocean);
-  assert.match(ocean.material.fragmentShader,/length\(location\.xz\)-126\.5\)/);
-  assert.doesNotMatch(ocean.material.fragmentShader,/\d+\.\d+\./);
-  world.dispose();
-});
-test("Hidden Leaf bridges face radially, span both banks, and overlap their road endpoints",()=>{
-  const world=buildEnvironment("leaf","desktop");
-  for(let i=0;i<4;i++){
-    const bridge=world.landmarks.find(g=>g.name===`canal-bridge-${i}`)!;
-    const bounds=new THREE.Box3().setFromObject(bridge),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
-    const a=i*Math.PI/2;
-    assert.ok(size.x>30||size.z>30,"deck's long axis follows the canal radius");
-    assert.ok(size.x>15&&size.z>15,"walking width and bank span are both present");
-    const radialLength=Math.abs(Math.cos(a))*size.x+Math.abs(Math.sin(a))*size.z;
-    assert.ok(radialLength>30,"deck spans the water plus both banks");
-    assert.ok(Math.hypot(center.x,center.z)>125&&Math.hypot(center.x,center.z)<155);
-  }
-  world.dispose();
+  assert.equal(baseline.size, 2);
 });
 test("background actor pools are bounded, deterministic, outside the arena, and static in reduced motion",()=>{
-  const safeRadius:Record<string,number>={shibuya:127,leaf:127,tournament:127,harbor:127};
-  for(const id of ["shibuya","leaf","tournament","harbor"] as const){
+  const safeRadius:Record<string,number>={shibuya:127};
+  for(const id of ["shibuya"] as const){
     const world=buildEnvironment(id,"desktop"),group=world.group.getObjectByName(`${id}-background-actors`)!;
     assert.ok(world.stats.actors<=32);
     const actors=group.children.filter((o):o is THREE.InstancedMesh=>o instanceof THREE.InstancedMesh);

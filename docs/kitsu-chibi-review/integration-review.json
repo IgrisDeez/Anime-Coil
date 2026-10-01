@@ -1,0 +1,196 @@
+{
+  "checks": [
+    {
+      "label": "desktop",
+      "darkOnly": true,
+      "reducedMotion": true
+    },
+    {
+      "label": "desktop",
+      "map": "shibuya",
+      "profile": "desktop",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 119,
+        "textures": 5,
+        "programs": 33
+      }
+    },
+    {
+      "label": "desktop",
+      "map": "leaf",
+      "profile": "desktop",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 122,
+        "textures": 7,
+        "programs": 35
+      }
+    },
+    {
+      "label": "desktop",
+      "map": "tournament",
+      "profile": "desktop",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 116,
+        "textures": 5,
+        "programs": 32
+      }
+    },
+    {
+      "label": "desktop",
+      "map": "harbor",
+      "profile": "desktop",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 117,
+        "textures": 7,
+        "programs": 35
+      }
+    },
+    {
+      "label": "desktop",
+      "profileSwitches": 12,
+      "restarts": 20,
+      "maps": 20,
+      "quitRestored": true,
+      "first": {
+        "geometries": 129,
+        "textures": 7,
+        "programs": 35
+      },
+      "second": {
+        "geometries": 129,
+        "textures": 3,
+        "programs": 35
+      },
+      "urlsBefore": 1,
+      "urlsAfter": 2,
+      "profile": "desktop"
+    },
+    {
+      "label": "phone",
+      "darkOnly": true,
+      "reducedMotion": true
+    },
+    {
+      "label": "phone",
+      "map": "shibuya",
+      "profile": "mobile",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 114,
+        "textures": 5,
+        "programs": 30
+      }
+    },
+    {
+      "label": "phone",
+      "map": "leaf",
+      "profile": "mobile",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 117,
+        "textures": 7,
+        "programs": 32
+      }
+    },
+    {
+      "label": "phone",
+      "map": "tournament",
+      "profile": "mobile",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 111,
+        "textures": 5,
+        "programs": 29
+      }
+    },
+    {
+      "label": "phone",
+      "map": "harbor",
+      "profile": "mobile",
+      "crowd": 21,
+      "normalRestored": true,
+      "deathRespawn": true,
+      "foxRush": true,
+      "independentEyes": true,
+      "shared": true,
+      "disposals": 0,
+      "memory": {
+        "geometries": 112,
+        "textures": 7,
+        "programs": 32
+      }
+    },
+    {
+      "label": "phone",
+      "profileSwitches": 12,
+      "restarts": 20,
+      "maps": 20,
+      "quitRestored": true,
+      "first": {
+        "geometries": 124,
+        "textures": 7,
+        "programs": 32
+      },
+      "second": {
+        "geometries": 124,
+        "textures": 3,
+        "programs": 32
+      },
+      "urlsBefore": 1,
+      "urlsAfter": 2,
+      "profile": "desktop"
+    },
+    {
+      "fallback": "network abort",
+      "menu": true,
+      "gameplay": true
+    }
+  ],
+  "errors": []
+}

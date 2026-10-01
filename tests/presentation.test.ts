@@ -43,9 +43,9 @@ test('boost and Fox Rush share eased presentation strength without mutating game
   arena.player.alive = false; assert.equal(boostStatus(arena.player), 'respawning');
 });
 
-test('compass themes are distinct and boundary warning uses the growing head safe radius', () => {
-  assert.deepEqual(Object.keys(COMPASS_THEMES), ['shibuya', 'leaf', 'tournament', 'harbor']);
-  assert.equal(new Set(Object.values(COMPASS_THEMES).map(t => t.inner)).size, 4);
+test('Shibuya compass palette is retained and boundary warning uses the growing head safe radius', () => {
+  assert.deepEqual(Object.keys(COMPASS_THEMES), ['shibuya']);
+  assert.equal(new Set(Object.values(COMPASS_THEMES).map(t => t.inner)).size, 1);
   for (const mass of [18, 400]) {
     const safe = RADIUS - HEAD_RADIUS * serpentScale(mass);
     assert.equal(edgeWarning(safe * .87, 0, mass), 0);

@@ -1,0 +1,8 @@
+{
+  "sameCamera": true,
+  "sameProjection": true,
+  "sameEnvironmentStats": true,
+  "sameRenderCost": true,
+  "maxLandmarkDelta": 5.684341886080802e-14,
+  "sameSceneSources": true
+}

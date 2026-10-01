@@ -1,4 +1,3 @@
-import type { MapId } from "../maps";
 export type DetailProfile = "desktop" | "mobile";
 export interface VisualPoint { readonly x: number; readonly y?: number; readonly z: number }
 export interface EnvironmentFrame {
@@ -45,4 +44,3 @@ export function reaction(ultimate: EnvironmentFrame["ultimate"], reduced: boolea
     ? { tint: Math.min(.3, t * .09) * Math.max(0, 1 - blast / 2.2), light: 1 + pulse * .2, attraction: 0, pulse }
     : { tint: 0, light: t < 3.4 ? 1 - Math.min(.18, t * .07) : 1 + pulse * .22, attraction: t < 2.4 ? Math.min(1,t / 2.4) : 0, pulse };
 }
-export const particleColor: Record<MapId, string> = { shibuya: "#9cabd5", leaf: "#cf995e", tournament: "#bcaa83", harbor: "#eef4dc" };

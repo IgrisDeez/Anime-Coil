@@ -1,0 +1,518 @@
+[
+  {
+    "kind": "character",
+    "name": "Kitsu",
+    "clientWidth": 1440,
+    "hero": "Kitsu",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "light"
+  },
+  {
+    "kind": "character",
+    "name": "Kairo",
+    "clientWidth": 1440,
+    "hero": "Kairo",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "light"
+  },
+  {
+    "kind": "character",
+    "name": "Pomu",
+    "clientWidth": 1440,
+    "hero": "Pomu",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "light"
+  },
+  {
+    "kind": "character",
+    "name": "Shiro",
+    "clientWidth": 1440,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "light"
+  },
+  {
+    "kind": "desktop",
+    "clientWidth": 1440,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "light"
+  },
+  {
+    "kind": "desktop",
+    "clientWidth": 1440,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "character",
+        "width": 152,
+        "x": 28
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 864,
+        "x": 204
+      },
+      {
+        "name": "selection-panel",
+        "width": 320,
+        "x": 1092
+      }
+    ],
+    "scrollWidth": 1440,
+    "theme": "dark"
+  },
+  {
+    "kind": "phone",
+    "clientWidth": 375,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 16
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 103.8000030517578
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 191.6000061035156
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 279.3999938964844
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 343.20001220703125,
+        "x": 16
+      },
+      {
+        "name": "selection-panel",
+        "width": 343.20001220703125,
+        "x": 16
+      }
+    ],
+    "scrollWidth": 375,
+    "theme": "dark"
+  },
+  {
+    "kind": "phone",
+    "clientWidth": 375,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 16
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 103.8000030517578
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 191.6000061035156
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 279.3999938964844
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 343.20001220703125,
+        "x": 16
+      },
+      {
+        "name": "selection-panel",
+        "width": 343.20001220703125,
+        "x": 16
+      }
+    ],
+    "scrollWidth": 375,
+    "theme": "light"
+  },
+  {
+    "kind": "landscape",
+    "clientWidth": 945,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 492.8000183105469,
+        "x": 136
+      },
+      {
+        "name": "selection-panel",
+        "width": 280,
+        "x": 644.7999877929688
+      }
+    ],
+    "scrollWidth": 945,
+    "theme": "dark"
+  },
+  {
+    "kind": "landscape",
+    "clientWidth": 945,
+    "hero": "Shiro",
+    "layout": [
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "character",
+        "width": 100,
+        "x": 20
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 492.8000183105469,
+        "x": 136
+      },
+      {
+        "name": "selection-panel",
+        "width": 280,
+        "x": 644.7999877929688
+      }
+    ],
+    "scrollWidth": 945,
+    "theme": "light"
+  },
+  {
+    "kind": "ultimate",
+    "name": "Kitsu",
+    "active": "fox"
+  },
+  {
+    "kind": "ultimate-recovery",
+    "name": "Kitsu",
+    "normal": true,
+    "viewOffset": false
+  },
+  {
+    "kind": "ultimate",
+    "name": "Kairo",
+    "active": "spirit"
+  },
+  {
+    "kind": "ultimate-recovery",
+    "name": "Kairo",
+    "normal": true,
+    "viewOffset": false
+  },
+  {
+    "kind": "ultimate",
+    "name": "Pomu",
+    "active": "skybreaker"
+  },
+  {
+    "kind": "ultimate-recovery",
+    "name": "Pomu",
+    "normal": true,
+    "viewOffset": false
+  },
+  {
+    "kind": "ultimate",
+    "name": "Shiro",
+    "active": "purple"
+  },
+  {
+    "kind": "ultimate-recovery",
+    "name": "Shiro",
+    "normal": true,
+    "viewOffset": false
+  },
+  {
+    "kind": "phone-stages",
+    "clientWidth": 375,
+    "hero": "Kitsu",
+    "layout": [
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 16
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 103.8000030517578
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 191.6000061035156
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 279.3999938964844
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 343.20001220703125,
+        "x": 16
+      },
+      {
+        "name": "selection-panel",
+        "width": 343.20001220703125,
+        "x": 16
+      }
+    ],
+    "scrollWidth": 375,
+    "theme": "dark"
+  },
+  {
+    "kind": "phone-stages",
+    "clientWidth": 375,
+    "hero": "Kitsu",
+    "layout": [
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 16
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 103.8000030517578
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 191.6000061035156
+      },
+      {
+        "name": "character",
+        "width": 79.80000305175781,
+        "x": 279.3999938964844
+      },
+      {
+        "name": "lobby-showcase",
+        "width": 343.20001220703125,
+        "x": 16
+      },
+      {
+        "name": "selection-panel",
+        "width": 343.20001220703125,
+        "x": 16
+      }
+    ],
+    "scrollWidth": 375,
+    "theme": "light"
+  }
+]

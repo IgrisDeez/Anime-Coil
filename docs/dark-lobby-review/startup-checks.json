@@ -1,0 +1,38 @@
+[
+  {
+    "bg": "#101525",
+    "saved": null,
+    "scheme": "dark",
+    "theme": "dark",
+    "toggle": false
+  },
+  {
+    "bg": "#101525",
+    "saved": "light",
+    "scheme": "dark",
+    "theme": "dark",
+    "toggle": false
+  },
+  {
+    "bg": "#101525",
+    "saved": "dark",
+    "scheme": "dark",
+    "theme": "dark",
+    "toggle": false
+  },
+  {
+    "bg": "#101525",
+    "saved": "invalid",
+    "scheme": "dark",
+    "theme": "dark",
+    "toggle": false
+  },
+  {
+    "bg": "#101525",
+    "saved": "unavailable",
+    "scheme": "dark",
+    "theme": "dark",
+    "toggle": false,
+    "verification": "application initialization rerun in isolated document with a throwing localStorage getter"
+  }
+]

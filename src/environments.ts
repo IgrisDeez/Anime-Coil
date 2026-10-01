@@ -2,10 +2,7 @@ import * as THREE from "three";
 import type { MapId } from "./maps";
 import { WorldBuilder } from "./worlds/builder";
 import { shibuya } from "./worlds/shibuya";
-import { leaf } from "./worlds/leaf";
-import { tournament } from "./worlds/tournament";
-import { harbor } from "./worlds/harbor";
-import { atmosphere } from "./worlds/atmosphere";
+import { shibuyaWeather } from "./worlds/shibuya-weather";
 import type { DetailProfile, EnvironmentFrame, WorldStats } from "./worlds/types";
 export type { EnvironmentFrame, DetailProfile } from "./worlds/types";
 export interface Environment {
@@ -18,13 +15,13 @@ export interface Environment {
   clearPresentation(): void;
   dispose(): void;
 }
-const builders = { shibuya, leaf, tournament, harbor };
 export function buildEnvironment(id: MapId, profile: DetailProfile = "desktop"): Environment {
+  if (id !== "shibuya") throw new Error("Unsupported arena");
   const b = new WorldBuilder(profile);
   try {
-    builders[id](b);
+    shibuya(b);
     b.finish();
-    const animate=atmosphere(b,id);
+    const animate=shibuyaWeather(b);
     let disposed=false;
     const env:Environment={group:b.group,landmarks:b.landmarks,stats:b.stats(b.detail.particles),profile,
       update(frame){if(disposed)return;b.clearance.update(frame.summonClearance,frame.ultimate?.kind==='fox'?Math.min(1,frame.ultimate.time/.35,(5.6-frame.ultimate.time)/.6):0);

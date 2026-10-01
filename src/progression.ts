@@ -28,9 +28,9 @@ export interface ProgressionStorage {
 
 export const PROGRESSION_KEY = 'anime-coil-progression-v1';
 export const BODY_SKINS = [
-  { id: 'original', name: 'Original', description: 'Classic matte finish', style: 'original', challenge: null },
-  { id: 'neon', name: 'Neon Spirit', description: 'Soft character-colored radiance', style: 'neon', challenge: 'orbs' },
-  { id: 'spiritweave', name: 'Spiritweave', description: 'Fine repeating scale texture', style: 'texture', challenge: 'survival' },
+  { id: 'original', name: 'Original', description: 'The default body colors', style: 'original', challenge: null },
+  { id: 'neon', name: 'Neon Spirit', description: 'A glowing body in your character’s colors', style: 'neon', challenge: 'orbs' },
+  { id: 'spiritweave', name: 'Spiritweave', description: 'A patterned scale texture', style: 'texture', challenge: 'survival' },
 ] as const;
 export const TRAILS = [
   { id: 'original', name: 'Original', color: null, secondary: null, challenge: null },
@@ -38,10 +38,10 @@ export const TRAILS = [
   { id: 'starlight', name: 'Starlight', color: '#9bd8ef', secondary: '#e6f9ff', challenge: 'sprint-maps' },
 ] as const;
 export const CHALLENGES = [
-  { id: 'orbs', name: 'Spirit Gatherer', description: 'Collect 100 energy orbs', target: 100, reward: 'Neon Spirit body skin' },
-  { id: 'survival', name: 'Steady Spirit', description: 'Survive 10 total minutes', target: 600, reward: 'Spiritweave body skin' },
-  { id: 'eliminations', name: 'Coil Champion', description: 'Earn 10 credited eliminations', target: 10, reward: 'Petal Drift boost trail' },
-  { id: 'sprint-maps', name: 'World Sprinter', description: 'Finish a sprint on each map', target: 4, reward: 'Starlight boost trail' },
+  { id: 'orbs', name: 'Orb Collector', description: 'Collect 100 energy orbs', target: 100, reward: 'Neon Spirit body skin' },
+  { id: 'survival', name: 'Survival Time', description: 'Survive 10 total minutes', target: 600, reward: 'Spiritweave body skin' },
+  { id: 'eliminations', name: 'Eliminations', description: 'Earn 10 credited eliminations', target: 10, reward: 'Petal Drift boost trail' },
+  { id: 'sprint-maps', name: 'Shibuya Sprint', description: 'Finish a 3-minute sprint in Shibuya', target: 1, reward: 'Starlight boost trail' },
 ] as const;
 
 const mapIds = new Set<string>(MAPS.map((map) => map.id));

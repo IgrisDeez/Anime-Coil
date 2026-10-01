@@ -1,0 +1,33 @@
+{
+  "calls": 87,
+  "cpu": {
+    "median": 2,
+    "p95": 3.700000002980232,
+    "samples": 120
+  },
+  "gpu": {
+    "available": true,
+    "ms": {
+      "median": 0.393216,
+      "p95": 2.76992,
+      "samples": 3
+    },
+    "status": "asynchronous GPU queries"
+  },
+  "memory": {
+    "geometries": 82,
+    "programs": 27,
+    "textures": 5
+  },
+  "profile": "desktop",
+  "raf": {
+    "median": 7,
+    "p95": 7.699999988079071,
+    "samples": 120
+  },
+  "triangles": 113882,
+  "viewport": [
+    1280,
+    720
+  ]
+}

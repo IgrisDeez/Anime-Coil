@@ -20,7 +20,7 @@ function memoryStorage() {
 }
 
 test('four fixed challenges have unique rewards and original cosmetics stay available', () => {
-  assert.deepEqual(CHALLENGES.map((c) => c.target), [100, 600, 10, 4]);
+  assert.deepEqual(CHALLENGES.map((c) => c.target), [100, 600, 10, 1]);
   assert.equal(new Set(CHALLENGES.map((c) => c.id)).size, 4);
   assert.deepEqual(BODY_SKINS.map((skin) => skin.id), ['original', 'neon', 'spiritweave']);
   assert.equal(TRAILS.length, 3);
@@ -39,7 +39,7 @@ test('only player pickups and unique credited eliminations advance eligible matc
   assert.equal(progression.isUnlocked('skin', 'neon'), true);
   assert.equal(progression.equipSkin('neon'), true);
   assert.equal(progression.equipTrail('petals'), false);
-  progression.finishMatch('leaf', false);
+  progression.finishMatch('shibuya', false);
   progression.recordStep([collect(), kill(4, 3)], 10, true);
   assert.equal(progression.state.progress.creditedEliminations, 2);
 });
@@ -73,7 +73,7 @@ test('practice and inactive steps do not advance lifetime challenges or complete
   progression.recordStep(events, 60, true);
   progression.beginMatch('practice');
   progression.recordStep(events, 600, true);
-  progression.finishMatch('harbor', true);
+  progression.finishMatch('shibuya', true);
   assert.deepEqual(progression.state.progress, {
     collectedOrbs: 0, survivedSeconds: 0, creditedEliminations: 0, completedSprintMaps: [],
   });
@@ -87,7 +87,7 @@ test('saved data roundtrips, validates corruption, and keeps unlocked choices', 
   const progression = new Progression(storage);
   progression.beginMatch('endless');
   progression.recordStep(Array.from({ length: 100 }, () => collect()), 600, true);
-  progression.finishMatch('leaf', false);
+  progression.finishMatch('shibuya', false);
   assert.equal(progression.equipSkin('spiritweave'), true);
   assert.equal(progression.equipTrail('petals'), false);
   assert.equal(values.has(PROGRESSION_KEY), true);
@@ -99,11 +99,11 @@ test('saved data roundtrips, validates corruption, and keeps unlocked choices', 
     completedSprintMaps: ['harbor', 'harbor', 'unknown', 'shibuya'],
   }, cosmetics: { palette: 'sunset', trail: 'starlight' } }));
   const validated = new Progression(storage);
-  assert.deepEqual(validated.state.progress.completedSprintMaps, ['shibuya', 'harbor']);
+  assert.deepEqual(validated.state.progress.completedSprintMaps, ['shibuya']);
   assert.equal(validated.state.progress.collectedOrbs, 0);
   assert.equal(validated.state.progress.survivedSeconds, 0);
   assert.equal(validated.state.cosmetics.skin, 'original');
-  assert.equal(validated.state.cosmetics.trail, 'original');
+  assert.equal(validated.state.cosmetics.trail, 'starlight');
   values.set(PROGRESSION_KEY, '{bad-json');
   assert.equal(new Progression(storage).state.progress.collectedOrbs, 0);
 });
@@ -119,7 +119,7 @@ test('unavailable storage never blocks earning or equipping cosmetics', () => {
   assert.equal(progression.equipSkin('neon'), true);
   assert.equal(progression.state.cosmetics.skin, 'neon');
   const leaked = progression.state;
-  leaked.progress.completedSprintMaps.push('harbor');
+  leaked.progress.completedSprintMaps.push('shibuya');
   leaked.cosmetics.skin = 'original';
   assert.equal(progression.state.cosmetics.skin, 'neon');
   assert.deepEqual(progression.state.progress.completedSprintMaps, []);
@@ -140,4 +140,21 @@ test('version-one color cosmetics migrate to their matching skins without losing
   assert.equal(progression.state.progress.creditedEliminations, 10);
   assert.equal(progression.equipSkin('neon'), true);
   assert.equal(JSON.parse(values.get(PROGRESSION_KEY)!).version, 2);
+});
+test('old sprint progress keeps only Shibuya and preserves earned Starlight and other rewards', () => {
+  const { storage, values } = memoryStorage();
+  for (const maps of [['leaf', 'tournament', 'harbor', 'shibuya'], ['leaf', 'tournament', 'harbor']]) {
+    values.set(PROGRESSION_KEY, JSON.stringify({ version: 2,
+      progress: { collectedOrbs: 100, survivedSeconds: 600, creditedEliminations: 10, completedSprintMaps: maps },
+      cosmetics: { skin: 'spiritweave', trail: 'starlight' } }));
+    const p = new Progression(storage);
+    assert.deepEqual(p.state.progress.completedSprintMaps, maps.includes('shibuya') ? ['shibuya'] : []);
+    assert.equal(p.isUnlocked('trail', 'starlight'), maps.includes('shibuya'));
+    assert.equal(p.state.cosmetics.skin, 'spiritweave');
+    assert.equal(p.isUnlocked('trail', 'petals'), true);
+    assert.equal(p.state.cosmetics.trail, maps.includes('shibuya') ? 'starlight' : 'original');
+    p.beginMatch('sprint'); p.finishMatch('shibuya', true);
+    assert.equal(p.equipTrail('starlight'), true);
+    assert.deepEqual(new Progression(storage).state.progress.completedSprintMaps, ['shibuya']);
+  }
 });

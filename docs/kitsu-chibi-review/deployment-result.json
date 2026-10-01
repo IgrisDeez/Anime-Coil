@@ -1,0 +1,20 @@
+{
+  "id": "appgdep_6abe822da6ac8191ba750dd78301f45f",
+  "project_id": "appgprj_6abe789685a88191a4528067c91c4ac4",
+  "title": "Anime Coil",
+  "version_id": "appgprj_6abe789685a88191a4528067c91c4ac4~appgver_bc61f011b4c8819193fdf32f10313a34",
+  "type": "publish",
+  "status": "succeeded",
+  "url": "https://anime-coil-naruto.igrisdeez.chatgpt.site",
+  "has_mcp": false,
+  "screenshot_asset_pointer": null,
+  "provider_deployment_id": "site---6abe789685a88191a4528067c91c4ac4",
+  "failure_message": null,
+  "env_set_revision": 0,
+  "updated_at": "2026-10-01T15:55:38.766134+00:00",
+  "source_commit": "cf1cb8f07016ac49652b3be57efdeb810d030e9e",
+  "source_checkout": "C:/Users/denze/Documents/ChatGPT/Anime Coil/gpt-sites/anime-coil",
+  "approved_head": true,
+  "tests": 336,
+  "physical_phone_review": false
+}

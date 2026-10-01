@@ -1,0 +1,98 @@
+[
+  {
+    "ambient": "acb9ef",
+    "fov": 43,
+    "key": "d6c6f0",
+    "map": "shibuya",
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rim": "867099",
+    "rotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "viewOffset": false
+  },
+  {
+    "ambient": "fff4dd",
+    "fov": 43,
+    "key": "ffe3bc",
+    "map": "leaf",
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rim": "a98461",
+    "rotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "viewOffset": false
+  },
+  {
+    "ambient": "fff5df",
+    "fov": 43,
+    "key": "ffeccc",
+    "map": "tournament",
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rim": "c1836c",
+    "rotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "viewOffset": false
+  },
+  {
+    "ambient": "fff4df",
+    "fov": 43,
+    "key": "ffe9c7",
+    "map": "harbor",
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rim": "699e91",
+    "rotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "viewOffset": false
+  }
+]

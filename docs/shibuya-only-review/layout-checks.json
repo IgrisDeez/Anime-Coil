@@ -1,0 +1,3089 @@
+[
+  {
+    "label": "1920x1080 Kitsu",
+    "characterBounds": {
+      "bottom": 878.1617359080493,
+      "left": 541.2458939666017,
+      "right": 1236.4717526936925,
+      "top": 474.2738942208279
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 Kairo",
+    "characterBounds": {
+      "bottom": 878.4627517103121,
+      "left": 535.6277383556678,
+      "right": 1239.919901835975,
+      "top": 472.2734272826259
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 Pomu",
+    "characterBounds": {
+      "bottom": 878.383262787178,
+      "left": 478.4661280564388,
+      "right": 1275.5283119817711,
+      "top": 446.1046984039058
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 Shiro",
+    "characterBounds": {
+      "bottom": 878.4271525456539,
+      "left": 519.9954896815353,
+      "right": 1254.7375150989626,
+      "top": 461.8043769109863
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Kitsu",
+    "characterBounds": {
+      "bottom": 731.5274632793207,
+      "left": 359.14500708311056,
+      "right": 927.282255045619,
+      "top": 400.6445651889129
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Kairo",
+    "characterBounds": {
+      "bottom": 731.5249107514267,
+      "left": 355.2183035079272,
+      "right": 930.5730717066592,
+      "top": 399.0230384892545
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Pomu",
+    "characterBounds": {
+      "bottom": 731.222697058781,
+      "left": 309.49254187541993,
+      "right": 960.176916892032,
+      "top": 378.34962376325575
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Shiro",
+    "characterBounds": {
+      "bottom": 730.9447000510431,
+      "left": 344.4817753598191,
+      "right": 943.7874649553892,
+      "top": 390.4535225759336
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Kitsu",
+    "characterBounds": {
+      "bottom": 486.7013159533996,
+      "left": 237.76788140279209,
+      "right": 523.6668220124948,
+      "top": 317.23125764108727
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Kairo",
+    "characterBounds": {
+      "bottom": 485.0757676732291,
+      "left": 239.50402504270656,
+      "right": 523.9474696465544,
+      "top": 316.6505484173422
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Pomu",
+    "characterBounds": {
+      "bottom": 473.2876643249727,
+      "left": 234.7887695899579,
+      "right": 525.155964924994,
+      "top": 313.56622208725935
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Shiro",
+    "characterBounds": {
+      "bottom": 478.82445435977695,
+      "left": 244.7178214343111,
+      "right": 524.7097498393215,
+      "top": 313.1689267617307
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Kitsu",
+    "characterBounds": {
+      "bottom": 380.11953173674897,
+      "left": 255.95042612748443,
+      "right": 514.449359581992,
+      "top": 230.11162364463428
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Kairo",
+    "characterBounds": {
+      "bottom": 379.8136493810707,
+      "left": 259.06488910887145,
+      "right": 516.4618414063285,
+      "top": 229.3378738128541
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Pomu",
+    "characterBounds": {
+      "bottom": 378.9804830166661,
+      "left": 244.34360689866224,
+      "right": 531.3899619276489,
+      "top": 221.21751079657744
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Shiro",
+    "characterBounds": {
+      "bottom": 378.8271500480999,
+      "left": 263.9931978003597,
+      "right": 523.814529319641,
+      "top": 225.0857138953326
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Kitsu",
+    "characterBounds": {
+      "bottom": 300.8354198787994,
+      "left": 165.97937313567354,
+      "right": 346.61754119140284,
+      "top": 195.12512417157728
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Kairo",
+    "characterBounds": {
+      "bottom": 299.7602029892765,
+      "left": 169.26925871625176,
+      "right": 346.770028917962,
+      "top": 194.7559536361296
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Pomu",
+    "characterBounds": {
+      "bottom": 292.2482705777978,
+      "left": 166.24368363614906,
+      "right": 347.00062751661346,
+      "top": 192.7062855509544
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Shiro",
+    "characterBounds": {
+      "bottom": 295.74855009021627,
+      "left": 174.19858352956072,
+      "right": 346.9743810377828,
+      "top": 192.50465048571235
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Kitsu",
+    "characterBounds": {
+      "bottom": 434.0412930002444,
+      "left": 119.30881296422436,
+      "right": 336.9047130185517,
+      "top": 303.68583354583734
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Kairo",
+    "characterBounds": {
+      "bottom": 432.8525606935948,
+      "left": 123.70770570440322,
+      "right": 336.9718866859614,
+      "top": 303.16839740918203
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Pomu",
+    "characterBounds": {
+      "bottom": 424.1423277578363,
+      "left": 119.41734161773306,
+      "right": 337.02090313888266,
+      "top": 300.4623322847297
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Shiro",
+    "characterBounds": {
+      "bottom": 428.23968542665136,
+      "left": 126.57869710539768,
+      "right": 336.9707955377997,
+      "top": 300.017910428112
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Kitsu",
+    "characterBounds": {
+      "bottom": 296.5810420149378,
+      "left": 113.3904276985264,
+      "right": 248.5817252131055,
+      "top": 215.1020226923195
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Kairo",
+    "characterBounds": {
+      "bottom": 296.54469428430224,
+      "left": 115.21653479568906,
+      "right": 249.51286974983208,
+      "top": 214.52118735506815
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Pomu",
+    "characterBounds": {
+      "bottom": 296.2309477566728,
+      "left": 107.72355971235648,
+      "right": 257.7020863557456,
+      "top": 210.67235719099983
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Shiro",
+    "characterBounds": {
+      "bottom": 296.30276068966174,
+      "left": 114.13380095829046,
+      "right": 253.3296001184104,
+      "top": 211.4195639638686
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 Endless",
+    "characterBounds": {
+      "bottom": 863.7857655682335,
+      "left": 586.5934606134787,
+      "right": 1260.8442481518657,
+      "top": 476.03391295284104
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 862.9706476834405,
+      "left": 589.6161097992796,
+      "right": 1262.136730933254,
+      "top": 476.16378106135386
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1920x1080 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 862.1354215898718,
+      "left": 592.669830365846,
+      "right": 1263.402049530726,
+      "top": 476.2791650090138
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 739.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1904,
+      "width": 292,
+      "x": 1612,
+      "y": 394.4500122070313
+    },
+    "play": {
+      "bottom": 700.75,
+      "height": 44,
+      "right": 1887.2000427246096,
+      "width": 258.3999938964844,
+      "x": 1628.800048828125,
+      "y": 656.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 722.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 394.4500122070313
+    },
+    "scroll": [
+      1920,
+      1920,
+      1080,
+      1080
+    ],
+    "size": [
+      1920,
+      1080
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 1064,
+      "height": 994,
+      "right": 1596,
+      "width": 1448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Endless",
+    "characterBounds": {
+      "bottom": 716.6097103865226,
+      "left": 407.74394818427226,
+      "right": 952.9762649667113,
+      "top": 402.5358733451717
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 715.9403180970847,
+      "left": 410.14018280875354,
+      "right": 953.9198358636904,
+      "top": 402.63046662839525
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "1440x900 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 715.2801615207902,
+      "left": 412.47482756812536,
+      "right": 954.8117834089024,
+      "top": 402.72389130744045
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 649.5500183105469,
+      "height": 345.1000061035156,
+      "right": 1424,
+      "width": 292,
+      "x": 1132,
+      "y": 304.45001220703125
+    },
+    "play": {
+      "bottom": 610.75,
+      "height": 44,
+      "right": 1407.2000427246094,
+      "width": 258.3999938964844,
+      "x": 1148.800048828125,
+      "y": 566.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 632.4500122070312,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 304.45001220703125
+    },
+    "scroll": [
+      1440,
+      1440,
+      900,
+      900
+    ],
+    "size": [
+      1440,
+      900
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 884,
+      "height": 814,
+      "right": 1116,
+      "width": 968,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Endless",
+    "characterBounds": {
+      "bottom": 479.4912478432984,
+      "left": 265.9694637555698,
+      "right": 540.2977749541637,
+      "top": 318.52041738174324
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 479.27492399173536,
+      "left": 267.0112448737332,
+      "right": 540.7961569651864,
+      "top": 318.57158472489255
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "920x668 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 479.0612535378637,
+      "left": 268.0251117733959,
+      "right": 541.2716410871919,
+      "top": 318.6219745986586
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 533.5500030517578,
+      "height": 345.1000061035156,
+      "right": 904,
+      "width": 292,
+      "x": 612,
+      "y": 188.4499969482422
+    },
+    "play": {
+      "bottom": 494.75,
+      "height": 44,
+      "right": 887.1999816894531,
+      "width": 258.3999938964844,
+      "x": 628.7999877929688,
+      "y": 450.75
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 516.4499969482422,
+      "height": 328,
+      "right": 132,
+      "width": 116,
+      "x": 16,
+      "y": 188.4499969482422
+    },
+    "scroll": [
+      920,
+      920,
+      668,
+      668
+    ],
+    "size": [
+      920,
+      668
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 652,
+      "height": 582,
+      "right": 596,
+      "width": 448,
+      "x": 148,
+      "y": 70
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Endless",
+    "characterBounds": {
+      "bottom": 380.1533189392323,
+      "left": 255.80647140788452,
+      "right": 514.3964183637366,
+      "top": 230.1051985880945
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 379.9380159126921,
+      "left": 256.71918447769923,
+      "right": 514.7288189906485,
+      "top": 230.14610681613297
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "900x480 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 379.74388553821296,
+      "left": 257.5330200644247,
+      "right": 515.0187340987101,
+      "top": 230.18292564193993
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 416.150016784668,
+      "height": 298.3000183105469,
+      "right": 888,
+      "width": 268,
+      "x": 620,
+      "y": 117.8499984741211
+    },
+    "play": {
+      "bottom": 381.3500061035156,
+      "height": 44,
+      "right": 875.1999969482422,
+      "width": 242.40000915527344,
+      "x": 632.7999877929688,
+      "y": 337.3500061035156
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 364.4500045776367,
+      "height": 246.6000061035156,
+      "right": 92,
+      "width": 80,
+      "x": 12,
+      "y": 117.8499984741211
+    },
+    "scroll": [
+      900,
+      900,
+      480,
+      480
+    ],
+    "size": [
+      900,
+      480
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 468,
+      "height": 402,
+      "right": 608,
+      "width": 504,
+      "x": 104,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Endless",
+    "characterBounds": {
+      "bottom": 300.9297034147749,
+      "left": 165.47931393933692,
+      "right": 346.42511162445555,
+      "top": 195.10037967452485
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 300.8503299915868,
+      "left": 165.90069537695797,
+      "right": 346.5874755594399,
+      "top": 195.1212184280838
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "640x390 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 300.7788208105311,
+      "left": 166.2766920033078,
+      "right": 346.7304510978902,
+      "top": 195.13992588659752
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 363.3500213623047,
+      "height": 282.3000183105469,
+      "right": 628,
+      "width": 238,
+      "x": 390,
+      "y": 81.05000305175781
+    },
+    "play": {
+      "bottom": 332.5500183105469,
+      "height": 44,
+      "right": 617.2000274658203,
+      "width": 216.40000915527344,
+      "x": 400.8000183105469,
+      "y": 288.5500183105469
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 318.65000915527344,
+      "height": 237.6000061035156,
+      "right": 76,
+      "width": 64,
+      "x": 12,
+      "y": 81.05000305175781
+    },
+    "scroll": [
+      640,
+      640,
+      390,
+      390
+    ],
+    "size": [
+      640,
+      390
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 378.3999938964844,
+      "height": 312.3999938964844,
+      "right": 382,
+      "width": 298,
+      "x": 84,
+      "y": 66
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Endless",
+    "characterBounds": {
+      "bottom": 434.1145509375352,
+      "left": 118.72842394925377,
+      "right": 336.6047697334716,
+      "top": 303.6492843165174
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 434.0681658367883,
+      "left": 119.0970777369648,
+      "right": 336.79568833107027,
+      "top": 303.672466671442
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "390x844 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 434.0425330712946,
+      "left": 119.29907143314178,
+      "right": 336.89970704952106,
+      "top": 303.6852177273664
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 832,
+      "height": 273.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 558.5
+    },
+    "play": {
+      "bottom": 797.2000122070312,
+      "height": 44,
+      "right": 365.60001945495605,
+      "width": 340.8000183105469,
+      "x": 24.80000114440918,
+      "y": 753.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      390,
+      390,
+      844,
+      844
+    ],
+    "size": [
+      390,
+      844
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 550.5,
+      "height": 418.5,
+      "right": 378.3999938964844,
+      "width": 366.3999938964844,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Endless",
+    "characterBounds": {
+      "bottom": 296.56872717743937,
+      "left": 113.48485569763906,
+      "right": 248.62887657838104,
+      "top": 215.10834323292335
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 3-Min Sprint",
+    "characterBounds": {
+      "bottom": 296.56647390941276,
+      "left": 113.50209227496254,
+      "right": 248.63746823062792,
+      "top": 215.10949837962684
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  },
+  {
+    "label": "320x640 Bounty Hunt",
+    "characterBounds": {
+      "bottom": 296.56984439135294,
+      "left": 113.476304775038,
+      "right": 248.6246125902236,
+      "top": 215.107770336434
+    },
+    "duplicates": false,
+    "inside": true,
+    "panel": {
+      "bottom": 628,
+      "height": 273.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 354.5
+    },
+    "play": {
+      "bottom": 593.2000122070312,
+      "height": 44,
+      "right": 295.19999504089355,
+      "width": 270.3999938964844,
+      "x": 24.80000114440918,
+      "y": 549.2000122070312
+    },
+    "preview": {
+      "bottom": 0,
+      "height": 0,
+      "right": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "roster": {
+      "bottom": 124,
+      "height": 58,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 66
+    },
+    "scroll": [
+      320,
+      320,
+      640,
+      640
+    ],
+    "size": [
+      320,
+      640
+    ],
+    "smallTargets": [],
+    "stage": {
+      "bottom": 346.5,
+      "height": 214.5,
+      "right": 308,
+      "width": 296,
+      "x": 12,
+      "y": 132
+    },
+    "theme": "dark"
+  }
+]

@@ -4,9 +4,6 @@ import type { TrailId } from './progression';
 
 const WIND_COLORS: Record<MapId, readonly [string, string]> = {
   shibuya: ['#adabdf', '#ddbbdc'],
-  leaf: ['#a9cfb1', '#e2c58c'],
-  tournament: ['#e0c09e', '#d4e9df'],
-  harbor: ['#9bd9d6', '#e2f4df'],
 };
 const FOX_COLORS = ['#ffc27d','#ffe4ae'] as const;
 const COSMETIC_COLORS: Record<Exclude<TrailId,'original'>,readonly [string,string]> = {
