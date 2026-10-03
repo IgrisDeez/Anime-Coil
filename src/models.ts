@@ -3,6 +3,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { CHARACTERS, type CharacterId } from "./simulation";
 import { kitsuHeads, activeKitsuProfile } from './kitsu-head';
 import {normalHeads} from './normal-head-assets';
+import {pomuUltimateAssets} from './living-assets';
 const sphere = new THREE.SphereGeometry(1, 16, 12),
   box = new THREE.BoxGeometry(1, 1, 1),
   cone = new THREE.ConeGeometry(1, 1, 5);
@@ -288,6 +289,7 @@ function formSource(id: FormCharacter) {
   return formSources.get(id)!;
 }
 export function createTransformedHead(id: FormCharacter) {
+  if(id==='cloud'){const head=pomuUltimateAssets.head(activeKitsuProfile());if(head){part(head,sphere,'#f8f4ff',[0,.25,-.18],[.91,.55,.84]);return head;}}
   if(!formTemplates.has(id)) formTemplates.set(id,compactHead(formSource(id)));
   return formTemplates.get(id)!.clone(true);
 }
@@ -388,6 +390,7 @@ export function createHeadOutline(id: CharacterId) {
   return outline;
 }
 export function createTransformedHeadOutline(id: FormCharacter) {
+  if(id==='cloud'){const outline=pomuUltimateAssets.outline(activeKitsuProfile());if(outline)return outline;}
   const outline = new THREE.Mesh(silhouetteGeometry(id, true), silhouetteMaterial);
   outline.userData.sharedSilhouette = true;
   return outline;

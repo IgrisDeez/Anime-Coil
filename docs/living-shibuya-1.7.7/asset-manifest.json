@@ -1,0 +1,32 @@
+[
+  {
+    "path": "public/assets/shibuya/city-kit-desktop.glb",
+    "bytes": 332692,
+    "sha256": "ad7310d968ecf13ffbd7900ae7d9171e5c8cd6c63986a1af8dcb6cca749a18d2"
+  },
+  {
+    "path": "public/assets/shibuya/city-kit-mobile.glb",
+    "bytes": 265024,
+    "sha256": "76ef4018e12f5599b2500def67ff26344e3547c99264f4ee236aeea973d05bd9"
+  },
+  {
+    "path": "public/assets/pomu/pomu-ultimate-desktop.glb",
+    "bytes": 187116,
+    "sha256": "42b439096773c880b2a444b9866377effd6789345d1520101a14d3a1c48d7160"
+  },
+  {
+    "path": "public/assets/pomu/pomu-ultimate-mobile.glb",
+    "bytes": 126580,
+    "sha256": "84b6d15db0dae6620ed6125790137edede1dd78554b1a51ef56f479f4d0a9db8"
+  },
+  {
+    "path": "assets/shibuya/v177/living-shibuya-editable.blend",
+    "bytes": 727571,
+    "sha256": "ef5d25967142d1c279193b4b2ef7604e6016ddcf8092e255eed16109c4ffd7fc"
+  },
+  {
+    "path": "assets/pomu-gear5/v177/pomu-gear5-editable.blend",
+    "bytes": 718064,
+    "sha256": "9a61b536f5c0c1b237de3346946b24f08528672690031a462dcf3aae5a0a2051"
+  }
+]

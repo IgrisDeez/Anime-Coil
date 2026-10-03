@@ -4,12 +4,27 @@ import { CITY_BLOCKS, CITY_NEON, CITY_ROAD, CITY_WALK, ROAD_MARKINGS, cityLoop, 
 import { shibuyaLife } from './shibuya-life';
 import { CityBillboards, type BillboardArt } from './shibuya-art';
 import { shibuyaSky } from './shibuya-sky';
+import {cityKitAssets,type CityFamily} from '../living-assets';
+import {RADIUS} from '../simulation';
+import {shibuyaSteam} from './shibuya-steam';
 
 function building(b:WorldBuilder,block:CityBlock,index:number,posters:CityBillboards,district:THREE.Group) {
   const {width:w,height:h,depth:d,kind}=block,g=b.landmark(`city-front-${index}`,block.x,block.z,block.rotation);
   g.userData.family=kind;g.userData.district=block.district;
   district.add(g);
   const front=d/2,ink='#182236',trim='#46546a',accent=CITY_NEON[index%3],mobile=b.profile==='mobile';
+  const family:CityFamily=kind==='commercial'?'Rounded':kind==='glass'?'Glass':kind==='terrace'?'Terrace':index%8===5?'Arcade':'Shop';
+  const prototype=cityKitAssets.family(b.profile,family);
+  if(prototype){
+    g.userData.family=family;const imported=b.imported(prototype,g);imported.scale.set(w/18,h/(prototype.userData.baseSize as number[])[1],d/14);
+    b.box(g,'#344051',0,-.14,0,w+1,.7,d+1,'stone');
+    b.sign(g,block.label,accent,0,7.8*h/48,front+1.6,w*.9,3.2,family==='Shop'?'shop':'neon',true);
+    const art:BillboardArt=family==='Rounded'?'coil':family==='Glass'?'fashion':family==='Shop'?'ramen':family==='Arcade'?'arcade':'garden';
+    const panelWidth=family==='Glass'?w*.27:w*.68,panelHeight=family==='Glass'?h*.25:panelWidth*.5;
+    posters.panel(g,art,family==='Glass'?-w*.25:0,h*.65,front+.6,panelWidth,panelHeight);
+    if(family==='Shop')for(let k=0;k<3;k++)b.sign(g,['夜 / 麺','24H','遊 / 茶'][k],accent,-w*.39,h*(.35+k*.13),front+d*.12,3.8,3.1,'shop',true);
+    b.shadow(g,0,0,w*.65,d*.6);return;
+  }
   b.box(g,['#34415b','#454057','#2e4356','#41455c'][index%4],0,h/2,0,w,h,d,'facade');
   b.box(g,'#344051',0,-.14,0,w+1,.7,d+1,'stone');
   b.box(g,ink,0,h/2,front+.06,w-1,h-1,.13);
@@ -73,13 +88,13 @@ function building(b:WorldBuilder,block:CityBlock,index:number,posters:CityBillbo
 function streets(b:WorldBuilder){
   b.ground('#263246','#162137','wetAsphalt');
   // A single continuous asphalt apron joins the flat intersection to its perimeter roads.
-  b.flat('#273347',0,0,800,800,0,'wetAsphalt').position.y=-.485;
+  const apron=b.part(b.group,'disk','#273347',0,-.485,0,1,1,1,'wetAsphalt');apron.geometry=b.geo(new THREE.RingGeometry(RADIUS+.08,566,96));apron.rotation.x=-Math.PI/2;
   b.path('#41495b',cityLoop(190),24,-.45,'stone').name='shibuya-outer-walk';
   b.path('#263246',CITY_ROAD,22,-.425,'wetAsphalt').name='shibuya-connected-road';
   b.path('#3b4556',CITY_WALK,9,-.40,'stone').name='shibuya-connected-walk';
-  for(const mark of ROAD_MARKINGS)b.flat(mark.kind==='crossing'?'#657082':'#505e73',mark.x,mark.z,mark.width,mark.length,mark.angle).position.y=-.365;
+  for(const mark of ROAD_MARKINGS)b.flat(mark.kind==='crossing'?'#8499ae':'#71839a',mark.x,mark.z,mark.width,mark.length,mark.angle).position.y=-.365;
   // Long diagonal pedestrian stripes connect the four crossing mouths across the centre.
-  for(const direction of [-1,1])for(let i=-20;i<=20;i++){if(Math.abs(i)<4)continue;b.flat('#526078',i*2.4,direction*i*2.4,1.7,6,direction*-Math.PI/4).position.y=-.36;}
+  for(const direction of [-1,1])for(let i=-20;i<=20;i++){if(Math.abs(i)<4)continue;b.flat('#7489a1',i*2.4,direction*i*2.4,1.7,6,direction*-Math.PI/4).position.y=-.36;}
   for(let side=0;side<4;side++){
     const a=side*Math.PI/2,c=Math.cos(a),s=Math.sin(a);
     for(const lane of [-12,12])for(const r of [92,132]){
@@ -94,6 +109,8 @@ function streets(b:WorldBuilder){
     }
     for(const along of [-63,63]){
       const g=b.landmark(`street-furniture-${side}-${along}`,along*c+195*s,-along*s+195*c,a+Math.PI);
+      const sculpt=cityKitAssets.prop(b.profile,'Furniture');
+      if(sculpt){b.imported(sculpt,g);b.tree(g,-10,0,.7);continue;}
       b.box(g,'#25364a',0,1.1,0,4,2.6,2);b.box(g,'#8bc2c3',0,1.5,1.05,3.2,1.6,.1,'glow');
       b.box(g,'#455267',6,1.5,0,.5,3,.5);b.sign(g,'BUS / 渋谷','#adcac4',6,3.8,0,6,2.5,'metro',true);
       b.tree(g,-8,0,.7);b.box(g,'#36465a',-8,0,0,7,.8,7,'stone');
@@ -113,7 +130,8 @@ function streets(b:WorldBuilder){
 }
 export function shibuya(b:WorldBuilder){
   streets(b);const posters=new CityBillboards(b);
-  const districts=Array.from({length:4},(_,i)=>{const g=new THREE.Group();g.name=`shibuya-district-${i}`;return b.cluster(g);});
+  const clusters=Array.from({length:4},(_,i)=>{const g=new THREE.Group();g.name=`shibuya-district-${i}`;return b.cluster(g);});
+  const districts=Array.from({length:4},(_,i)=>clusters[i%clusters.length]);
   CITY_BLOCKS.forEach((block,i)=>building(b,block,i,posters,districts[block.district]));
   for(let layer=0;layer<2;layer++)for(let side=0;side<4;side++)for(let i=0;i<(b.detail.secondary?6:4);i++){
     const count=b.detail.secondary?6:4,along=-150+i*300/(count-1),radius=layer?344:274,a=-side*Math.PI/2,h=layer?80+(i*17+side*23)%80:85+(i*23+side*19)%54;
@@ -126,11 +144,25 @@ export function shibuya(b:WorldBuilder){
   }
   for(const x of [-26,26]){
     const g=b.landmark(`station-${x}`,x,225,Math.PI);
+    const prototype=cityKitAssets.family(b.profile,'Station');
+    if(prototype){const model=b.imported(prototype,g);model.scale.set(2.1,1,2.1);b.sign(g,'SHIBUYA / STATION','#59cfdf',0,8.5,15.1,30,2.5,'metro',true);b.path('#3c485a',[[x,206],[x,190],[x,178]],9,-.395,'stone');continue;}
     b.box(g,'#34475c',0,5,0,38,11,30,'facade');b.box(g,'#101f35',0,3.5,15.2,27,7,.35);
     for(const side of [-1,1]){b.box(g,'#667c89',side*16,5,15,2,10,2,'stone');b.box(g,'#c4a77e',side*10,4,15.5,3,5,.15,'glow');}
     b.box(g,'#526c7d',0,11.2,6,41,1.4,21,'stone');b.sign(g,'SHIBUYA / STATION','#94dcd0',0,10,16.2,31,3,'metro',true);
     for(let k=0;k<4;k++)b.box(g,'#61717f',0,.1+k*.18,18-k*.8,27,.18,.9,'stone');
     b.path('#3c485a',[[x,206],[x,190],[x,178]],9,-.395,'stone');b.shadow(g,0,2,25,18);
   }
-  shibuyaLife(b);shibuyaSky(b);
+  const meeting=b.landmark('hachiko-meeting-square',69,207,Math.PI);
+  const guardian=cityKitAssets.prop(b.profile,'Meeting');
+  if(guardian)b.imported(guardian,meeting);
+  else{
+  b.box(meeting,'#43536a',0,.25,0,23,.5,17,'stone');
+  b.box(meeting,'#5b686f',0,1.1,0,4,1.7,3,'stone');
+  // A small seated meeting-place guardian; no collision geometry enters the arena.
+  b.part(meeting,'ball','#6d8b83',0,3.5,0,1.2,1.8,1);
+  b.part(meeting,'ball','#7b9a8a',0,5.2,.15,1,1,.9);
+  for(const side of [-1,1]){b.part(meeting,'cone','#78928b',side*.62,6,.15,.35,.8,.35);b.part(meeting,'cylinder','#6d8b83',side*.7,2.9,.8,.24,2.4,.24);b.box(meeting,'#6d8b83',side*.7,1.8,1.1,.55,.35,.85);b.box(meeting,'#a18169',side*7,1.2,0,5,.25,2);b.box(meeting,'#26374b',side*7,.6,0,4,.9,1.5);}
+  }
+  b.sign(meeting,'MEET / 渋谷','#7bd7cb',0,1.3,1.65,3.5,1.1,'metro',true);
+  shibuyaLife(b);shibuyaSteam(b);shibuyaSky(b);
 }

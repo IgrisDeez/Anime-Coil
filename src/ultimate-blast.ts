@@ -7,7 +7,7 @@ import type { UltimateKind } from './ultimate-presentation';
 const STYLES = { fox: 0, spirit: 1, purple: 2, skybreaker: 3 } as const;
 const PALETTES = {
   fox: ['#fff2ba', '#ff9b27', '#72494a'], spirit: ['#f0ffff', '#40bcff', '#546d8b'],
-  purple: ['#fbeaff', '#ac59ff', '#5b486f'], skybreaker: ['#fff6dc', '#ef997e', '#806c81'],
+  purple: ['#fbeaff', '#ac59ff', '#5b486f'], skybreaker: ['#fffaf1', '#ded6ee', '#7c748e'],
 } as const;
 const COLORS = Object.fromEntries(Object.entries(PALETTES).map(([kind, colors]) => [kind, colors.map(c => new THREE.Color(c))])) as Record<UltimateKind, THREE.Color[]>;
 export function blastCounts(profile: DetailProfile, reduced = false) {
@@ -76,6 +76,7 @@ export class UltimateBlast {
         float centre=1.-smoothstep(.12,.53,r);
         float slit=style>1.5&&style<2.5?smoothstep(.025,.07,abs(point.x+point.y*.48+sin(point.y*19.)*.015))*smoothstep(.02,.05,abs(point.y-point.x*.3-.13)):1.;
         vec3 color=mix(energy,hot,centre*.94);float alpha=opacity*edge*mix(.26,.98,centre)*slit;
+        if(style>2.5){float comic=1.-smoothstep(.018,.065,abs(r-(.55+.075*sin(a*9.))));color=mix(vec3(.105,.085,.15),hot,centre);alpha=opacity*edge*max(comic,centre*.7);}
         if(alpha<.012)discard;gl_FragColor=vec4(color,alpha);
         #include <colorspace_fragment>
       }`);
@@ -108,6 +109,12 @@ export class UltimateBlast {
           centre=gather+dir*radius+vec3(0.,(eventSeed.w-.3)*radius*.5,0.);
           width=category<.5?.18+.2*(1.-q):.25+eventSeed.y*.5;lengthAlong=category<.5?3.+q*5.:width*2.;
           opacity=(.18+.5*(1.-q))*smoothstep(-3.25,-1.6,age);
+          if(style>2.5){
+            // Pomu inflates with compact comic flecks rather than chakra-gathering arcs.
+            category=2.;float orbit=6.+eventSeed.y*9.;
+            centre=gather+rightAxis()*cos(theta+age*.3)*orbit+upAxis()*sin(theta+age*.3)*orbit*.75;
+            width=.15+eventSeed.w*.28;lengthAlong=width*1.8;opacity*=.6;
+          }
         }else{
           float speed=mix(70.,reach*.84,eventSeed.y),distance=3.+speed*t;
           centre=anchor+dir*distance+vec3(0.,3.+eventSeed.w*22.*t-9.*t*t,0.);
@@ -151,6 +158,7 @@ export class UltimateBlast {
       void main(){float a=atan(point.y,point.x),r=length(point);
         float edge=.74+.1*sin(a*5.+noiseSeed*13.)+.07*sin(a*9.-noiseSeed*7.);
         float alpha=opacity*(1.-smoothstep(edge-.09,edge,r));
+        if(style>2.5){float curl=abs(sin(a*1.5+r*12.+noiseSeed*3.));float outline=1.-smoothstep(.025,.085,abs(r-edge*.83));alpha*=.55+.45*outline;alpha*=.65+.35*smoothstep(.12,.32,curl);}
         if(alpha<.012)discard;vec3 color=mix(ash,energy,heat)+vec3(.1)*(point.y*.5+.5);
         gl_FragColor=vec4(color,alpha);
         #include <colorspace_fragment>
@@ -207,7 +215,8 @@ export class UltimateBlast {
     const counts = f.reducedMotion ? COUNTS.quiet : COUNTS[profile];
     const [bursts, waves, trails, clouds] = this.batches;
     bursts.count = f.detonated ? counts.bursts : 0; waves.count = f.detonated ? counts.waves : 0;
-    trails.count = counts.streaks + counts.fragments + counts.sparks; clouds.count = f.detonated ? counts.smoke : 0;
+    trails.count = f.kind==='skybreaker'&&!f.detonated?(f.reducedMotion?4:profile==='mobile'?8:16):counts.streaks + counts.fragments + counts.sparks;
+    clouds.count = f.detonated ? counts.smoke : 0;
     for (const mesh of this.batches) mesh.visible = mesh.count > 0;
   }
   diagnostics() { return { seed: this.seed, reach: this.uniforms.reach.value, batches: this.batches.map(m => ({ name: m.name, count: m.visible && this.group.visible ? m.count : 0, capacity: m.instanceMatrix.count, triangles: (m.geometry.index?.count ?? m.geometry.getAttribute('position').count) / 3 * (m.visible && this.group.visible ? m.count : 0) })) }; }

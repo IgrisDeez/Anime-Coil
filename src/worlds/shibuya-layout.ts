@@ -1,6 +1,6 @@
 export type CityPoint = readonly [number, number];
 export type FacadeKind = 'glass' | 'shop' | 'terrace' | 'commercial';
-export const CITY_NEON=['#76ccc8','#d48caf','#9baee4'] as const;
+export const CITY_NEON=['#5ed2df','#df6bb4','#95aefa'] as const;
 export interface CityBlock { readonly x:number; readonly z:number; readonly width:number; readonly height:number; readonly depth:number; readonly kind:FacadeKind; readonly label:string; readonly rotation:number; readonly district:number }
 /** Shared road/sidewalk anchors; chamfered corners remain clear of the circular arena. */
 export function cityLoop(radius:number):readonly CityPoint[] {

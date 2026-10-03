@@ -1,0 +1,116 @@
+[
+  {
+    "path": "src/simulation.ts",
+    "sha256": "C36D5D713E199A6683D127F273445C51AA14FB6D4DA3D0481A69BC3722E4BBE8",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/fox.ts",
+    "sha256": "7D18338BBB648C535FF968C7EA931C08D36371AD9DB2C830B10C289D01014B9D",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/spirit.ts",
+    "sha256": "F2FCEF5549F1301CC484BE7492CB394CC14DDEFACFE7DA9593EA1FEEF8AD5E57",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/purple.ts",
+    "sha256": "45B7AFF66566538681D8646398D28CF99681288D310BDF06B2D4E6E0B0DE6CCC",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/kitsu-head.ts",
+    "sha256": "1175F5578C35809CF5265E92300A23F9861B05E350223AF582F8A55F8B924BA5",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/normal-head-assets.ts",
+    "sha256": "F782413BD872826841416FC2942A9001905E762D4BD1BC6C2CD73BD0EB7B6525",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "src/ultimate-presentation.ts",
+    "sha256": "02D916A89AEAAD48C5D43138BACAEC6CBF21162A3A879A999C71A4069C409078",
+    "mode": "canonical LF text",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/kairo/kairo-head-desktop.glb",
+    "sha256": "203457B05841BA49F76F871EF08E90801560E333F42DE6ECF17B3B2C3DE4F968",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/kairo/kairo-head-mobile.glb",
+    "sha256": "44D069301AFF9A50CC751D400B29E3E94A403C44C0FA1228077726FAC0D5C8A9",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/kitsu/kitsu-head-desktop.glb",
+    "sha256": "184186525355FDE3AC0C113ABFC006DE373C7B25B1987B200A04B6238D75AFD4",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/kitsu/kitsu-head-mobile.glb",
+    "sha256": "2AE56672D8F02F51AA79D910AE1853F609917AACC5CFB47A1358BBDD332F801D",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/pomu/pomu-head-desktop.glb",
+    "sha256": "FB16571A888E02AD59256E6CDF4C6E32021E5B1F1800F035A63D4FF7520D32EE",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/pomu/pomu-head-mobile.glb",
+    "sha256": "40F2732FF0A5CAA7AB9DDADB6A45206E6EB552C48BC7473AD51E92F17D958192",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/shiro/shiro-head-desktop.glb",
+    "sha256": "F86A76A78A7593BDB35D639CD6E72EB22005FB6F0C6D2C113C4E8762959143D2",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/heads/shiro/shiro-head-mobile.glb",
+    "sha256": "30A37C8459600304C7DF58EEAE329395B27B874698F26518CCB446FDB13898EE",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/kitsu/kitsu-head-desktop.glb",
+    "sha256": "4D1922009ED0A92FDBE285BB04CC055D113F4941C7971ABB23D077478E847C6D",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/kitsu/kitsu-head-mobile.glb",
+    "sha256": "1D7909189D61B816E2404D0C6E1ED72B378AA784870B759C349E198C70A54F4C",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/kurama/kurama-desktop.glb",
+    "sha256": "3866055056E9C4309FEDE3CD71C5F9B971150D404196C79FD5E07456565728B5",
+    "mode": "exact bytes",
+    "unchanged": true
+  },
+  {
+    "path": "public/assets/kurama/kurama-mobile.glb",
+    "sha256": "938D8966D9A0D08F88E453FCEBFE8271E80F89971357A28BB599E35F98965FCF",
+    "mode": "exact bytes",
+    "unchanged": true
+  }
+]

@@ -28,10 +28,10 @@ test("background actor pools are bounded, deterministic, outside the arena, and 
   const safeRadius:Record<string,number>={shibuya:127};
   for(const id of ["shibuya"] as const){
     const world=buildEnvironment(id,"desktop"),group=world.group.getObjectByName(`${id}-background-actors`)!;
-    assert.ok(world.stats.actors<=32);
+    assert.equal(world.stats.actors,72);
     const actors=group.children.filter((o):o is THREE.InstancedMesh=>o instanceof THREE.InstancedMesh);
-    assert.equal(actors.length,2);
-    const count=actors[0].count;assert.ok(count>0&&count<=32);
+    assert.equal(actors.length,3);
+    const count=actors[0].count;assert.equal(count,64);
     for(let i=0;i<count;i++){
       const m=new THREE.Matrix4().fromArray(actors[0].instanceMatrix.array,i*16),p=new THREE.Vector3().setFromMatrixPosition(m);
       assert.ok(Math.hypot(p.x,p.z)>safeRadius[id],`${id} actor ${i} at ${p.x.toFixed(1)},${p.z.toFixed(1)} was too close`);
@@ -73,7 +73,7 @@ for(const profile of ["desktop","mobile"] as const)for(const map of MAPS){
     const a=buildEnvironment(map.id,profile),b=buildEnvironment(map.id,profile);
     assert.equal(snapshot(a.group),snapshot(b.group));
     assert.ok(a.stats.drawCalls<=PROFILES[profile].maxCalls);assert.ok(a.stats.triangles<=PROFILES[profile].maxTriangles);assert.ok(a.stats.materials<=32);
-    assert.ok(a.stats.actors<=(profile==="mobile"?12:32));
+    assert.equal(a.stats.actors,profile==="mobile"?24:72);
     for(const landmark of a.landmarks){const bounds=new THREE.Box3().setFromObject(landmark);assert.ok(Math.hypot(Math.max(bounds.min.x,Math.min(0,bounds.max.x)),Math.max(bounds.min.z,Math.min(0,bounds.max.z)))>RADIUS+5);}
     a.dispose();b.dispose();
   });

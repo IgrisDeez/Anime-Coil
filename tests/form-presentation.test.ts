@@ -71,7 +71,7 @@ test('Skybreaker keeps its giant fist in frame on desktop and portrait viewports
     arena.activateNuke(arena.player);arena.cinematic!.time=2.2;
     camera.position.set(0,48,27);camera.lookAt(0,0,0);fx.update(arena,camera,false);
     fx.group.updateMatrixWorld(true);camera.updateMatrixWorld(true);
-    const fist=fx.group.children.find(child=>child instanceof THREE.Mesh&&child.material instanceof THREE.MeshToonMaterial) as THREE.Mesh;
+    const fist=fx.group.getObjectByName('skybreaker-fist')!;
     const center=new THREE.Box3().setFromObject(fist).getCenter(new THREE.Vector3()).project(camera);
     assert.ok(Number.isFinite(center.x)&&Math.abs(center.x)<.8);
     assert.ok(Number.isFinite(center.y)&&Math.abs(center.y)<.8);

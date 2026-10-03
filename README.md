@@ -1,6 +1,17 @@
-# Anime Coil v1.7.6 — Sculpted Roster and Ultimate VFX
+# Anime Coil v1.7.7 — Living Shibuya and Gear 5
 Anime Coil is a solo browser game. Choose Kitsu, Kairo, Pomu, or Shiro and play against 20 computer-controlled snakes in Shibuya. Collect orbs to grow, avoid collisions, and use your character’s skill and ultimate. Play without a time limit in Endless, set an energy record in the three-minute Sprint, or earn points for orbs and direct eliminations in Bounty Hunt. Guided Practice is available from Help.
 
+## v1.7.7 — Living Shibuya and Gear 5
+
+Shibuya now uses six Blender architectural families, varied districts, station entrances and a small dog meeting area. Navy buildings, warm shops, cyan/magenta signs, rain, painted wet-road reflections and fog frame the clear circular arena. Desktop has 64 pedestrians and eight vehicles; mobile has 20 and four. Umbrellas, waiting groups, taxis, synchronized traffic lights, billboard crossfades and restaurant steam use bounded pools and the existing visual clock.
+
+Pomu transforms into a laughing white-haired chibi with spiral brows and a cloud scarf, balloons through a brief eye-pop gag, and winds up a charcoal Haki fist. The giant punch compresses the street and crossings together, followed by comic pressure waves, curled smoke, rubber rebound and a flattened recovery. Original synthesized inflation, drum, spring and punch accents use the Effects channel. The arm and street deform in shaders; buffers and gameplay collision surfaces stay fixed.
+
+The 5.6-second timeline and 3.4-second authoritative elimination are preserved. The approved normal heads, textured hair, other three finishers, IDs, cosmetics, cooldowns, scoring and respawn timing remain intact. Selected-profile city and Pomu assets preload with accessible feedback, cached subsequent loads and procedural fallback. Profile switches preserve the active cast and pose; independent eye transforms share immutable resources. Reduced motion, reduced flashes, pause, hidden tabs and disabled cinematic camera are respected.
+
+Validation and measurements are in [the release report](docs/LIVING-SHIBUYA-1.7.7.md). Review [matched before/after captures](docs/living-shibuya-1.7.7/matched-comparison.png), [the complete Gear 5 recording](docs/living-shibuya-1.7.7/cinematic/desktop-gear5-complete.webm), [the phone-width recording](docs/living-shibuya-1.7.7/cinematic/phone-gear5-complete.webm), [Blender head views](docs/living-shibuya-1.7.7/gear5-four-views.png), [fist views](docs/living-shibuya-1.7.7/fist-four-views.png), [city views](docs/living-shibuya-1.7.7/city-four-views.png) and [coil attachment](docs/living-shibuya-1.7.7/coil-attachment.png). Editable masters and profile GLBs are in [city assets](assets/shibuya/v177/README.md) and [Pomu assets](assets/pomu-gear5/v177/README.md). Physical-phone testing remains unperformed.
+
+Release targets: [existing GPT Site](https://animecoil.igrisdeez.chatgpt.site) and [Git main](https://github.com/IgrisDeez/Anime-Coil/tree/main). Local preview: http://127.0.0.1:4175/.
 ## v1.7.6 — Sculpted Roster and Catastrophic Ultimate VFX
 
 The local candidate gives each finisher a larger, distinct arena-scale impact, one shared kill-frame presentation, and a longer bounded aftermath. Review the [actual animated preview](docs/ultimate-catastrophe/animated-preview.webm), [animated 1.7.5 comparison](docs/ultimate-catastrophe/animated-comparison.webm), [matched screenshots](docs/ultimate-catastrophe/comparison.png), and [validation/performance report](docs/ULTIMATE-VFX-1.7.6-REVIEW.md). Local gameplay runs the candidate at http://127.0.0.1:4175/; the [interactive comparison](http://127.0.0.1:4175/tests/ultimate-review.html) includes comfort settings and boundary/crowd cases.

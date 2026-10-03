@@ -39,7 +39,7 @@ test('Shibuya actor routes wrap deterministically and stay outside the playable 
 test('Shibuya traffic and pedestrian pools retain profile limits and freeze during pause',()=>{
   for(const profile of ['desktop','mobile'] as const){
     const env=buildEnvironment('shibuya',profile),car=env.group.getObjectByName('city-vehicles') as THREE.InstancedMesh;
-    assert.equal(env.stats.actors,profile==='desktop'?24:10);assert.equal(car.count,profile==='desktop'?12:4);
+    assert.equal(env.stats.actors,profile==='desktop'?72:24);assert.equal(car.count,profile==='desktop'?8:4);
     env.update({...frame,time:10});const state=Array.from(car.instanceMatrix.array);
     env.update({...frame,time:20,paused:true});assert.deepEqual(Array.from(car.instanceMatrix.array),state);
     env.update({...frame,time:30,reducedMotion:true});const reduced=Array.from(car.instanceMatrix.array);
@@ -61,7 +61,7 @@ test('Shibuya wet asphalt retains cartoon shader composition and deterministic r
   material.onBeforeCompile(shader as never,{} as never);assert.match(shader.fragmentShader,/cartoonFalloff/);assert.match(shader.fragmentShader,/surfaceUV \/ 9\.0/);material.dispose();
 });
 test('Shibuya signage remains stable rather than replacing shop identities on a timer',()=>{
-  const b=new WorldBuilder('mobile');shibuya(b);assert.equal(b.motions.length,3);b.finish();b.dispose();
+  const b=new WorldBuilder('mobile');shibuya(b);assert.equal(b.motions.length,6);b.finish();b.dispose();
 });
 
 test('Shibuya packs eight aligned frontages per district and preserves all 32 on mobile',()=>{

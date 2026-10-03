@@ -22,6 +22,8 @@ import { createHead, createHeadOutline, createTransformedHead, createTransformed
 import { selectKitsuProfile } from './kitsu-head';
 import {preloadNormalHeads} from './normal-head-assets';
 import {kuramaAssets} from './kurama-assets';
+import {preloadLivingAssets} from './living-assets';
+import {gear5Expression} from './skybreaker';
 import { UltimateVisualClock } from './ultimate-visual';
 import { UltimateBlast, UltimateCameraPunch } from './ultimate-blast';
 import { cinematicImpactAnchor } from './ultimate-presentation';
@@ -137,7 +139,7 @@ export class GameRenderer {
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
   handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
-  clearEffects() { this.ultimateClock.reset(); this.ultimateBlast.clear(); this.preparedUltimate=false; this.environment?.clearPresentation(); this.fox?.clear(); this.skybreaker?.clear(); this.spirit?.clear();this.purple?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  clearEffects() { this.lastEnvironmentFrame=undefined; this.ultimateClock.reset(); this.ultimateBlast.clear(); this.preparedUltimate=false; this.environment?.clearPresentation(); this.fox?.clear(); this.skybreaker?.clear(); this.spirit?.clear();this.purple?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
   readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
   private focusTarget = new THREE.Vector3();
@@ -211,6 +213,7 @@ export class GameRenderer {
   private purpleTint = new THREE.Color("#aa65ff");
   private spiritTint=new THREE.Color("#81d9ff");
   private skybreakerTint=new THREE.Color("#fff0c3");
+  private lastEnvironmentFrame?:EnvironmentFrame;
   disposeCinematics() { this.ultimateBlast.dispose(); this.gpuTimer.dispose(); this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose();this.purple.dispose(); }
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
@@ -328,6 +331,7 @@ export class GameRenderer {
     this.mapId = id;
     const def = getMap(id);
     this.environment = buildEnvironment(id, this.profile);
+    if(preserveCinematics&&this.lastEnvironmentFrame)this.environment.update({...this.lastEnvironmentFrame,paused:false,dt:0});
     this.scene.add(this.environment.group);
     this.renderer.setClearColor(def.sky);
     this.scene.fog = new THREE.FogExp2(def.sky, def.fog);
@@ -506,7 +510,7 @@ export class GameRenderer {
     selectKitsuProfile(profile);
     if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId,true);
       this.onHeadProfileLoad(true,false);
-      void Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile)]).then(ready=>{if(this.profile===profile){this.refreshNormalHeads();this.onHeadProfileLoad(false,ready.every(Boolean));}});
+      void Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile),preloadLivingAssets(profile).then(r=>r.every(Boolean))]).then(ready=>{if(this.profile===profile){this.refreshNormalHeads();this.skybreaker.setProfile(profile);this.setMap(this.mapId,true);this.onHeadProfileLoad(false,ready.every(Boolean));}});
     }
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.5));
     this.renderer.setSize(w, h);
@@ -534,6 +538,7 @@ export class GameRenderer {
     const replace=(old:THREE.Object3D,next:THREE.Object3D)=>{next.position.copy(old.position);next.quaternion.copy(old.quaternion);next.scale.copy(old.scale);next.visible=old.visible;old.parent?.add(next);old.removeFromParent();};
     for(const visual of this.visuals.values()){
       const head=createHead(visual.character),outline=createHeadOutline(visual.character);replace(visual.head,head);replace(visual.headOutline,outline);visual.head=head;visual.headOutline=outline;visual.eyes=[];head.traverse(o=>{if(o.userData.previewEye)visual.eyes.push(o);});
+      if(visual.character==='cloud'&&visual.formHead&&visual.formOutline){const form=createTransformedHead('cloud'),formOutline=createTransformedHeadOutline('cloud');replace(visual.formHead,form);replace(visual.formOutline,formOutline);visual.formHead=form;visual.formOutline=formOutline;}
     }
     this.setHero(this.heroId);
   }
@@ -746,6 +751,11 @@ export class GameRenderer {
         if (v.formHead && v.formOutline) {
           v.formHead.position.copy(v.head.position); v.formHead.rotation.copy(v.head.rotation); v.formHead.scale.copy(v.head.scale);
           v.formOutline.position.copy(v.headOutline.position); v.formOutline.rotation.copy(v.headOutline.rotation); v.formOutline.scale.copy(v.headOutline.scale);
+          if(formKind==='skybreaker'&&arena.cinematic){
+            const expression=gear5Expression(arena.cinematic.time,reducedMotion),eyes=v.formHead.userData.expressionPivot as THREE.Object3D|undefined;
+            for(const object of [v.formHead,v.formOutline]){object.scale.x*=expression.x;object.scale.y*=expression.y;object.position.y+=expression.bounce*size;}
+            if(eyes){eyes.position.z=expression.eyePop*.14;eyes.scale.set(1+expression.eyePop*.12,1+expression.eyePop*.3,1);}
+          }
         }
         const cachedAnchor=this.effectAnchors.get(s.id);
         this.effectAnchors.set(s.id,cachedAnchor?updateRenderAnchor(cachedAnchor,s.character,v.head.position.x,v.head.position.y,v.head.position.z,s.angle,size):renderAnchor(s.character,v.head.position.x,v.head.position.y,v.head.position.z,s.angle,size));
@@ -817,6 +827,7 @@ export class GameRenderer {
       summonClearance:this.fox.staging.active?this.fox.staging.summonBounds:undefined,
       ultimate:shot&&arena?{kind:shot.kind,time:shot.time,origin:{x:arena.player.x,z:arena.player.z},impact:shot.impact}:undefined};
     this.environment?.update(frame);
+    if(!paused)this.lastEnvironmentFrame=frame;
     this.environment?.cull(this.camera);
     const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
     const visual=this.ultimateClock.frame;

@@ -24,6 +24,7 @@ import { GameRenderer } from "./renderer";
 import { selectKitsuProfile } from './kitsu-head';
 import {preloadNormalHeads} from './normal-head-assets';
 import {kuramaAssets} from './kurama-assets';
+import {preloadLivingAssets} from './living-assets';
 import { profileFor } from './worlds/types';
 import { AudioEngine } from "./audio";
 import { DEFAULT_AUDIO, loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
@@ -1092,20 +1093,20 @@ function frame(now: number) {
   requestAnimationFrame(frame);
 }
 async function initializeRenderer() {
- const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading character models…';
+ const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading Shibuya and character models…';
 
  document.body.append(feedback);el('menu').inert=true;
  const profile=settings.graphics==='auto'?profileFor(innerWidth,matchMedia('(pointer:coarse)').matches):settings.graphics==='low'?'mobile':'desktop';
  selectKitsuProfile(profile);
- const ready=(await Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile)])).every(Boolean);
- feedback.textContent=ready?'Character models ready.':'A character model is unavailable. Using the original model.';
+ const ready=(await Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile),preloadLivingAssets(profile).then(r=>r.every(Boolean))])).every(Boolean);
+ feedback.textContent=ready?'Shibuya and character models ready.':'A visual model is unavailable. Using the original model.';
  if(ready)feedback.remove();else setTimeout(()=>feedback.remove(),6000);
  el('menu').inert=false;
  try {
   applyAccent();
   view = new GameRenderer(canvas, settings.graphics);
   view.onHeadProfileLoad=(loading,ready)=>{
-    feedback.textContent=loading?'Loading character models…':ready?'Character models ready.':'A character model is unavailable. Using the original model.';
+    feedback.textContent=loading?'Loading Shibuya and character models…':ready?'Shibuya and character models ready.':'A visual model is unavailable. Using the original model.';
     if(loading||!ready){if(!feedback.isConnected)document.body.append(feedback);}else feedback.remove();
     if(!loading){const images=view.portraits();CHARACTERS.forEach((c,i)=>(el<HTMLImageElement>(`portrait-${c.id}`).src=images[i]));if(!ready)setTimeout(()=>feedback.remove(),6000);}
   };

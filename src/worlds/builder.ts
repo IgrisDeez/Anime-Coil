@@ -4,6 +4,8 @@ import { RADIUS } from "../simulation";
 import { reaction, PROFILES, type DetailProfile, type EnvironmentFrame, type WorldStats } from "./types";
 import { createSurfaceTexture, finishSurface, type SurfaceKind } from "./surfaces";
 import { SummonClearance } from "./summon-clearance";
+import {attachRubberStreet,rubberDisk} from './rubber-street';
+import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 export type Shape = "box" | "ball" | "cylinder" | "cone" | "disk" | "pebble" | "gable";
 export type Style = SurfaceKind | "matte" | "glow" | "shadow" | "foliage" | "crowd";
 function gableGeometry() {
@@ -31,7 +33,8 @@ export class WorldBuilder {
   private lampBreath = {value:1};
   private wind = {value:0};
   private windStrength = {value:1};
-  private cartoon = {center:new THREE.Vector2(10000,10000),time:{value:0},intensity:{value:0}};
+  readonly cartoon = {center:new THREE.Vector2(10000,10000),time:{value:0},intensity:{value:0}};
+  private markingGeometry:THREE.BufferGeometry;
   private shapes: Record<Shape, THREE.BufferGeometry>;
   private surface: Record<string, THREE.Material>;
   private atlas: THREE.Texture;
@@ -44,6 +47,7 @@ export class WorldBuilder {
   private dynamic = new Set<THREE.Object3D>();
   private clusters = new Set<THREE.Object3D>();
   private clusterBounds = new Map<THREE.Object3D,THREE.Box3>();
+  private importedMaterials=new Map<string,THREE.Material>();
   private viewFrustum = new THREE.Frustum();
   private viewProjection = new THREE.Matrix4();
   private viewBounds = new THREE.Box3();
@@ -70,15 +74,16 @@ export class WorldBuilder {
         lampPosition = instanceMatrix * lampPosition;
         #endif
         lampHeight = lampPosition.y;
-        vec3 cartoonWorld = (modelMatrix * lampPosition).xyz;
-        float cartoonNear = (1.0-smoothstep(20.0,24.0,length(cartoonWorld.xz-cartoonCenter)))*cartoonIntensity*step(cartoonWorld.y,-.30);
-        transformed.x += cartoonNear*sin(cartoonTime*2.0+cartoonWorld.z*.35)*.12;
-        transformed.z += cartoonNear*cos(cartoonTime*1.7+cartoonWorld.x*.35)*.12;`);
+        `);
       shader.fragmentShader = 'uniform float lampBreath; varying float lampHeight;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `outgoingLight *= mix(1.0, lampBreath, step(1.0, lampHeight));
         #include <opaque_fragment>`);
     };
     glow.customProgramCacheKey = () => 'world-lantern-breath';
+    // Ground paint uses the same shader displacement as asphalt; city lights
+    // above street level are excluded by the world-height gate.
+    attachRubberStreet(glow,this.cartoon);
+    this.markingGeometry=this.geo(new THREE.PlaneGeometry(1,1,2,this.profile==='mobile'?4:8));this.markingGeometry.rotateX(-Math.PI/2);
     let signCanvas: HTMLCanvasElement | undefined;
     try {
       if (typeof document !== "undefined") {
@@ -110,7 +115,7 @@ export class WorldBuilder {
     this.wind.value=frame.time;this.windStrength.value=frame.reducedMotion?0:1+Math.max(0,cartoonStrength)*.08;
     const cartoonCenter=cartoonShot && cartoonShot.time>=3.4 ? cartoonShot.impact : cartoonShot?.origin;
     this.cartoon.center.set(cartoonCenter?.x??10000,cartoonCenter?.z??10000);
-    this.cartoon.time.value=frame.reducedMotion?0:frame.time;
+    this.cartoon.time.value=frame.reducedMotion?0:cartoonShot?.time??0;
     this.cartoon.intensity.value=cartoonShot&&!frame.reducedMotion?Math.max(0,cartoonStrength):0;
     const response=reaction(frame.ultimate,frame.reducedMotion);
     (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(frame.ultimate?.kind === "fox" ? this.cartoonTint : this.purpleTint,response.tint).lerp(this.cartoonTint,this.cartoon.intensity.value*.08).multiplyScalar(response.light);
@@ -119,6 +124,10 @@ export class WorldBuilder {
   clearPresentation(){this.clearance.update();this.clearance.updateCamera();this.cartoon.intensity.value=0;this.cartoon.time.value=0;(this.surface.glow as THREE.MeshBasicMaterial).color.set("white");this.signMaterial.color.set("white");}
   geo<T extends THREE.BufferGeometry>(g:T):T {this.geometries.add(g);return g;}
   material<T extends THREE.Material>(m:T):T {this.materials.add(m);return m;}
+  /** Geometry stays in the application cache; only clearance material clones belong to this world. */
+  imported(source:THREE.Object3D,parent:THREE.Group){
+    const clone=source.clone(true);clone.traverse(o=>{if(!(o instanceof THREE.Mesh)||Array.isArray(o.material))return;const key=o.material.uuid;const mat=this.importedMaterials.get(key)??this.material(o.material.clone());this.importedMaterials.set(key,mat);o.material=mat;o.userData.districtCitySurface=o.userData.batch==='Stone'||o.userData.batch==='Windows';});parent.add(clone);return clone;
+  }
   texture<T extends THREE.Texture>(t:T):T {this.textures.add(t);return t;}
   part(parent:THREE.Group,shape:Shape,color:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {
     const mesh=new THREE.Mesh(this.shapes[shape],this.surface[style] ?? this.surfaceMaterial(style as SurfaceKind));mesh.position.set(x,y,z);mesh.scale.set(w,h,d);
@@ -131,10 +140,11 @@ export class WorldBuilder {
       ? new THREE.MeshBasicMaterial({color:'white',map:texture??null})
       : new THREE.MeshToonMaterial({color:'white',map:texture??null});
     finishSurface(material,kind,this.wind,this.windStrength,this.cartoon);
+    if(['asphalt','wetAsphalt','stone','sand','grass'].includes(kind))attachRubberStreet(material,this.cartoon);
     return this.surface[kind]=this.material(material);
   }
   box(p:THREE.Group,c:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {return this.part(p,"box",c,x,y,z,w,h,d,style);}
-  flat(c:string,x:number,z:number,w:number,d:number,rotation=0,style:Style="glow") {const m=this.box(this.group,c,x,-.465,z,w,.02,d,style);m.rotation.y=rotation;return m;}
+  flat(c:string,x:number,z:number,w:number,d:number,rotation=0,style:Style="glow") {const m=this.box(this.group,c,x,-.465,z,w,1,d,style);m.geometry=this.markingGeometry;m.rotation.y=rotation;return m;}
   /** Continuous ground ribbon avoids coplanar overlaps between path sections. */
   path(c:string, points: readonly (readonly [number,number])[], width:number, y:number, style:SurfaceKind) {
     const vertices:number[]=[],uv:number[]=[];
@@ -207,7 +217,7 @@ export class WorldBuilder {
   gableRoof(g:THREE.Group,c:string,w:number,eaveY:number,d:number,rise=3.2) {
     return this.part(g,"gable",c,0,eaveY,0,w,rise,d,"roof");
   }
-  ground(c:string,outside:string,style:SurfaceKind="stone") {this.box(this.group,outside,0,-.7,0,4000,.05,4000,"glow");const floor=this.part(this.group,"disk",c,0,-.5,0,RADIUS+.08,RADIUS+.08,1,style);floor.geometry=this.geo(new THREE.CircleGeometry(1,96));floor.rotation.x=-Math.PI/2;}
+  ground(c:string,outside:string,style:SurfaceKind="stone") {const ring=this.part(this.group,'disk',outside,0,-.7,0,1,1,1,'glow');ring.geometry=this.geo(new THREE.RingGeometry(RADIUS+.08,2000,96));ring.rotation.x=-Math.PI/2;const floor=this.part(this.group,"disk",c,0,-.5,0,1,1,1,style);floor.geometry=this.geo(rubberDisk(RADIUS+.08,this.profile==='mobile'));floor.rotation.x=-Math.PI/2;}
   finish() {
     for (const material of this.materials) if (material !== this.surface.shadow && !material.userData.worldSky) this.clearance.attach(material);
     this.atlas.needsUpdate=true;
@@ -234,16 +244,23 @@ export class WorldBuilder {
         for(let i=0;i<o.count;i++){matrix.fromArray(o.instanceMatrix.array,i*16).premultiply(base).toArray(o.instanceMatrix.array,i*16);}
         o.instanceMatrix.needsUpdate=true;result.push(o);return;
       }
-      if(o instanceof THREE.Mesh){if(!Array.isArray(o.material)&&o.material.userData.worldSky){result.push(o);return;}const key=o.geometry.uuid+o.material.uuid;let bucket=batches.get(key);if(!bucket){bucket={geo:o.geometry,mat:o.material,items:[]};batches.set(key,bucket);}bucket.items.push(o);}else for(const child of o.children)visit(child);
+      if(o instanceof THREE.Mesh){if(!Array.isArray(o.material)&&o.material.userData.worldSky){result.push(o);return;}const key=(o.userData.districtCitySurface?'city-surface':o.geometry.uuid)+o.material.uuid;let bucket=batches.get(key);if(!bucket){bucket={geo:o.geometry,mat:o.material,items:[]};batches.set(key,bucket);}bucket.items.push(o);}else for(const child of o.children)visit(child);
     };visit(root);
     // Sign panels use one merged geometry/atlas despite distinct UV rectangles.
-    const atlases=new Map<THREE.Material,{vertices:number[];uv:number[]}>();
+    const atlases=new Map<THREE.Material,{vertices:number[];uv:number[];alternateUV:number[]}>();
     for(const bucket of batches.values()){
-      if(bucket.mat===this.signMaterial||bucket.mat.userData.worldAtlas){let atlas=atlases.get(bucket.mat);if(!atlas){atlas={vertices:[],uv:[]};atlases.set(bucket.mat,atlas);}for(const mesh of bucket.items){const geo=mesh.geometry.toNonIndexed(),pos=geo.attributes.position,uv=geo.attributes.uv,matrix=inverse.clone().multiply(mesh.matrixWorld);for(let i=0;i<pos.count;i++){const v=new THREE.Vector3().fromBufferAttribute(pos,i).applyMatrix4(matrix);atlas.vertices.push(v.x,v.y,v.z);atlas.uv.push(uv.getX(i),uv.getY(i));}geo.dispose();}continue;}
+      if(bucket.items[0].userData.districtCitySurface){
+        // One surface per compatible material and tight district. Prototype buffers stay immutable;
+        // this world owns the merged copy and discards it only with the whole environment.
+        const parts=bucket.items.map(mesh=>mesh.geometry.clone().applyMatrix4(inverse.clone().multiply(mesh.matrixWorld)));
+        const geometry=mergeGeometries(parts,false);parts.forEach(g=>g.dispose());if(!geometry)throw Error('City surface batch');
+        geometry.computeBoundingSphere();result.push(new THREE.Mesh(this.geo(geometry),bucket.mat));continue;
+      }
+      if(bucket.mat===this.signMaterial||bucket.mat.userData.worldAtlas){let atlas=atlases.get(bucket.mat);if(!atlas){atlas={vertices:[],uv:[],alternateUV:[]};atlases.set(bucket.mat,atlas);}for(const mesh of bucket.items){const geo=mesh.geometry.toNonIndexed(),pos=geo.attributes.position,uv=geo.attributes.uv,alternate=geo.attributes.alternateUV,matrix=inverse.clone().multiply(mesh.matrixWorld);for(let i=0;i<pos.count;i++){const v=new THREE.Vector3().fromBufferAttribute(pos,i).applyMatrix4(matrix);atlas.vertices.push(v.x,v.y,v.z);atlas.uv.push(uv.getX(i),uv.getY(i));if(alternate)atlas.alternateUV.push(alternate.getX(i),alternate.getY(i));}geo.dispose();}continue;}
       const batch=new THREE.InstancedMesh(bucket.geo,bucket.mat,bucket.items.length);
       bucket.items.forEach((m,i)=>{batch.setMatrixAt(i,inverse.clone().multiply(m.matrixWorld));batch.setColorAt(i,new THREE.Color(m.userData.color??"white"));});batch.computeBoundingSphere();result.push(batch);
     }
-    for(const [material,atlas] of atlases){const g=this.geo(new THREE.BufferGeometry());g.setAttribute("position",new THREE.Float32BufferAttribute(atlas.vertices,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(atlas.uv,2));g.computeVertexNormals();result.push(new THREE.Mesh(g,material));}
+    for(const [material,atlas] of atlases){const g=this.geo(new THREE.BufferGeometry());g.setAttribute("position",new THREE.Float32BufferAttribute(atlas.vertices,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(atlas.uv,2));if(atlas.alternateUV.length)g.setAttribute('alternateUV',new THREE.Float32BufferAttribute(atlas.alternateUV,2));g.computeVertexNormals();result.push(new THREE.Mesh(g,material));}
     // Animated groups retain their authored transform; their contents are independently batched.
     for(const g of keep){const local=inverse.clone().multiply(g.matrixWorld);local.decompose(g.position,g.quaternion,g.scale);}
     root.clear();root.add(...result,...keep);

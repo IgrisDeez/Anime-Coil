@@ -1,0 +1,203 @@
+[
+  {
+    "profile": "desktop",
+    "phase": "normal",
+    "before": {
+      "cpuMedian": 9.199999995529652,
+      "cpuP95": 22.049999997019768,
+      "draws": 77,
+      "triangles": 77649,
+      "memory": {
+        "geometries": 67,
+        "textures": 7,
+        "programs": 34
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 8.603906,
+            "p95": 10.004687,
+            "samples": 22
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 8.543958,
+            "p95": 9.03328,
+            "samples": 11
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "after": {
+      "cpuMedian": 12.74999999254942,
+      "cpuP95": 35.05000000447035,
+      "draws": 82,
+      "triangles": 109621,
+      "memory": {
+        "geometries": 85,
+        "textures": 6,
+        "programs": 35
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 4.772552,
+            "p95": 21.820207,
+            "samples": 14
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 4.782656,
+            "p95": 8.540625,
+            "samples": 16
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "cpuMedianChangePercent": 38.586956508094985
+  },
+  {
+    "profile": "mobile",
+    "phase": "charge",
+    "before": {
+      "cpuMedian": 13.850000001490116,
+      "cpuP95": 23.599999994039536,
+      "draws": 221,
+      "triangles": 189925,
+      "memory": {
+        "geometries": 110,
+        "textures": 9,
+        "programs": 40
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 6.759791,
+            "p95": 16.67401,
+            "samples": 17
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 4.664478,
+            "p95": 10.027864,
+            "samples": 22
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "after": {
+      "cpuMedian": 14.100000008940697,
+      "cpuP95": 23.049999997019768,
+      "draws": 198,
+      "triangles": 158386,
+      "memory": {
+        "geometries": 102,
+        "textures": 9,
+        "programs": 45
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 7.499947,
+            "p95": 17.530364,
+            "samples": 19
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 6.769427,
+            "p95": 11.953333,
+            "samples": 20
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "cpuMedianChangePercent": 1.8050542052251428
+  },
+  {
+    "profile": "mobile",
+    "phase": "impact",
+    "before": {
+      "cpuMedian": 14.100000001490116,
+      "cpuP95": 27.74999999254942,
+      "draws": 218,
+      "triangles": 189768,
+      "memory": {
+        "geometries": 115,
+        "textures": 9,
+        "programs": 41
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 5.336092,
+            "p95": 13.769739,
+            "samples": 16
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 7.98276,
+            "p95": 11.761666,
+            "samples": 22
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "after": {
+      "cpuMedian": 14.050000004470348,
+      "cpuP95": 24.350000001490116,
+      "draws": 215,
+      "triangles": 187500,
+      "memory": {
+        "geometries": 107,
+        "textures": 9,
+        "programs": 45
+      },
+      "gpu": [
+        {
+          "available": true,
+          "ms": {
+            "median": 5.986665,
+            "p95": 14.043125,
+            "samples": 19
+          },
+          "status": "asynchronous GPU queries"
+        },
+        {
+          "available": true,
+          "ms": {
+            "median": 2.245885,
+            "p95": 17.380104,
+            "samples": 20
+          },
+          "status": "asynchronous GPU queries"
+        }
+      ]
+    },
+    "cpuMedianChangePercent": -0.3546099079041354
+  }
+]

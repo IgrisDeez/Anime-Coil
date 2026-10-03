@@ -274,9 +274,10 @@ export class AudioEngine {
   ultimateCue(kind: UltimateKind, cue: UltimateCue) {
     if (!this.ctx || !this.enabled || this.hidden || this.prefs.effects === 0) return;
     if (kind === 'skybreaker') {
-      if (cue === 'windup') { this.tone(180, 770, 1.15, .045, 'triangle'); this.tone(460, 180, .6, .025, 'sine', .12); }
-      if (cue === 'throw') { this.tone(800, 95, .55, .08, 'triangle'); this.tone(270, 55, .48, .043, 'sine', .04); }
-      if (cue === 'release') this.tone(490, 220, .32, .035, 'triangle');
+      // Original inflation whistle, two short drum accents and a rubber spring.
+      if (cue === 'windup') { this.tone(120, 680, 1.15, .045, 'sine'); this.tone(220, 105, .12, .055, 'triangle', .02);this.tone(240,110,.11,.04,'triangle',.23); }
+      if (cue === 'throw') { this.tone(820, 70, .55, .075, 'triangle'); this.tone(145, 38, .42, .06, 'sine', .04); }
+      if (cue === 'release'){this.tone(170,650,.16,.035,'sine');this.tone(650,190,.24,.03,'triangle',.12);}
     } else if (kind === 'fox') {
       if (cue === 'gather') { this.tone(85, 310, 1.5, .06, 'sine'); this.tone(210, 520, 1.4, .025, 'triangle'); this.tone(58, 94, 1.2, .027, 'triangle', .12); }
       if (cue === 'launch') { this.tone(680, 55, .7, .085, 'triangle'); this.tone(130, 42, .65, .06, 'sine'); }
@@ -313,8 +314,11 @@ export class AudioEngine {
       this.tone(210, 660, .38, .075, "sine");
       this.tone(520, 1180, .24, .04, "triangle", .06);
     } else if (stage === "start") {
-      this.tone(150, 440, .28, .08, "triangle");
-      this.tone(720, 260, .22, .035, "sine", .04);
+      if(kind==='skybreaker'){
+        this.tone(140,740,.16,.065,'sine');this.tone(740,185,.20,.04,'triangle',.14);
+      }else{
+        this.tone(150,440,.28,.08,'triangle');this.tone(720,260,.22,.035,'sine',.04);
+      }
     } else if (stage === "launch") {
       this.tone(kind === "skybreaker" ? 620 : 440, 150, .12, .045, "triangle");
     } else if (stage === "impact") {

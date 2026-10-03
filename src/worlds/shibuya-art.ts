@@ -21,6 +21,25 @@ export class CityBillboards {
     const texture=b.texture(canvas?new THREE.CanvasTexture(canvas):new THREE.DataTexture(new Uint8Array([82,117,144,255]),1,1));
     texture.colorSpace=THREE.SRGBColorSpace;texture.generateMipmaps=false;texture.minFilter=texture.magFilter=THREE.LinearFilter;texture.needsUpdate=true;
     this.material=b.material(new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));this.material.userData.worldAtlas=true;
+    const clock={value:0};
+    this.material.onBeforeCompile=shader=>{
+      shader.uniforms.billboardTime=clock;
+      shader.vertexShader='attribute vec2 alternateUV;varying vec2 billboardAlternate;\n'+shader.vertexShader;
+      shader.vertexShader=shader.vertexShader.replace('#include <uv_vertex>','#include <uv_vertex>\nbillboardAlternate=alternateUV;');
+      shader.fragmentShader='uniform float billboardTime;\n'+shader.fragmentShader;
+      shader.fragmentShader='varying vec2 billboardAlternate;\n'+shader.fragmentShader;
+      // Two original ads of matching proportions crossfade through the shared atlas.
+      // Shop-name signs remain stable and no canvas is redrawn during frames.
+      shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+        float adPhase=mod(billboardTime,16.);
+        float adBlend=smoothstep(6.8,8.,adPhase)*(1.-smoothstep(14.8,16.,adPhase));
+        if(adBlend<=0.)diffuseColor*=texture2D(map,vMapUv);
+        else if(adBlend>=1.)diffuseColor*=texture2D(map,billboardAlternate);
+        else diffuseColor*=mix(texture2D(map,vMapUv),texture2D(map,billboardAlternate),adBlend);
+        #endif`);
+      shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>',`float sweep=1.-smoothstep(.05,.20,abs(fract(vMapUv.x+billboardTime*.045)-.5));outgoingLight*=.94+.06*sin(billboardTime*.45)+.11*sweep;\n#include <opaque_fragment>`);
+    };this.material.customProgramCacheKey=()=> 'living-city-billboard';
+    const motion=new THREE.Group();motion.name='shibuya-billboard-clock';b.moving(motion,f=>{clock.value=f.reducedMotion?0:f.time;});
   }
   private draw(c:CanvasRenderingContext2D,r:BillboardRegion,index:number){
     const size=this.b.detail.atlas,x=r.x*size,y=r.y*size,w=r.w*size,h=r.h*size,p=this.padding;
@@ -40,7 +59,9 @@ export class CityBillboards {
   }
   panel(g:THREE.Group,art:BillboardArt,x:number,y:number,z:number,w:number,h:number){
     const r=BILLBOARD_REGIONS[art],size=this.b.detail.atlas,p=this.padding/size,geo=this.b.geo(new THREE.PlaneGeometry(w,h)),uv=geo.attributes.uv;
-    for(let i=0;i<uv.count;i++)uv.setXY(i,r.x+p+uv.getX(i)*(r.w-2*p),1-r.y-p-(1-uv.getY(i))*(r.h-2*p));
+    const alternatives=Object.values(BILLBOARD_REGIONS).filter(other=>other!==r&&other.w===r.w&&other.h===r.h),other=alternatives[0]??r,alternate=new THREE.Float32BufferAttribute(new Float32Array(uv.count*2),2);
+    for(let i=0;i<uv.count;i++){const u=uv.getX(i),v=uv.getY(i);alternate.setXY(i,other.x+p+u*(other.w-2*p),1-other.y-p-(1-v)*(other.h-2*p));uv.setXY(i,r.x+p+u*(r.w-2*p),1-r.y-p-(1-v)*(r.h-2*p));}
+    geo.setAttribute('alternateUV',alternate);
     const mesh=new THREE.Mesh(geo,this.material);mesh.position.set(x,y,z);mesh.userData.billboardArt=art;g.add(mesh);return mesh;
   }
 }

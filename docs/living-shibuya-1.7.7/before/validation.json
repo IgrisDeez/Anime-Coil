@@ -1,0 +1,3983 @@
+{
+  "results": [
+    {
+      "label": "desktop",
+      "id": "ember",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 27,
+        "texture": 512,
+        "portrait": true,
+        "world": {
+          "drawCalls": 68,
+          "triangles": 87174,
+          "materials": 22,
+          "textures": 5,
+          "particles": 220,
+          "actors": 24
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 45,
+        "heads": 173,
+        "food": 1,
+        "fox": 10,
+        "body": 15,
+        "outline": 15,
+        "ownership": 1,
+        "shadow": 15,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 246,
+        "food": 1,
+        "fox": 11,
+        "body": 19,
+        "outline": 19,
+        "ownership": 1,
+        "shadow": 19,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 255,
+        "food": 1,
+        "fox": 11,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 266,
+        "food": 1,
+        "fox": 11,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 277,
+        "food": 1,
+        "fox": 11,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 277,
+        "food": 1,
+        "fox": 6,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 277,
+        "food": 1,
+        "fox": 6,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "environment": 58,
+        "heads": 277,
+        "food": 1,
+        "fox": 6,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true,
+        "world": {
+          "drawCalls": 68,
+          "triangles": 87174,
+          "materials": 22,
+          "textures": 5,
+          "particles": 220,
+          "actors": 24
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 132,
+        "food": 1,
+        "spirit": 11,
+        "environment": 44,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 165,
+        "food": 1,
+        "spirit": 11,
+        "environment": 44,
+        "body": 15,
+        "outline": 15,
+        "ownership": 1,
+        "shadow": 15,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 187,
+        "food": 1,
+        "spirit": 11,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 187,
+        "food": 1,
+        "spirit": 10,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 177,
+        "food": 1,
+        "spirit": 10,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 175,
+        "food": 1,
+        "environment": 44,
+        "body": 16,
+        "outline": 16,
+        "ownership": 1,
+        "shadow": 16,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 187,
+        "food": 1,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 187,
+        "food": 1,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true,
+        "world": {
+          "drawCalls": 68,
+          "triangles": 87174,
+          "materials": 22,
+          "textures": 5,
+          "particles": 220,
+          "actors": 24
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 152,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 44,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 178,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 44,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 230,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 230,
+        "food": 1,
+        "skybreaker": 9,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 236,
+        "food": 1,
+        "skybreaker": 9,
+        "environment": 44,
+        "body": 19,
+        "outline": 19,
+        "ownership": 1,
+        "shadow": 19,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 230,
+        "food": 1,
+        "environment": 44,
+        "body": 18,
+        "outline": 18,
+        "ownership": 1,
+        "shadow": 18,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 243,
+        "food": 1,
+        "environment": 44,
+        "body": 18,
+        "outline": 18,
+        "ownership": 1,
+        "shadow": 18,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 217,
+        "food": 1,
+        "environment": 44,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true,
+        "world": {
+          "drawCalls": 68,
+          "triangles": 87174,
+          "materials": 22,
+          "textures": 5,
+          "particles": 220,
+          "actors": 24
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 37,
+        "food": 1,
+        "environment": 33,
+        "body": 8,
+        "outline": 8,
+        "ownership": 1,
+        "shadow": 8,
+        "purple": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 39,
+        "food": 1,
+        "environment": 33,
+        "body": 8,
+        "outline": 8,
+        "ownership": 1,
+        "shadow": 8,
+        "purple": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 55,
+        "food": 1,
+        "environment": 34,
+        "body": 11,
+        "outline": 11,
+        "ownership": 1,
+        "shadow": 11,
+        "purple": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 80,
+        "food": 1,
+        "environment": 34,
+        "body": 11,
+        "outline": 11,
+        "ownership": 1,
+        "shadow": 11,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 10,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 113,
+        "food": 1,
+        "environment": 34,
+        "body": 15,
+        "outline": 15,
+        "ownership": 1,
+        "shadow": 15,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 10,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 128,
+        "food": 1,
+        "environment": 34,
+        "body": 16,
+        "outline": 16,
+        "ownership": 1,
+        "shadow": 16,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 144,
+        "food": 1,
+        "environment": 34,
+        "body": 18,
+        "outline": 18,
+        "ownership": 1,
+        "shadow": 18,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      },
+      "draws": {
+        "heads": 128,
+        "food": 1,
+        "environment": 34,
+        "body": 18,
+        "outline": 18,
+        "ownership": 1,
+        "shadow": 18,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 68,
+        "triangles": 87174,
+        "materials": 22,
+        "textures": 5,
+        "particles": 220,
+        "actors": 24
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 27,
+        "texture": 256,
+        "portrait": true,
+        "world": {
+          "drawCalls": 64,
+          "triangles": 46434,
+          "materials": 22,
+          "textures": 5,
+          "particles": 72,
+          "actors": 10
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 43,
+        "heads": 186,
+        "food": 1,
+        "fox": 10,
+        "body": 14,
+        "outline": 14,
+        "ownership": 1,
+        "shadow": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 53,
+        "heads": 186,
+        "food": 1,
+        "fox": 11,
+        "body": 16,
+        "outline": 16,
+        "ownership": 1,
+        "shadow": 16,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 54,
+        "heads": 224,
+        "food": 1,
+        "fox": 11,
+        "body": 17,
+        "outline": 17,
+        "ownership": 1,
+        "shadow": 17,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 54,
+        "heads": 225,
+        "food": 1,
+        "fox": 11,
+        "body": 19,
+        "outline": 19,
+        "ownership": 1,
+        "shadow": 19,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "environment": 54,
+        "heads": 264,
+        "food": 1,
+        "fox": 11,
+        "body": 20,
+        "outline": 20,
+        "ownership": 1,
+        "shadow": 20,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 251,
+        "food": 1,
+        "fox": 6,
+        "environment": 44,
+        "body": 19,
+        "outline": 19,
+        "ownership": 1,
+        "shadow": 19,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 264,
+        "food": 1,
+        "fox": 6,
+        "environment": 45,
+        "body": 21,
+        "outline": 21,
+        "ownership": 1,
+        "shadow": 21,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 264,
+        "food": 1,
+        "fox": 6,
+        "environment": 45,
+        "body": 20,
+        "outline": 20,
+        "ownership": 1,
+        "shadow": 20,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true,
+        "world": {
+          "drawCalls": 64,
+          "triangles": 46434,
+          "materials": 22,
+          "textures": 5,
+          "particles": 72,
+          "actors": 10
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 33,
+        "food": 1,
+        "spirit": 8,
+        "environment": 41,
+        "body": 3,
+        "outline": 3,
+        "ownership": 1,
+        "shadow": 3,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 55,
+        "food": 1,
+        "spirit": 9,
+        "environment": 42,
+        "body": 6,
+        "outline": 6,
+        "ownership": 1,
+        "shadow": 6,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 97,
+        "food": 1,
+        "spirit": 9,
+        "environment": 42,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 132,
+        "food": 1,
+        "spirit": 9,
+        "environment": 42,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 132,
+        "food": 1,
+        "spirit": 9,
+        "environment": 50,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 132,
+        "food": 1,
+        "environment": 42,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 154,
+        "food": 1,
+        "environment": 42,
+        "body": 14,
+        "outline": 14,
+        "ownership": 1,
+        "shadow": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 154,
+        "food": 1,
+        "environment": 42,
+        "body": 14,
+        "outline": 14,
+        "ownership": 1,
+        "shadow": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true,
+        "world": {
+          "drawCalls": 64,
+          "triangles": 46434,
+          "materials": 22,
+          "textures": 5,
+          "particles": 72,
+          "actors": 10
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 74,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 41,
+        "body": 7,
+        "outline": 7,
+        "ownership": 1,
+        "shadow": 7,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 100,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 41,
+        "body": 8,
+        "outline": 8,
+        "ownership": 1,
+        "shadow": 8,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 140,
+        "food": 1,
+        "skybreaker": 8,
+        "environment": 42,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 164,
+        "food": 1,
+        "skybreaker": 9,
+        "environment": 42,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 139,
+        "food": 1,
+        "skybreaker": 9,
+        "environment": 42,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 139,
+        "food": 1,
+        "environment": 41,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 178,
+        "food": 1,
+        "environment": 41,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 167,
+        "food": 1,
+        "environment": 41,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "skybreaker": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true,
+        "world": {
+          "drawCalls": 64,
+          "triangles": 46434,
+          "materials": 22,
+          "textures": 5,
+          "particles": 72,
+          "actors": 10
+        }
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "summon",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 32,
+        "food": 1,
+        "environment": 24,
+        "body": 5,
+        "outline": 5,
+        "ownership": 1,
+        "shadow": 5,
+        "purple": 13,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "eye-pop",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 32,
+        "food": 1,
+        "environment": 24,
+        "body": 5,
+        "outline": 5,
+        "ownership": 1,
+        "shadow": 5,
+        "purple": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 40,
+        "food": 1,
+        "environment": 24,
+        "body": 7,
+        "outline": 7,
+        "ownership": 1,
+        "shadow": 7,
+        "purple": 14,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "anticipation",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 48,
+        "food": 1,
+        "environment": 24,
+        "body": 7,
+        "outline": 7,
+        "ownership": 1,
+        "shadow": 7,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 10,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      },
+      "draws": {
+        "heads": 56,
+        "food": 1,
+        "environment": 24,
+        "body": 9,
+        "outline": 9,
+        "ownership": 1,
+        "shadow": 9,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "purple": 10,
+        "ultimate-blast": 1
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 79,
+        "food": 1,
+        "environment": 24,
+        "body": 12,
+        "outline": 12,
+        "ownership": 1,
+        "shadow": 12,
+        "purple": 1,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "rebound",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 104,
+        "food": 1,
+        "environment": 24,
+        "body": 14,
+        "outline": 14,
+        "ownership": 1,
+        "shadow": 14,
+        "purple": 1,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      },
+      "draws": {
+        "heads": 103,
+        "food": 1,
+        "environment": 24,
+        "body": 13,
+        "outline": 13,
+        "ownership": 1,
+        "shadow": 13,
+        "purple": 1,
+        "ordinary-scene": 2,
+        "aura": 1,
+        "ultimate-blast": 4
+      },
+      "form": false,
+      "world": {
+        "drawCalls": 64,
+        "triangles": 46434,
+        "materials": 22,
+        "textures": 5,
+        "particles": 72,
+        "actors": 10
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    }
+  ],
+  "errors": []
+}

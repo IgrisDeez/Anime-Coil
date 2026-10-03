@@ -8,7 +8,7 @@ assert json.loads((SITE/'.openai/hosting.json').read_text())['project_id']=='app
 status=subprocess.run(['git','status','--porcelain'],cwd=SITE,check=True,text=True,capture_output=True).stdout
 assert not status.strip(),'Preserve unexpected Site checkout edits before copying.'
 before={str(p.relative_to(SITE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [SITE/'.openai/hosting.json',SITE/'public/screenshot.jpeg'] if p.exists()}
-skip={'storage-review-backup.json','local-archives.json','node_modules','.git','.sites-runtime','__pycache__'}
+skip={'storage-review-backup.json','local-archives.json','node_modules','.git','.sites-runtime','__pycache__','raw-video'}
 copied=[]
 def copy(p):
     rel=p.relative_to(SOURCE)
