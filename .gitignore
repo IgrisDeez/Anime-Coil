@@ -1,3 +1,11 @@
 node_modules/
 dist/
+.sites-runtime/
 *.log
+
+# Local review output and private user-state backups
+docs/shibuya-only-review/storage-review-backup.json
+/assets/
+docs/*/
+*.blend1
+*.blend2

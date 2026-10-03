@@ -7,6 +7,7 @@ import { Arena, NUKE_BLAST, NUKE_DURATION } from './simulation';
 import { ultimateFrame } from './ultimate-presentation';
 import { impactStarGeometry } from './vfx-geometry';
 import type { DetailProfile } from './worlds/types';
+import type { UltimateVisualFrame } from './ultimate-visual';
 
 const smooth = (a: number, b: number, t: number) => THREE.MathUtils.smoothstep(t, a, b);
 
@@ -110,6 +111,7 @@ export class SkybreakerCinematic {
   }
   setProfile(profile: DetailProfile) { this.profile = profile; }
   clear() {
+
     this.group.visible=false;this.group.position.set(0,0,0);this.group.rotation.set(0,0,0);this.cast.clear();this.cameraBlend.clear();this.staged.active=false;
     this.staged.casterPosition.set(0,0,0);this.staged.fistCenter.set(0,0,0);this.staged.impact.set(0,0,0);
     for(const child of this.group.children){child.visible=false;child.position.set(0,0,0);child.rotation.set(0,0,0);if(child instanceof THREE.InstancedMesh)child.count=0;}
@@ -118,6 +120,7 @@ export class SkybreakerCinematic {
   dispose() {
     if (this.disposed) return;
     this.disposed = true;this.clear();
+
     this.group.parent?.remove(this.group);
     const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>();
     this.group.traverse(object => {
@@ -130,7 +133,7 @@ export class SkybreakerCinematic {
     geometries.forEach(geometry => geometry.dispose());
     materials.forEach(material => material.dispose());
   }
-  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true, anchor?: RenderAnchor) {
+  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true, anchor?: RenderAnchor, visual?: Readonly<UltimateVisualFrame>) {
     const shot = !menu && arena?.player.alive && arena.state!=='over' && arena.cinematic;
     this.group.visible = !this.disposed && !!shot && shot.kind === 'skybreaker';
     if (!this.group.visible || !shot || !arena) {this.clear();return;}
@@ -141,6 +144,7 @@ export class SkybreakerCinematic {
     const summon = smooth(0, .9, t);
     const target = shot.impact;
     this.group.position.set(target.x, 0, target.z);
+
     this.staged.impact.set(target.x,0,target.z);
     const shoulderX = (anchor?.x ?? this.cast.position.x)-target.x, shoulderZ = (anchor?.z ?? this.cast.position.z)-target.z;
     const shoulderY=anchor?.y ?? 1;
@@ -152,7 +156,7 @@ export class SkybreakerCinematic {
     this.fist.position.set(headX, y, headZ);
     this.fist.rotation.set(-.38 - strike * .85, this.cast.angle + Math.PI / 2, reduced ? 0 : Math.sin(t * 3) * .045 * windup);
     const compression=reduced?0:smooth(2.05,2.5,t)*(1-strike);
-    this.fist.scale.set(fistSize*(1+compression*.08),fistSize*(1-compression*.18),fistSize*(1+compression*.08));
+    this.fist.scale.set(fistSize*(1+compression*.17-strike*.09),fistSize*(1-compression*.34+strike*.24),fistSize*(1+compression*.17-strike*.09));
     this.staged.fistCenter.set(headX+target.x,y,headZ+target.z);
     this.ink.position.copy(this.fist.position); this.ink.rotation.copy(this.fist.rotation);
     this.ink.scale.copy(this.fist.scale).multiplyScalar(1.045);
@@ -188,7 +192,7 @@ export class SkybreakerCinematic {
     }
     const smokeCount = reduced ? 8 : this.profile === 'mobile' ? 14 : 24;
     this.smoke.visible=true;
-    this.smoke.count = blast > 0 ? smokeCount : (reduced ? 4 : 12);
+    this.smoke.count = visual?.managed&&shot.detonated?0:blast > 0 ? smokeCount : (reduced ? 4 : 12);
     for (let i = 0; i < this.smoke.count; i++) {
       const delay=i%5*.055,age=Math.max(0,blast-delay),linger=Math.min(1,Math.max(0,(2.2-delay-age)/(.6+i%3*.1)));
       const a = i * 2.399963, radius = blast > 0 ? 7 + age * (28 + i%5*3) : 2.5 + i%4;
@@ -199,7 +203,7 @@ export class SkybreakerCinematic {
     }
     this.smoke.instanceMatrix.needsUpdate = true;
     this.stars.visible=!reduced && blast>0;
-    this.stars.count = !reduced && blast > 0 ? (this.profile === 'mobile' ? 8 : 20) : 0;
+    this.stars.count = visual?.managed&&shot.detonated?0:!reduced && blast > 0 ? (this.profile === 'mobile' ? 8 : 20) : 0;
     for (let i = 0; i < this.stars.count; i++) {
       const a = i * 2.399963, radius = 5 + blast * (20+i%3*6);
       this.dummy.position.set(Math.cos(a)*radius,.2,Math.sin(a)*radius);
@@ -207,7 +211,7 @@ export class SkybreakerCinematic {
       this.dummy.updateMatrix(); this.stars.setMatrixAt(i,this.dummy.matrix);
     }
     this.stars.instanceMatrix.needsUpdate = true;
-    this.curls.visible=!reduced;this.curls.count=reduced?0:this.profile==='mobile'?6:12;
+    this.curls.visible=!reduced;this.curls.count=reduced||(visual?.managed&&shot.detonated)?0:this.profile==='mobile'?6:12;
     for(let i=0;i<this.curls.count;i++){
       const a=i*2.39996,age=Math.max(0,blast-i%4*.06),r=blast>0?10+age*(20+i%3*4):3+i%3;
       const linger=blast>0?Math.max(0,1-age/(1.65+i%3*.18)):summon;
@@ -218,6 +222,9 @@ export class SkybreakerCinematic {
     const windPositions=this.wind.geometry.getAttribute('position') as THREE.BufferAttribute;
     for(let i=0;i<12;i++){const a=i*Math.PI/6,r=fistSize*.65;windPositions.setXYZ(i*2,headX+Math.cos(a)*r,y+3,headZ+Math.sin(a)*r);windPositions.setXYZ(i*2+1,headX+Math.cos(a)*r*1.3,y+10+strike*7,headZ+Math.sin(a)*r*1.3);}windPositions.needsUpdate=true;
     const frame = ultimateFrame('skybreaker', t, reduced);
+    if(visual?.managed && blast>=0 && shot.detonated){
+      for(const ring of this.rings)ring.visible=false;this.smoke.visible=false;this.stars.visible=false;this.curls.visible=false;
+    }
     if (frame.cameraWeight > 0 && cinematicCamera) {
       const recovery=smooth(3.4,4.1,t);
       this.cameraBounds.min.set(shoulderX+target.x-3,0,shoulderZ+target.z-3);this.cameraBounds.max.set(shoulderX+target.x+3,5,shoulderZ+target.z+3);

@@ -171,8 +171,7 @@ test('Spirit Bomb grows into the early camera frame before reaching throwing hei
     arena.cinematic = {kind:'spirit',time,detonated:false,impact:{x:22,z:0}};
     camera.position.set(0,48,27); camera.lookAt(0,0,0);
     effect.update(arena,camera,false);
-    let shell: THREE.Mesh | undefined;
-    scene.traverse(object => { if (object instanceof THREE.Mesh && object.material instanceof THREE.ShaderMaterial) shell=object; });
+    const shell = scene.getObjectByName('spirit-orb-surface') as THREE.Mesh | undefined;
     assert.ok(shell);
     heights.push(shell.parent!.position.y);
   }

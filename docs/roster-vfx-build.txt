@@ -1,0 +1,19 @@
+
+> anime-coil@1.7.6 build
+> tsc --noEmit && vite build --configLoader runner
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 72 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.16 kB │ gzip:   0.67 kB
+dist/assets/index-Bf81VTbA.css   72.35 kB │ gzip:  15.44 kB
+dist/assets/index-qKeTs7j5.js   363.78 kB │ gzip: 115.41 kB
+dist/assets/three-Bn0SVxc6.js   572.07 kB │ gzip: 145.78 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.08s

@@ -1,0 +1,1703 @@
+{
+  "version": "1.7.6",
+  "results": [
+    {
+      "label": "desktop",
+      "id": "ember",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 27,
+        "texture": 512,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "desktop",
+      "id": "ember",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "desktop",
+      "id": "nova",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "desktop",
+      "id": "cloud",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "menu": {
+        "profile": "desktop",
+        "hair": true,
+        "locks": 25,
+        "texture": 512,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 9,
+            "capacity": 9,
+            "triangles": 18
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 3,
+            "capacity": 3,
+            "triangles": 576
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 128,
+            "capacity": 128,
+            "triangles": 2048
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 24,
+            "capacity": 24,
+            "triangles": 48
+          }
+        ]
+      }
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "desktop",
+      "id": "eclipse",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "desktop",
+      "requests": [
+        "http://127.0.0.1:4175/assets/heads/kitsu/kitsu-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/kairo/kairo-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/pomu/pomu-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/shiro/shiro-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/kurama/kurama-desktop.glb",
+        "http://127.0.0.1:4175/assets/kurama/kurama-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/kitsu/kitsu-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/kairo/kairo-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/pomu/pomu-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/shiro/shiro-head-mobile.glb"
+      ],
+      "cycles": [
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        },
+        {
+          "geometries": 198,
+          "textures": 11
+        }
+      ]
+    },
+    {
+      "label": "desktop",
+      "comfort": {
+        "motion": true,
+        "camera": false,
+        "flash": "true"
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 27,
+        "texture": 256,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2086961757,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "id": "ember",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3728583383,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "id": "nova",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 2593061826,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "id": "cloud",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "menu": {
+        "profile": "mobile",
+        "hair": true,
+        "locks": 25,
+        "texture": 256,
+        "portrait": true
+      },
+      "crowd": {
+        "count": 21,
+        "shared": true,
+        "independent": true
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "charge",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "launch",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 0,
+            "capacity": 9,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 0,
+            "capacity": 3,
+            "triangles": 0
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 0,
+            "capacity": 24,
+            "triangles": 0
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "impact",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "stage": "recovery",
+      "stateUnchanged": true,
+      "blast": {
+        "seed": 3668359093,
+        "reach": 240,
+        "batches": [
+          {
+            "name": "ultimate-core-bursts",
+            "count": 4,
+            "capacity": 9,
+            "triangles": 8
+          },
+          {
+            "name": "ultimate-warped-waves",
+            "count": 2,
+            "capacity": 3,
+            "triangles": 384
+          },
+          {
+            "name": "ultimate-trails-fragments-sparks",
+            "count": 64,
+            "capacity": 128,
+            "triangles": 1024
+          },
+          {
+            "name": "ultimate-afterglow-clouds",
+            "count": 10,
+            "capacity": 24,
+            "triangles": 20
+          }
+        ]
+      }
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "switches": [
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        },
+        {
+          "ready": true,
+          "time": 4.85,
+          "preserved": true,
+          "hair": true
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "id": "eclipse",
+      "recovery": {
+        "normal": true,
+        "form": false,
+        "hair": true
+      },
+      "lifecycle": "passed"
+    },
+    {
+      "label": "phone",
+      "requests": [
+        "http://127.0.0.1:4175/assets/heads/kitsu/kitsu-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/kairo/kairo-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/pomu/pomu-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/heads/shiro/shiro-head-mobile.glb",
+        "http://127.0.0.1:4175/assets/kurama/kurama-mobile.glb",
+        "http://127.0.0.1:4175/assets/kurama/kurama-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/kitsu/kitsu-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/kairo/kairo-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/pomu/pomu-head-desktop.glb",
+        "http://127.0.0.1:4175/assets/heads/shiro/shiro-head-desktop.glb"
+      ],
+      "cycles": [
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        },
+        {
+          "geometries": 197,
+          "textures": 11
+        }
+      ]
+    },
+    {
+      "label": "phone",
+      "comfort": {
+        "motion": true,
+        "camera": false,
+        "flash": "true"
+      }
+    },
+    {
+      "fallback": {
+        "message": "A character model is unavailable. Using the original model.",
+        "head": true,
+        "approvedKitsu": true
+      }
+    }
+  ],
+  "errors": []
+}

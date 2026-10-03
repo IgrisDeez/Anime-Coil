@@ -15,7 +15,7 @@ test('Spirit Bomb uses one seamless procedural orb and two tapered charge ribbon
   });
   assert.equal(patches.length, 0, 'patchy overlay spheres are removed');
   const shells: THREE.Mesh[] = [];
-  scene.traverse(object => { if (object instanceof THREE.Mesh && object.material instanceof THREE.ShaderMaterial) shells.push(object); });
+  scene.traverse(object => { if (object instanceof THREE.Mesh && object.name==='spirit-orb-surface' && object.material instanceof THREE.ShaderMaterial) shells.push(object); });
   assert.equal(shells.length, 1);
   assert.equal(ribbons.length, 2);
   assert.equal(ribbons[0].geometry.getAttribute('position').count, 5 * 32 * 2);
@@ -38,7 +38,7 @@ test('Spirit Bomb charges over its caster and travels toward the captured impact
   let shell: THREE.Mesh | undefined;
   let ribbon: THREE.Mesh | undefined;
   scene.traverse(object => {
-    if (object instanceof THREE.Mesh && object.material instanceof THREE.ShaderMaterial) shell = object;
+    if (object instanceof THREE.Mesh && object.name==='spirit-orb-surface' && object.material instanceof THREE.ShaderMaterial) shell = object;
     if (object instanceof THREE.Mesh && object.name === 'spirit-gather-ribbon') ribbon = object;
   });
   assert.ok(shell);

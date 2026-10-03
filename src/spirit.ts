@@ -5,6 +5,7 @@ import type { RenderAnchor } from "./vfx-anchors";
 import { Arena, NUKE_BLAST, NUKE_DURATION, serpentScale } from "./simulation";
 import { ultimateFrame } from './ultimate-presentation';
 import type { DetailProfile } from './worlds/types';
+import type { UltimateVisualFrame } from './ultimate-visual';
 
 export function spiritEffectCounts(profile: DetailProfile) {
   return profile === 'mobile'
@@ -57,10 +58,10 @@ export class SpiritCinematic {
     const sphere = new THREE.SphereGeometry(1, 32, 24);
     const basic = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false});
     this.shell = new THREE.Mesh(sphere, new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 } },
+      uniforms: { time: { value: 0 }, compression:{value:0} },
       vertexShader: `varying vec3 vPos; varying vec3 vNormal; void main(){vPos=normalize(position);vNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
       // Smooth Cartesian turbulence has neither longitude seams nor polar pinches.
-      fragmentShader: `uniform float time; varying vec3 vPos; varying vec3 vNormal;
+      fragmentShader: `uniform float time; uniform float compression; varying vec3 vPos; varying vec3 vNormal;
         float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
         float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
           return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
@@ -70,11 +71,13 @@ export class SpiritCinematic {
           float flow=noise3(p*4.0+drift+vec3(warp*.65));
           float fine=noise3(p*8.0-drift*.7);
           float light=smoothstep(.23,.76,flow*.8+fine*.2);
-          float rim=pow(1.-abs(n.z),2.0);
-          vec3 color=mix(vec3(.32,.67,.91),vec3(.88,.98,1.),light);
-          color=mix(color,vec3(1.,1.,.97),clamp(rim*.85+smoothstep(.67,.83,flow)*.22,0.,1.));
+          float rim=max(0.,1.-abs(n.z));rim*=rim;rim*=rim;
+          float veins=1.-smoothstep(.018,.11,abs(flow-.52));veins*=veins;
+          vec3 color=mix(vec3(.035,.21,.49),vec3(.3,.79,.98),light);
+          color=mix(color,vec3(.93,1.,1.),clamp(rim*.92+veins*(.36+compression*.28),0.,1.));
           gl_FragColor=vec4(color,1.);}`,
     }));
+    this.shell.name='spirit-orb-surface';
     this.halo = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color:'#94dcff',transparent:true,opacity:.16,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.BackSide}));
     this.halo.scale.setScalar(1.075);
     this.orb.add(this.shell,this.halo);
@@ -90,8 +93,9 @@ export class SpiritCinematic {
     for(let i=0;i<3;i++){const g=new THREE.SphereGeometry(1,12,8);g.scale(i===0?1:.7,i===0?.9:.72,i===0?1:.8);g.translate(i===0?0:i===1?-.65:.6,i===0?0:.18,i===0?0:i===1?.2:-.25);lobes.push(g);}
     const cloudGeometry=mergeGeometries(lobes,false)!;for(const lobe of lobes)lobe.dispose();
     this.cloud = new THREE.InstancedMesh(cloudGeometry,new THREE.MeshToonMaterial({color:'#dceff5',emissive:'#8aabbd',emissiveIntensity:.12,transparent:true,opacity:.82,depthWrite:false}),36);
-    this.petals = new THREE.InstancedMesh(sphere,basic("#e7cfa4",.75),48);
-    this.motes = new THREE.InstancedMesh(sphere,basic("#89def7"),100);
+    const accentGeometry=new THREE.IcosahedronGeometry(1,0);
+    this.petals = new THREE.InstancedMesh(accentGeometry,basic("#dbd2c5",.85),48);
+    this.motes = new THREE.InstancedMesh(accentGeometry,basic("#bbf5ff"),100);
     for(const mesh of [this.cloud,this.petals,this.motes]) { mesh.frustumCulled=false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); }
     for(let parity=0;parity<2;parity++) {
       const geo = new THREE.BufferGeometry();
@@ -119,6 +123,7 @@ export class SpiritCinematic {
   }
   setProfile(profile: DetailProfile) { this.profile = profile; }
   clear() {
+
     this.root.visible=false; this.cast.clear(); this.cameraBlend.clear(); this.staged.active=false;
     this.staged.casterPosition.set(0,0,0); this.staged.orbCenter.set(0,0,0); this.staged.wakeDirection.set(0,0,0);
     this.shell.material.uniforms.time.value=0; this.orb.position.set(0,0,0); this.orb.rotation.set(0,0,0);
@@ -129,6 +134,7 @@ export class SpiritCinematic {
   dispose() {
     if (this.disposed) return;
     this.disposed = true; this.clear();
+
     this.root.parent?.remove(this.root);
     const resources = new Set<THREE.BufferGeometry | THREE.Material>();
     this.root.traverse(object => {
@@ -141,7 +147,7 @@ export class SpiritCinematic {
     });
     for (const resource of resources) resource.dispose();
   }
-  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true, anchor?: RenderAnchor) {
+  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true, anchor?: RenderAnchor, visual?: Readonly<UltimateVisualFrame>) {
     const shot = arena?.player.alive && arena.state !== "over" ? arena.cinematic : undefined;
     this.root.visible = !this.disposed && !menu && shot?.kind === "spirit";
     if (!this.root.visible || !shot || !arena) { this.clear(); return; }
@@ -162,9 +168,11 @@ export class SpiritCinematic {
     // gameplay camera before the cinematic camera blend has finished.
     const orbRadius=(1+charge*11)*1.6;
     const y=spiritOrbHeight(charge,flight,orbRadius);
-    this.orb.visible=!detonated; this.orb.position.set(x,y,z); this.orb.scale.setScalar(orbRadius);
+    this.orb.visible=!detonated; this.orb.position.set(x,y,z); this.orb.scale.setScalar(orbRadius*(reduced?1:1-THREE.MathUtils.smoothstep(t,2.12,2.4)*.09-THREE.MathUtils.smoothstep(t,3.24,3.4)*.13));
     this.orb.rotation.y=reduced?0:t*.12; this.staged.orbCenter.copy(this.orb.position);
     this.shell.material.uniforms.time.value = reduced ? 0 : t;
+    this.shell.material.uniforms.compression.value=reduced?0:THREE.MathUtils.smoothstep(t,1.85,2.4)+THREE.MathUtils.smoothstep(t,3.15,3.4)*.8;
+
     this.halo.visible=this.profile==='desktop' && !reduced;
     this.arms.visible=!detonated; this.arms.position.set(casterX,casterY,casterZ);
     this.arms.scale.setScalar(serpentScale(p.mass)); this.arms.rotation.y=-(anchor?.angle ?? this.cast.angle);
@@ -188,9 +196,9 @@ export class SpiritCinematic {
     }
     this.wake.instanceMatrix.needsUpdate=true;
     const detail = spiritEffectCounts(this.profile);
-    this.cloud.count = reduced ? Math.min(12,detail.clouds) : detail.clouds;
-    this.petals.count = reduced ? 0 : detail.petals;
-    this.motes.count = reduced ? Math.min(18,detail.motes) : detail.motes;
+    this.cloud.count = visual?.managed&&detonated?0: reduced ? Math.min(12,detail.clouds) : detail.clouds;
+    this.petals.count = visual?.managed&&detonated?0: reduced ? 0 : detail.petals;
+    this.motes.count = visual?.managed&&detonated?0: reduced ? Math.min(18,detail.motes) : detail.motes;
     for(let i=0;i<this.cloud.count;i++) {
       const layer=i%3, delay=(i%7)*.035+layer*.045, age=Math.max(0,blast-delay);
       const growth=Math.min(1,age/(.38+layer*.12));
@@ -204,9 +212,9 @@ export class SpiritCinematic {
     }
     (this.cloud.material as THREE.MeshToonMaterial).opacity=Math.min(1,blast/.13)*fade*.72;
     for(let i=0;i<this.petals.count;i++) {
-      const a=i*Math.PI*2/48, r=5+Math.min(blast,1.7)*(20+i%5*4);
-      this.dummy.position.set(impact.x+Math.cos(a)*r,1+Math.sin(Math.min(1,blast/2)*Math.PI)*(2+i%5),impact.z+Math.sin(a)*r);
-      this.dummy.scale.set(1.8*fade,.4*fade,3*fade);this.dummy.rotation.set(0,-a,blast);this.dummy.updateMatrix();this.petals.setMatrixAt(i,this.dummy.matrix);
+      const a=i*2.399963, r=5+Math.min(blast,1.7)*(24+i%5*5);
+      this.dummy.position.set(impact.x+Math.cos(a)*r,Math.max(.15,1+blast*(12+i%5*3)-blast*blast*13),impact.z+Math.sin(a)*r);
+      this.dummy.scale.set(1.2*fade,.65*fade,1.8*fade);this.dummy.rotation.set(blast*2+i,-a,blast);this.dummy.updateMatrix();this.petals.setMatrixAt(i,this.dummy.matrix);
     }
     for(let i=0;i<this.motes.count;i++) {
       const a=i*2.39996, phase=(t*.65+i/this.motes.count)%1, r=detonated?10+blast*18:(1-phase)*60;
@@ -235,10 +243,14 @@ export class SpiritCinematic {
       positions.needsUpdate=true;
     });
     const rays=this.rays.geometry.attributes.position as THREE.BufferAttribute;
-    const rayCount=detail.rays;
+    const rayCount=visual?.managed&&detonated?0:detail.rays;
     this.rays.geometry.setDrawRange(0,rayCount*2);
     for(let i=0;i<rayCount;i++){const a=i*Math.PI*2/rayCount,r=12+blast*45;rays.setXYZ(i*2,impact.x,2,impact.z);rays.setXYZ(i*2+1,impact.x+Math.cos(a)*r,4+(i%4)*4,impact.z+Math.sin(a)*r);}rays.needsUpdate=true;
     (this.rays.material as THREE.LineBasicMaterial).opacity=fade*.7;
+    if(visual?.managed && detonated){
+      this.wave.visible=false;for(const ring of this.shock)ring.visible=false;
+      this.cloud.visible=false;this.petals.visible=false;this.motes.visible=false;this.rays.visible=false;
+    }
     if(frame.cameraWeight>0 && cinematicCamera){
       const release=THREE.MathUtils.smoothstep(t,2.4,3.4), recovery=THREE.MathUtils.smoothstep(t,3.4,4.1);
       this.cameraBounds.min.set(casterX-3,0,casterZ-3);this.cameraBounds.max.set(casterX+3,5,casterZ+3);

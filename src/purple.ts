@@ -3,6 +3,7 @@ import { Arena, NUKE_BLAST, NUKE_DURATION } from "./simulation";
 import { ultimateFrame } from './ultimate-presentation';
 import type { DetailProfile } from './worlds/types';
 import { ruptureSheetGeometry } from './vfx-geometry';
+import type { UltimateVisualFrame } from './ultimate-visual';
 
 const smooth = (start: number, end: number, value: number) => THREE.MathUtils.smoothstep(value, start, end);
 
@@ -32,7 +33,7 @@ function fractureGeometry(): THREE.BufferGeometry {
 // Persistent effect geometry: no frame-time mesh creation or map-owned assets.
 export class PurpleCinematic {
   group = new THREE.Group();
-  private core: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
+  private core: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
   private inner: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
   private cavity: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
   private red: THREE.Mesh;
@@ -53,6 +54,7 @@ export class PurpleCinematic {
   private targetQuaternion = new THREE.Quaternion();
   private profile: DetailProfile;
   private light = new THREE.PointLight("#a347ff", 0, 200, 1);
+  private disposed=false;
   constructor(scene: THREE.Scene, profile: DetailProfile = 'desktop') {
     this.profile = profile;
     const sphere = new THREE.SphereGeometry(1, 32, 20);
@@ -63,7 +65,24 @@ export class PurpleCinematic {
         depthWrite: false,
         blending: THREE.AdditiveBlending,
       });
-    this.core = new THREE.Mesh(sphere, material("#c65cff"));
+    this.core = new THREE.Mesh(sphere, new THREE.ShaderMaterial({
+      defines:{MOBILE_CORE:profile==='mobile'?1:0},
+      uniforms:{time:{value:0},compression:{value:0},alpha:{value:1}},transparent:true,depthWrite:false,
+      vertexShader:'varying vec3 p;varying vec3 n;void main(){p=normalize(position);n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:`varying vec3 p;varying vec3 n;uniform float time;uniform float compression;uniform float alpha;
+        void main(){
+          #if MOBILE_CORE == 1
+          float seam=sin(dot(p,vec3(9.,7.,8.))+time*.65);
+          #else
+          float seam=sin(p.x*9.+p.z*8.+time*.9)*cos(p.y*11.-time*.7);
+          #endif
+          float ribbons=pow(1.-smoothstep(.04,.23,abs(seam)),2.);
+          float rim=max(0.,1.-abs(n.z));rim*=rim;rim*=rim;
+          vec3 color=mix(vec3(.09,.015,.21),vec3(.41,.08,.72),.5+.5*seam);
+          color+=vec3(.66,.30,.82)*(ribbons*(.32+compression*.3)+rim*.55);
+          gl_FragColor=vec4(color,alpha);}`,
+    }));
+    this.core.name='purple-compressed-core';
     this.inner = new THREE.Mesh(sphere, material('#fff0ff'));
     this.cavity = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color:'#27123d',transparent:true,opacity:.6,depthWrite:false}));
     this.red = new THREE.Mesh(sphere, material("#ff325d"));
@@ -78,7 +97,7 @@ export class PurpleCinematic {
       filament.frustumCulled = false; this.filaments.push(filament); this.group.add(filament);
     }
     this.shards = new THREE.InstancedMesh(new THREE.TetrahedronGeometry(1), material('#bb78ff'), 24);
-    this.sheets = new THREE.InstancedMesh(ruptureSheetGeometry(), new THREE.MeshBasicMaterial({color:'#c59cff',transparent:true,opacity:.62,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}),16);
+    this.sheets = new THREE.InstancedMesh(ruptureSheetGeometry(), new THREE.MeshBasicMaterial({color:'#c59cff',transparent:true,opacity:.62,side:THREE.DoubleSide,forceSinglePass:true,depthWrite:false,blending:THREE.AdditiveBlending}),16);
     for (const mesh of [this.shards,this.sheets]) { mesh.frustumCulled=false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.group.add(mesh); }
     this.fractures = new THREE.InstancedMesh(fractureGeometry(), new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.75,side:THREE.DoubleSide,depthWrite:false}),28);
     this.fractures.name = 'purple-ground-fractures';
@@ -87,7 +106,7 @@ export class PurpleCinematic {
     this.group.add(this.fractures);
     this.corona = new THREE.Mesh(sphere, new THREE.ShaderMaterial({
       uniforms: {time:{value:0}, alpha:{value:0}}, transparent:true, depthWrite:false,
-      blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+      blending:THREE.AdditiveBlending, side:THREE.DoubleSide, forceSinglePass:true,
       vertexShader:`varying vec3 vPosition; varying vec3 vNormal;
         uniform float time;
         void main(){vPosition=position;vNormal=normalize(normalMatrix*normal);
@@ -135,16 +154,27 @@ export class PurpleCinematic {
     this.group.visible = false;
     scene.add(this.group);
   }
-  setProfile(profile: DetailProfile) { this.profile = profile; }
+  setProfile(profile: DetailProfile) {if(this.profile===profile)return;this.profile=profile;this.core.material.defines.MOBILE_CORE=profile==='mobile'?1:0;this.core.material.needsUpdate=true;}
+  clear(){this.group.visible=false;this.light.intensity=0;this.core.material.uniforms.alpha.value=0;}
+  dispose(){
+    if(this.disposed)return;this.disposed=true;this.clear();
+    const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
+    this.group.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.Points||o instanceof THREE.LineSegments){
+      geometries.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);
+      if(o instanceof THREE.InstancedMesh)o.dispose();
+    }});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());this.group.removeFromParent();
+  }
   update(
     arena: Arena | undefined,
     camera: THREE.PerspectiveCamera,
     menu: boolean,
     reduced = false,
+    cinematicCamera = true,
+    visual?: Readonly<UltimateVisualFrame>,
   ) {
-    const shot = !menu && arena?.cinematic;
-    this.group.visible = !!shot && shot.kind === "purple";
-    if (!shot || !arena || shot.kind !== "purple") return;
+    const shot = !menu && arena?.player.alive && arena.state!=='over' && arena.cinematic;
+    this.group.visible = !this.disposed && !!shot && shot.kind === "purple";
+    if (!this.group.visible || !shot || !arena || shot.kind !== "purple") {this.clear();return;}
     const t = shot.time, p = arena.player, blast = Math.max(0, t - NUKE_BLAST);
     const detonated = t >= NUKE_BLAST;
     const frame = ultimateFrame('purple', t, reduced);
@@ -153,7 +183,9 @@ export class PurpleCinematic {
     const rupture = detonated ? 1 - smooth(.16, 1.05, blast) : 0;
     const front = detonated ? Math.min(125, 7 + blast * 93) : 0;
     this.group.position.set(p.x, 0, p.z);
-    this.core.material.color.set("#c65cff");
+    this.core.material.uniforms.time.value=reduced?0:t;
+    this.core.material.uniforms.compression.value=reduced?0:compress;
+
     this.sparks.material.color.set("#d8b6ff");
     this.light.color.set("#a347ff");
     const height = 5;
@@ -161,7 +193,7 @@ export class PurpleCinematic {
     this.sparks.position.y = height;
     const chargeSize = (.4 + charge * charge * 6) * 2.4 * (1 - compress * .55);
     this.core.scale.setScalar(detonated ? 5 + blast * 22 : chargeSize);
-    this.core.material.opacity = detonated ? rupture * (reduced ? .16 : .3) : .48 + merge * .19;
+    this.core.material.uniforms.alpha.value = detonated ? rupture * (reduced ? .16 : .3) : .82 + merge * .18;
     this.inner.visible = t >= 1.2 && t < NUKE_BLAST;
     this.inner.position.y = height; this.inner.scale.setScalar(chargeSize * .42);
     this.inner.material.opacity = .25 + merge * .5;
@@ -170,9 +202,9 @@ export class PurpleCinematic {
     this.cavity.material.opacity = (1 - smooth(.08, .9, blast)) * (reduced ? .25 : .55);
     this.corona.visible = detonated && rupture > .01;
     this.corona.position.y = height;
-    this.corona.scale.setScalar(6 + Math.min(blast, 1.25) * 49);
+    this.corona.scale.setScalar(6+Math.min(blast,1.25)*49);
     this.corona.material.uniforms.time.value = reduced ? 0 : t;
-    this.corona.material.uniforms.alpha.value = rupture * (reduced ? .18 : .58);
+    this.corona.material.uniforms.alpha.value = rupture*(reduced?.18:.58);
     this.red.visible = this.blue.visible = t < 2.6;
     const orbit = 8 * (1 - merge) + .7 * merge, spin = reduced ? 0 : t * (t < 1.2 ? .8 : 2.7);
     this.red.position.set(Math.cos(spin) * orbit, height, Math.sin(spin) * orbit);
@@ -205,6 +237,7 @@ export class PurpleCinematic {
         : (.15 + merge * .22) * (reduced ? .6 : 1);
     }
     this.filaments.forEach((line, side) => {
+      if(visual?.managed&&detonated){line.visible=false;return;}
       line.visible = !reduced && (t < NUKE_BLAST || blast < .95);
       (line.material as THREE.LineBasicMaterial).color.set(detonated ? side ? '#f1bdff' : '#a990ff' : side ? '#7cbfff' : '#ff789b');
       (line.material as THREE.LineBasicMaterial).opacity = detonated ? .8 * (1 - smooth(.25, .95, blast)) : .75;
@@ -230,15 +263,15 @@ export class PurpleCinematic {
       }
       positions.needsUpdate = true;
     });
-    this.shards.count = reduced ? 0 : this.profile === 'mobile' ? 12 : 24;
-    this.sheets.count = reduced ? 0 : this.profile === 'mobile' ? 8 : 16;
+    this.shards.count = reduced || (visual?.managed&&detonated) ? 0 : this.profile === 'mobile' ? 12 : 24;
+    this.sheets.count = reduced || (visual?.managed&&detonated) ? 0 : this.profile === 'mobile' ? 8 : 16;
     this.fractures.count = reduced ? 8 : this.profile === 'mobile' ? 16 : 28;
     this.shards.visible = this.sheets.visible = detonated && !reduced && fade > .01 && rupture > .01;
     this.fractures.visible = detonated && blast < 1.65;
     (this.fractures.material as THREE.MeshBasicMaterial).opacity = (1 - smooth(.65, 1.65, blast)) * (reduced ? .25 : .72);
     for (let i = 0; i < this.fractures.count; i++) {
       const angle = i * 2.399963 + (i % 3) * .11;
-      const reach = front * (.48 + i % 5 * .095);
+      const reach = Math.min(260,front*1.85) * (.48 + i % 5 * .095);
       this.dummy.position.set(0, -.19 + (i % 3) * .006, 0);
       this.dummy.rotation.set(0, -angle, 0);
       this.dummy.scale.set(reach, 1, 1.1 + i % 4 * .7);
@@ -263,7 +296,12 @@ export class PurpleCinematic {
     this.sparks.rotation.y = reduced ? 0 : t * 0.4;
     this.sparks.material.opacity = detonated ? rupture : 1;
     this.light.intensity = reduced ? 0 : detonated ? rupture * 38 : 4 + merge * 16;
-    if (frame.cameraWeight > 0) {
+    if(visual?.managed && detonated){
+      this.core.visible=false;this.corona.visible=false;this.cavity.visible=false;for(const ring of this.rings)ring.visible=false;
+      this.shards.visible=false;this.sheets.visible=false;this.sparks.visible=false;for(const line of this.filaments)line.visible=false;
+      this.light.intensity=visual.reducedFlashes||reduced?0:Math.max(0,1-blast/.16)*8;
+    }else this.core.visible=true;
+    if (frame.cameraWeight > 0 && cinematicCamera) {
       const zoom = t < 1.2 ? 43 : t < 2.5 ? 43 + merge * 10 : t < NUKE_BLAST ? 53 + compress * 31 : 94 + blast * 8;
       const width = Math.max(1, .85 / camera.aspect);
       this.basePosition.copy(camera.position); this.baseQuaternion.copy(camera.quaternion);

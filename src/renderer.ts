@@ -19,7 +19,12 @@ import {
 } from "./simulation";
 import { SkillEffects } from "./skill-effects";
 import { createHead, createHeadOutline, createTransformedHead, createTransformedHeadOutline } from "./models";
-import { kitsuHeads, selectKitsuProfile } from './kitsu-head';
+import { selectKitsuProfile } from './kitsu-head';
+import {preloadNormalHeads} from './normal-head-assets';
+import {kuramaAssets} from './kurama-assets';
+import { UltimateVisualClock } from './ultimate-visual';
+import { UltimateBlast, UltimateCameraPunch } from './ultimate-blast';
+import { cinematicImpactAnchor } from './ultimate-presentation';
 import { SpiritCinematic } from "./spirit";
 import { FoxCinematic } from "./fox";
 import { SkybreakerCinematic } from "./skybreaker";
@@ -88,7 +93,7 @@ export class GameRenderer {
     const labels=new Map<THREE.Object3D,string>(),hooks=new Map<THREE.Object3D,THREE.Object3D['onBeforeRender']>(),calls:Record<string,number>={};
     const label=(root:THREE.Object3D|undefined,name:string)=>root?.traverse(o=>labels.set(o,name));
     label(this.environment?.group,'environment');label(this.skillEffects.group,'skills');
-    label(this.fox.group,'fox');label(this.purple.group,'purple');label(this.skybreaker.group,'skybreaker');label(this.spirit.presentationGroup,'spirit');label(this.food,'food');
+    label(this.fox.group,'fox');label(this.purple.group,'purple');label(this.skybreaker.group,'skybreaker');label(this.spirit.presentationGroup,'spirit');label(this.food,'food');label(this.ultimateBlast.group,'ultimate-blast');
     for(const v of this.visuals.values()){
       label(v.head,'heads');label(v.headOutline,'heads');label(v.formHead,'heads');label(v.formOutline,'heads');
       label(v.body,'body');label(v.outline,'outline');label(v.shadow,'shadow');label(v.marks,'ownership');label(v.aura,'aura');
@@ -104,6 +109,20 @@ export class GameRenderer {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(43, 1, 0.1, 600);
   cinematicCameraEnabled = true;
+  reducedFlashes = false;
+  ultimateBlastEnabled = true;
+  private ultimateClock = new UltimateVisualClock();
+  private ultimateBlast = new UltimateBlast(this.scene);
+  private ultimatePunch = new UltimateCameraPunch();
+  private preparedUltimate = false;
+  private ultimateAnchor = new THREE.Vector3();
+  private ultimateGather = new THREE.Vector3();
+  get ultimateVisual(): Readonly<import("./ultimate-visual").UltimateVisualFrame> { return this.ultimateClock.frame; }
+  get ultimateDiagnostics() { return this.ultimateBlast.diagnostics(); }
+  prepareUltimateFrame(arena: Arena|undefined, reducedMotion: boolean, reducedFlashes: boolean, cameraEnabled: boolean, advancing: boolean) {
+    this.reducedFlashes=reducedFlashes;this.preparedUltimate=true;
+    return this.ultimateClock.update(arena?.player.alive&&arena.state!=='over'?arena.cinematic:undefined,reducedMotion,reducedFlashes,cameraEnabled,advancing);
+  }
   private readonly gameplayCameraPosition = new THREE.Vector3();
   private readonly gameplayCameraRotation = new THREE.Quaternion();
   visuals = new Map<number, SnakeVisual>();
@@ -118,7 +137,7 @@ export class GameRenderer {
   mode: "menu" | "game" = "menu";
   private skillEffects = new SkillEffects();
   handleEvents(events: readonly GameEvent[], arena: Arena) { this.skillEffects.ingest(events, arena.player.boosting, arena.player.angle); }
-  clearEffects() { this.environment?.clearPresentation(); this.fox?.clear(); this.skybreaker?.clear(); this.spirit?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
+  clearEffects() { this.ultimateClock.reset(); this.ultimateBlast.clear(); this.preparedUltimate=false; this.environment?.clearPresentation(); this.fox?.clear(); this.skybreaker?.clear(); this.spirit?.clear();this.purple?.clear(); this.skillEffects.clear(); this.effectAnchors.clear(); this.boostMotion.reset(); this.previewMotion.reset(); this.boostCamera = 0; this.camera.fov = 43; this.camera.updateProjectionMatrix(); }
   readonly boostMotion = new BoostMotion();
   private focus = new THREE.Vector3();
   private focusTarget = new THREE.Vector3();
@@ -190,7 +209,9 @@ export class GameRenderer {
   private skybreaker: SkybreakerCinematic;
   private foxTint = new THREE.Color("#ffa343");
   private purpleTint = new THREE.Color("#aa65ff");
-  disposeCinematics() { this.gpuTimer.dispose(); this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose(); }
+  private spiritTint=new THREE.Color("#81d9ff");
+  private skybreakerTint=new THREE.Color("#fff0c3");
+  disposeCinematics() { this.ultimateBlast.dispose(); this.gpuTimer.dispose(); this.fox.dispose(); this.skybreaker.dispose(); this.spirit.dispose();this.purple.dispose(); }
   private purple: PurpleCinematic;
   private spirit: SpiritCinematic;
   setCosmetics(skin: BodySkinId = 'original', trail: TrailId = 'original') {
@@ -289,15 +310,17 @@ export class GameRenderer {
     this.scene.add(this.food);
     this.scene.add(this.hero);
     this.fox = new FoxCinematic(this.scene, this.profile);
+    const gl=this.renderer.getContext();this.fox.setMultisampleFade(gl.getParameter(gl.SAMPLES));
     this.skybreaker = new SkybreakerCinematic(this.scene, this.profile);
     this.purple = new PurpleCinematic(this.scene, this.profile);
     this.spirit = new SpiritCinematic(this.scene, this.profile);
+    void this.renderer.compileAsync(this.ultimateBlast.group,this.camera,this.scene).catch(()=>{});
     this.setHero("ember");
     this.setMap("shibuya");
     this.resize();
   }
-  setMap(id: MapId) {
-    this.fox?.clear(); this.spirit?.clear(); this.skybreaker?.clear();
+  setMap(id: MapId, preserveCinematics = false) {
+    if(!preserveCinematics){this.ultimateClock.reset();this.ultimateBlast.clear();this.fox?.clear(); this.spirit?.clear(); this.skybreaker?.clear();this.purple?.clear();}
     if (this.environment) {
       this.scene.remove(this.environment.group);
       this.environment.dispose();
@@ -481,9 +504,9 @@ export class GameRenderer {
       h = innerHeight;
     const profile = this.graphicsChoice === 'auto' ? profileFor(w, matchMedia("(pointer:coarse)").matches) : this.graphicsChoice === 'low' ? 'mobile' : 'desktop';
     selectKitsuProfile(profile);
-    if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId);
+    if (this.profile !== profile) { this.profile = profile; this.skillEffects.setProfile(profile); this.fox.setProfile(profile); this.skybreaker.setProfile(profile); this.spirit.setProfile(profile); this.purple.setProfile(profile); this.setMap(this.mapId,true);
       this.onHeadProfileLoad(true,false);
-      void kitsuHeads.preload(profile).then(ready=>{if(this.profile===profile){this.refreshKitsuHeads();this.onHeadProfileLoad(false,ready);}});
+      void Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile)]).then(ready=>{if(this.profile===profile){this.refreshNormalHeads();this.onHeadProfileLoad(false,ready.every(Boolean));}});
     }
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, w < 700 ? 1.35 : 1.5));
     this.renderer.setSize(w, h);
@@ -507,12 +530,12 @@ export class GameRenderer {
     this.camera.setViewOffset(innerWidth, innerHeight, innerWidth / 2 - this.lobbyViewport.x,
       innerHeight / 2 - this.lobbyViewport.y, innerWidth, innerHeight);
   }
-  private refreshKitsuHeads() {
+  private refreshNormalHeads() {
     const replace=(old:THREE.Object3D,next:THREE.Object3D)=>{next.position.copy(old.position);next.quaternion.copy(old.quaternion);next.scale.copy(old.scale);next.visible=old.visible;old.parent?.add(next);old.removeFromParent();};
-    for(const visual of this.visuals.values())if(visual.character==='ember'){
-      const head=createHead('ember'),outline=createHeadOutline('ember');replace(visual.head,head);replace(visual.headOutline,outline);visual.head=head;visual.headOutline=outline;visual.eyes=[];head.traverse(o=>{if(o.userData.previewEye)visual.eyes.push(o);});
+    for(const visual of this.visuals.values()){
+      const head=createHead(visual.character),outline=createHeadOutline(visual.character);replace(visual.head,head);replace(visual.headOutline,outline);visual.head=head;visual.headOutline=outline;visual.eyes=[];head.traverse(o=>{if(o.userData.previewEye)visual.eyes.push(o);});
     }
-    if(this.heroId==='ember')this.setHero('ember');
+    this.setHero(this.heroId);
   }
   steering(x: number, y: number, arena: Arena) {
     this.ray.setFromCamera(
@@ -763,10 +786,23 @@ export class GameRenderer {
     this.skillEffects.update(menu ? undefined : arena, time, this.visualFrame.dt, reducedMotion, this.boostMotion, this.mapId, this.effectAnchors);
     this.gameplayCameraPosition.copy(this.camera.position);
     this.gameplayCameraRotation.copy(this.camera.quaternion);
-    this.purple.update(arena, this.camera, menu, reducedMotion);
-    this.spirit.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0));
-    this.fox.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled);
-    this.skybreaker.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0));
+    if(!this.preparedUltimate)this.prepareUltimateFrame(menu?undefined:arena,reducedMotion,this.reducedFlashes,this.cinematicCameraEnabled,!paused);
+    this.preparedUltimate=false;
+    const ultimateVisual=this.ultimateBlastEnabled?this.ultimateClock.frame:undefined;
+    this.purple.update(arena, this.camera, menu, reducedMotion,this.cinematicCameraEnabled,ultimateVisual);
+    this.spirit.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0),ultimateVisual);
+    this.fox.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled,ultimateVisual);
+    this.skybreaker.update(arena, this.camera, menu, reducedMotion, this.cinematicCameraEnabled, this.effectAnchors.get(0),ultimateVisual);
+    if(ultimateVisual&&ultimateVisual.active&&arena?.cinematic&&!menu){
+      const shot=arena.cinematic;
+      cinematicImpactAnchor(shot.kind,shot.impact,arena.player,this.ultimateAnchor);
+      if(shot.kind==='fox')this.ultimateGather.copy(this.fox.staging.bombCenter);
+      else if(shot.kind==='spirit')this.ultimateGather.copy(this.spirit.staging.orbCenter);
+      else if(shot.kind==='skybreaker')this.ultimateGather.copy(this.skybreaker.staging.fistCenter);
+      else this.ultimateGather.set(arena.player.x,5,arena.player.z);
+      this.ultimateBlast.update(ultimateVisual,this.ultimateAnchor.x,this.ultimateAnchor.z,this.ultimateGather,this.profile);
+      this.ultimatePunch.apply(this.camera,ultimateVisual,this.ultimateAnchor,shot.kind==='fox'?this.fox.staging.cameraFocus:undefined);
+    }else this.ultimateBlast.clear();
     if (!this.cinematicCameraEnabled && arena?.cinematic) {
       this.camera.position.copy(this.gameplayCameraPosition);
       this.camera.quaternion.copy(this.gameplayCameraRotation);
@@ -783,9 +819,15 @@ export class GameRenderer {
     this.environment?.update(frame);
     this.environment?.cull(this.camera);
     const base=getMap(this.mapId),response=reaction(frame.ultimate,reducedMotion);
+    const visual=this.ultimateClock.frame;
+    if(this.ultimateBlastEnabled&&visual.active&&!reducedMotion){
+      const pulse=visual.detonated?(visual.keyframe?1:Math.max(0,1-visual.age/.3)):0;
+      response.light=visual.reducedFlashes?1:response.light+pulse*.3;
+      response.tint=Math.max(response.tint,visual.detonated?Math.max(0,1-visual.age/1.4)*.25:0);
+    }
     this.hemisphere.intensity=base.intensity*response.light;
     this.sunlight.intensity=base.sunIntensity*response.light;
-    this.sunlight.color.set(base.sun).lerp(shot?.kind === "fox" ? this.foxTint : this.purpleTint,response.tint);
+    this.sunlight.color.set(base.sun).lerp(shot?.kind === "fox" ? this.foxTint : shot?.kind === "spirit" ? this.spiritTint : shot?.kind === "skybreaker" ? this.skybreakerTint : this.purpleTint,response.tint);
     this.rimLight.intensity=base.rimIntensity+response.tint;
     this.profiler.finish('environment',environmentStamp);
     const submitStamp=this.profiler.stamp();

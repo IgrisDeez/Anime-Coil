@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type {DetailProfile} from './worlds/types';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 const palette = { gold: '#ffc13f', light: '#ffdf75', orange: '#ee7620', ink: '#38222a', ivory: '#fff2b2', eye: '#fff69a' };
@@ -73,7 +74,13 @@ export interface FoxSummonModel {
 }
 
 /** Four vertex-colour draws: torso/legs, head/jaws, and two articulated forearms. */
-export function createFoxSummon(): FoxSummonModel {
+let cachedFactory: ((profile:DetailProfile)=>FoxSummonModel|undefined)|undefined;
+export function registerFoxSummonAssetFactory(factory:typeof cachedFactory){cachedFactory=factory;}
+/** Synchronous cache lookup, with the original procedural fallback. */
+export function createFoxSummon(profile?:DetailProfile):FoxSummonModel {
+  return (profile ? cachedFactory?.(profile) : undefined) ?? createProceduralFoxSummon();
+}
+export function createProceduralFoxSummon(): FoxSummonModel {
   const beast = new THREE.Group(), head = new THREE.Group(), leftPaw = new THREE.Group(), rightPaw = new THREE.Group();
   head.name = 'fox-head'; head.position.set(0, 16.4, 1.3);
   leftPaw.name = 'fox-left-paw'; rightPaw.name = 'fox-right-paw';

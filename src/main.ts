@@ -21,7 +21,9 @@ import {
   type BountyResult,
 } from "./simulation";
 import { GameRenderer } from "./renderer";
-import { kitsuHeads, selectKitsuProfile } from './kitsu-head';
+import { selectKitsuProfile } from './kitsu-head';
+import {preloadNormalHeads} from './normal-head-assets';
+import {kuramaAssets} from './kurama-assets';
 import { profileFor } from './worlds/types';
 import { AudioEngine } from "./audio";
 import { DEFAULT_AUDIO, loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
@@ -44,7 +46,7 @@ import { defaultSettings, loadGameSettings, saveGameSettings, updateBinding, vis
 import { DeathPresentation } from './death-presentation';
 import { SkinPreviewSelection } from './coil-skins';
 import { progressSnapshot, sessionSummary, UnlockNotices, type SessionProgress, type SessionSummary } from './session-summary';
-import { cinematicImpactAnchor, FoxImpactPresentation, PurpleImpactPresentation, SkybreakerImpactPresentation, SpiritImpactPresentation, UltimateCueTracker, ultimateFrame } from './ultimate-presentation';
+import { cinematicImpactAnchor, UltimateCueTracker, ultimateFrame } from './ultimate-presentation';
 import { ultimateFor } from './ultimates';
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = ui;
 const nodes = new Map<string, HTMLElement>();
@@ -65,10 +67,6 @@ async function installSimulationReview(){if(import.meta.env.DEV && new URLSearch
 }}
 const deathPresentation = new DeathPresentation();
 const ultimateCues = new UltimateCueTracker();
-const spiritImpact = new SpiritImpactPresentation();
-const foxImpact = new FoxImpactPresentation();
-const purpleImpact = new PurpleImpactPresentation();
-const skybreakerImpact = new SkybreakerImpactPresentation();
 const impactWorld = {x:0,y:0,z:0};
 const compass = new SpiritCompass(el<HTMLCanvasElement>('minimap'));
 const eliminationStamps = new EliminationStampView(el('kill-stamps'));
@@ -475,10 +473,6 @@ function updatePracticeGuide() {
 function start(mode: MatchMode = selectedMode) {
   if(!view)return;
   ultimateCues.reset();
-  spiritImpact.reset();
-  foxImpact.reset();
-  purpleImpact.reset();
-  skybreakerImpact.reset();
   clearSkinPreview();
   if (arena) finalizeMatch();
   arena = new simulationConstructor(selected, simulationBenchmark ? simulationRandom : Math.random, 20, 850, mode);
@@ -576,10 +570,6 @@ function finalizeMatch(): boolean {
 }
 function menu() {
   ultimateCues.reset();
-  spiritImpact.reset();
-  foxImpact.reset();
-  purpleImpact.reset();
-  skybreakerImpact.reset();
   clearSkinPreview();
   finalizeMatch();
   audio.resetTransient();
@@ -892,10 +882,6 @@ function updatePresentation() {
 
 function gameOver() {
   ultimateCues.reset();
-  spiritImpact.reset();
-  foxImpact.reset();
-  purpleImpact.reset();
-  skybreakerImpact.reset();
   if (!arena) return;
   speedWind.clear();
   const record = finalizeMatch();
@@ -1022,11 +1008,7 @@ function frame(now: number) {
   const advancing = arena?.state === 'playing' && !document.hidden;
   const comfort = visualComfort(settings, motionPreference.reduced);
   const softenImpact = comfort.softenImpact;
-  const spiritFrame = spiritImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
-  const foxFrame = foxImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
-  const purpleFrame = purpleImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
-  const skybreakerFrame = skybreakerImpact.update(shot?.kind, shot?.time ?? 0, softenImpact, advancing);
-  const impactFrame = shot?.kind === 'fox' ? foxFrame : shot?.kind === 'purple' ? purpleFrame : shot?.kind === 'skybreaker' ? skybreakerFrame : spiritFrame;
+  const impactFrame = view.prepareUltimateFrame(arena,motionPreference.reduced,settings.reducedFlashes,comfort.cameraEnabled,advancing);
   setStyle(canvas, '--spirit-gray', String(impactFrame.grayscale));
   setStyle(canvas, '--spirit-contrast', String(impactFrame.contrast));
   setStyle(canvas, '--spirit-brightness', String(impactFrame.brightness));
@@ -1110,20 +1092,20 @@ function frame(now: number) {
   requestAnimationFrame(frame);
 }
 async function initializeRenderer() {
- const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading Kitsu’s model…';
+ const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading character models…';
 
  document.body.append(feedback);el('menu').inert=true;
  const profile=settings.graphics==='auto'?profileFor(innerWidth,matchMedia('(pointer:coarse)').matches):settings.graphics==='low'?'mobile':'desktop';
  selectKitsuProfile(profile);
- const ready=await kitsuHeads.preload(profile);
- feedback.textContent=ready?'Kitsu’s model ready.':'Kitsu’s model unavailable. Using the original head.';
+ const ready=(await Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile)])).every(Boolean);
+ feedback.textContent=ready?'Character models ready.':'A character model is unavailable. Using the original model.';
  if(ready)feedback.remove();else setTimeout(()=>feedback.remove(),6000);
  el('menu').inert=false;
  try {
   applyAccent();
   view = new GameRenderer(canvas, settings.graphics);
   view.onHeadProfileLoad=(loading,ready)=>{
-    feedback.textContent=loading?'Loading Kitsu’s character model…':ready?'Kitsu’s model ready.':'Kitsu’s model unavailable. Using the original head.';
+    feedback.textContent=loading?'Loading character models…':ready?'Character models ready.':'A character model is unavailable. Using the original model.';
     if(loading||!ready){if(!feedback.isConnected)document.body.append(feedback);}else feedback.remove();
     if(!loading){const images=view.portraits();CHARACTERS.forEach((c,i)=>(el<HTMLImageElement>(`portrait-${c.id}`).src=images[i]));if(!ready)setTimeout(()=>feedback.remove(),6000);}
   };

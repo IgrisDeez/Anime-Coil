@@ -1,0 +1,830 @@
+[
+  {
+    "scope": "performance",
+    "file": "desktop-kairo.json",
+    "profile": "desktop",
+    "case": "kairo",
+    "before": {
+      "median": 12.350000001490116,
+      "p95": 15.200000010430813
+    },
+    "after": {
+      "median": 12.450000002980232,
+      "p95": 15.200000002980232
+    },
+    "medianChangePercent": 0.8097166111582954,
+    "p95ChangePercent": -4.90169793643247e-08,
+    "draws": [
+      135,
+      135
+    ],
+    "triangles": [
+      299132,
+      299272
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "desktop-kitsu.json",
+    "profile": "desktop",
+    "case": "kitsu",
+    "before": {
+      "median": 12.49999999254942,
+      "p95": 15.099999994039536
+    },
+    "after": {
+      "median": 12.599999994039536,
+      "p95": 15.149999998509884
+    },
+    "medianChangePercent": 0.8000000123977724,
+    "p95ChangePercent": 0.3311258575502407,
+    "draws": [
+      139,
+      139
+    ],
+    "triangles": [
+      304228,
+      303552
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "desktop-mixed.json",
+    "profile": "desktop",
+    "case": "mixed",
+    "before": {
+      "median": 13.699999995529652,
+      "p95": 16.549999997019768
+    },
+    "after": {
+      "median": 13.850000001490116,
+      "p95": 16.650000005960464
+    },
+    "medianChangePercent": 1.0948905548132215,
+    "p95ChangePercent": 0.6042296613818943,
+    "draws": [
+      135,
+      135
+    ],
+    "triangles": [
+      301431,
+      301450
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "desktop-pomu.json",
+    "profile": "desktop",
+    "case": "pomu",
+    "before": {
+      "median": 12.649999991059303,
+      "p95": 15.450000002980232
+    },
+    "after": {
+      "median": 13,
+      "p95": 15.700000002980232
+    },
+    "medianChangePercent": 2.7667984916052824,
+    "p95ChangePercent": 1.618122977034142,
+    "draws": [
+      143,
+      143
+    ],
+    "triangles": [
+      305356,
+      306024
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "desktop-shiro.json",
+    "profile": "desktop",
+    "case": "shiro",
+    "before": {
+      "median": 10.649999998509884,
+      "p95": 13.049999997019768
+    },
+    "after": {
+      "median": 10.799999989569187,
+      "p95": 13.399999998509884
+    },
+    "medianChangePercent": 1.4084506204722125,
+    "p95ChangePercent": 2.68199234919575,
+    "draws": [
+      123,
+      123
+    ],
+    "triangles": [
+      297008,
+      296952
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-kairo.json",
+    "profile": "mobile",
+    "case": "kairo",
+    "before": {
+      "median": 7.299999997019768,
+      "p95": 8.550000004470348
+    },
+    "after": {
+      "median": 7.3499999940395355,
+      "p95": 8.600000001490116
+    },
+    "medianChangePercent": 0.6849314663038397,
+    "p95ChangePercent": 0.5847952864751482,
+    "draws": [
+      150,
+      150
+    ],
+    "triangles": [
+      213176,
+      210464
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-kitsu.json",
+    "profile": "mobile",
+    "case": "kitsu",
+    "before": {
+      "median": 6.999999992549419,
+      "p95": 8.400000005960464
+    },
+    "after": {
+      "median": 6.8499999940395355,
+      "p95": 8.5
+    },
+    "medianChangePercent": -2.142857123850561,
+    "p95ChangePercent": 1.1904761186735335,
+    "draws": [
+      156,
+      156
+    ],
+    "triangles": [
+      219464,
+      217112
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-mixed-repeat-unstable.json",
+    "profile": "mobile",
+    "case": "mixed",
+    "before": {
+      "median": 9.25,
+      "p95": 14.649999998509884
+    },
+    "after": {
+      "median": 8.450000010430813,
+      "p95": 12.399999998509884
+    },
+    "medianChangePercent": -8.648648535883108,
+    "p95ChangePercent": -15.358361776306195,
+    "draws": [
+      152,
+      152
+    ],
+    "triangles": [
+      215442,
+      213118
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 3000,
+    "sampleMs": 5000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-mixed.json",
+    "profile": "mobile",
+    "case": "mixed",
+    "before": {
+      "median": 7.449999995529652,
+      "p95": 9.350000001490116
+    },
+    "after": {
+      "median": 8.200000002980232,
+      "p95": 9.700000002980232
+    },
+    "medianChangePercent": 10.067114200008254,
+    "p95ChangePercent": 3.7433155233618898,
+    "draws": [
+      152,
+      152
+    ],
+    "triangles": [
+      215442,
+      213118
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-mixedrepeat.json",
+    "profile": "mobile",
+    "case": "mixed",
+    "before": {
+      "median": 6.149999998509884,
+      "p95": 9.5
+    },
+    "after": {
+      "median": 6.350000001490116,
+      "p95": 9.400000005960464
+    },
+    "medianChangePercent": 3.252032569572205,
+    "p95ChangePercent": -1.0526315162056377,
+    "draws": [
+      152,
+      152
+    ],
+    "triangles": [
+      215442,
+      213118
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 4000,
+    "sampleMs": 6000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-pomu.json",
+    "profile": "mobile",
+    "case": "pomu",
+    "before": {
+      "median": 7.550000004470348,
+      "p95": 8.799999997019768
+    },
+    "after": {
+      "median": 7.300000004470348,
+      "p95": 8.699999995529652
+    },
+    "medianChangePercent": -3.311258276185103,
+    "p95ChangePercent": -1.1363636536816157,
+    "draws": [
+      167,
+      167
+    ],
+    "triangles": [
+      218599,
+      217143
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance",
+    "file": "mobile-shiro.json",
+    "profile": "mobile",
+    "case": "shiro",
+    "before": {
+      "median": 6.550000004470348,
+      "p95": 7.749999992549419
+    },
+    "after": {
+      "median": 5.549999997019768,
+      "p95": 7.149999998509884
+    },
+    "medianChangePercent": -15.267175675848621,
+    "p95ChangePercent": -7.741935414404577,
+    "draws": [
+      130,
+      130
+    ],
+    "triangles": [
+      209992,
+      207216
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 1500,
+    "sampleMs": 3000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-kairo.json",
+    "profile": "desktop",
+    "case": "kairo",
+    "before": {
+      "median": 13.300000004470348,
+      "p95": 17.899999998509884
+    },
+    "after": {
+      "median": 13.150000005960464,
+      "p95": 17.94999999552965
+    },
+    "medianChangePercent": -1.1278195372892208,
+    "p95ChangePercent": 0.27932959231244947,
+    "draws": [
+      135,
+      135
+    ],
+    "triangles": [
+      299132,
+      299312
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-kitsu.json",
+    "profile": "desktop",
+    "case": "kitsu",
+    "before": {
+      "median": 13.549999997019768,
+      "p95": 19.00000000745058
+    },
+    "after": {
+      "median": 13.599999994039536,
+      "p95": 18.400000005960464
+    },
+    "medianChangePercent": 0.3690036681237352,
+    "p95ChangePercent": -3.157894743446499,
+    "draws": [
+      139,
+      139
+    ],
+    "triangles": [
+      304228,
+      303236
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-mixed.json",
+    "profile": "desktop",
+    "case": "mixed",
+    "before": {
+      "median": 15.650000005960464,
+      "p95": 20.799999997019768
+    },
+    "after": {
+      "median": 16.75,
+      "p95": 30.69999999552965
+    },
+    "medianChangePercent": 7.028753952847211,
+    "p95ChangePercent": 47.59615384580942,
+    "draws": [
+      135,
+      135
+    ],
+    "triangles": [
+      301431,
+      301340
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-mixedrepeat.json",
+    "profile": "desktop",
+    "case": "mixed",
+    "before": {
+      "median": 14.450000002980232,
+      "p95": 20.950000002980232
+    },
+    "after": {
+      "median": 13.600000008940697,
+      "p95": 18.549999997019768
+    },
+    "medianChangePercent": -5.882352898714382,
+    "p95ChangePercent": -11.45584728219119,
+    "draws": [
+      135,
+      135
+    ],
+    "triangles": [
+      301431,
+      301340
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 4000,
+    "sampleMs": 6000,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-pomu.json",
+    "profile": "desktop",
+    "case": "pomu",
+    "before": {
+      "median": 13.350000001490116,
+      "p95": 20.450000002980232
+    },
+    "after": {
+      "median": 14.00000000745058,
+      "p95": 19.149999998509884
+    },
+    "medianChangePercent": 4.8689139017821015,
+    "p95ChangePercent": -6.356968236092397,
+    "draws": [
+      143,
+      143
+    ],
+    "triangles": [
+      305356,
+      305888
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "desktop-shiro.json",
+    "profile": "desktop",
+    "case": "shiro",
+    "before": {
+      "median": 11.850000001490116,
+      "p95": 15.899999998509884
+    },
+    "after": {
+      "median": 12.350000001490116,
+      "p95": 16.899999998509884
+    },
+    "medianChangePercent": 4.219409282169839,
+    "p95ChangePercent": 6.289308176690045,
+    "draws": [
+      123,
+      123
+    ],
+    "triangles": [
+      297008,
+      296924
+    ],
+    "resources": {
+      "geometries": 171,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 1440,
+      "height": 900
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "mobile-kairo.json",
+    "profile": "mobile",
+    "case": "kairo",
+    "before": {
+      "median": 5.5,
+      "p95": 7.450000002980232
+    },
+    "after": {
+      "median": 5.100000001490116,
+      "p95": 7.299999997019768
+    },
+    "medianChangePercent": -7.272727245634247,
+    "p95ChangePercent": -2.013422897992745,
+    "draws": [
+      150,
+      150
+    ],
+    "triangles": [
+      213176,
+      209856
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "mobile-kitsu.json",
+    "profile": "mobile",
+    "case": "kitsu",
+    "before": {
+      "median": 5.549999997019768,
+      "p95": 7.600000001490116
+    },
+    "after": {
+      "median": 5.649999998509884,
+      "p95": 7.450000002980232
+    },
+    "medianChangePercent": 1.8018018296182658,
+    "p95ChangePercent": -1.973684190532543,
+    "draws": [
+      156,
+      156
+    ],
+    "triangles": [
+      219464,
+      216304
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "mobile-mixed.json",
+    "profile": "mobile",
+    "case": "mixed",
+    "before": {
+      "median": 6.050000004470348,
+      "p95": 8.099999994039536
+    },
+    "after": {
+      "median": 6.0999999940395355,
+      "p95": 8.099999994039536
+    },
+    "medianChangePercent": 0.8264461079709351,
+    "p95ChangePercent": 0,
+    "draws": [
+      152,
+      152
+    ],
+    "triangles": [
+      215442,
+      212480
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "mobile-pomu.json",
+    "profile": "mobile",
+    "case": "pomu",
+    "before": {
+      "median": 5.75,
+      "p95": 7.700000002980232
+    },
+    "after": {
+      "median": 5.500000007450581,
+      "p95": 7.500000007450581
+    },
+    "medianChangePercent": -4.347825957381202,
+    "p95ChangePercent": -2.5974025383408206,
+    "draws": [
+      167,
+      167
+    ],
+    "triangles": [
+      218599,
+      216623
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  },
+  {
+    "scope": "performance-final-clean",
+    "file": "mobile-shiro.json",
+    "profile": "mobile",
+    "case": "shiro",
+    "before": {
+      "median": 5.100000001490116,
+      "p95": 7.049999989569187
+    },
+    "after": {
+      "median": 4.9000000059604645,
+      "p95": 6.950000002980232
+    },
+    "medianChangePercent": -3.9215685386512877,
+    "p95ChangePercent": -1.418439528183113,
+    "draws": [
+      130,
+      130
+    ],
+    "triangles": [
+      209992,
+      206600
+    ],
+    "resources": {
+      "geometries": 164,
+      "textures": 9
+    },
+    "warmMs": 2000,
+    "sampleMs": 3500,
+    "hardware": {
+      "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "dpr": 1,
+      "width": 390,
+      "height": 844
+    }
+  }
+]

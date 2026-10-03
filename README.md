@@ -1,5 +1,27 @@
-# Anime Coil v1.7.3 — Shibuya Arena
+# Anime Coil v1.7.6 — Sculpted Roster and Ultimate VFX
 Anime Coil is a solo browser game. Choose Kitsu, Kairo, Pomu, or Shiro and play against 20 computer-controlled snakes in Shibuya. Collect orbs to grow, avoid collisions, and use your character’s skill and ultimate. Play without a time limit in Endless, set an energy record in the three-minute Sprint, or earn points for orbs and direct eliminations in Bounty Hunt. Guided Practice is available from Help.
+
+## v1.7.6 — Sculpted Roster and Catastrophic Ultimate VFX
+
+The local candidate gives each finisher a larger, distinct arena-scale impact, one shared kill-frame presentation, and a longer bounded aftermath. Review the [actual animated preview](docs/ultimate-catastrophe/animated-preview.webm), [animated 1.7.5 comparison](docs/ultimate-catastrophe/animated-comparison.webm), [matched screenshots](docs/ultimate-catastrophe/comparison.png), and [validation/performance report](docs/ULTIMATE-VFX-1.7.6-REVIEW.md). Local gameplay runs the candidate at http://127.0.0.1:4175/; the [interactive comparison](http://127.0.0.1:4175/tests/ultimate-review.html) includes comfort settings and boundary/crowd cases.
+
+The user approved integration and publication on October 4, 2026. All four normal heads now use the Blender sculptures with shaped, layered hair and packed diffuse texture in the default menu, portraits and gameplay. Both graphics profiles preload before rendering and remain cached; independent eyes, synchronous factories, fallback models and cinematic restoration are preserved. Simulation, approved Kurama assets, transformed heads, cosmetics, character IDs and the 3.4/5.6-second timing are preserved. See [the release notes](docs/ROSTER-VFX-1.7.6.md). Earlier candidate reports below describe their historical review state.
+
+## v1.7.5 — Ultimate VFX Polish
+
+All four ultimates now have stronger charge contrast, a sharper impact burst and a short pressure front. Kitsu retains the approved golden Kurama and purple-black tailed beast bomb; Kairo gains clearer cyan-white compression, Pomu a stronger elastic windup and cream/ink impact, and Shiro a dense violet core. The mobile Shiro shader uses a simpler flowing band pattern. Existing flash/reduced-motion settings, camera control, trajectory, effect anchors and the 5.6-second timelines remain intact.
+
+Effects reuse bounded pools and cached geometry. Two impact draws are added; Kairo's decorative particle meshes are simplified substantially, and Shiro's charge avoids an extra shell draw. The simulation, Kitsu head/eye fixes, approved Kurama geometry, transformed heads, IDs, cosmetics and Shibuya remain preserved. See [the release report](docs/ULTIMATE-VFX-1.7.5.md), [actual VFX comparison](docs/ultimate-polish/comparison.png) and [timeline captures](docs/ultimate-polish/timeline.png).
+
+Kairo, Pomu and Shiro have separate editable Blender candidates and optimized desktop/mobile GLBs ready for visual review. They keep the original coil attachment and stay within 6,000/4,000 triangles including the coil. The default normal heads remain unchanged pending each character's approval. See [asset details](assets/roster/README.md), [staged review](docs/roster-review/), and [the roster sequence](docs/ROSTER-POLISH.md).
+
+Current game: [Anime Coil](https://animecoil.igrisdeez.chatgpt.site). Local preview: http://127.0.0.1:4175/.
+
+## v1.7.4 — Kurama and the Tailed Beast Bomb
+
+The approved chibi Kurama sculpture now appears in Kitsu's ultimate: a golden fox muzzle and open jaw, fitted chakra markings, broad paws and nine curved flame tails. A purple-black tailed beast bomb replaces the orange surface, with violet charge, flight and restrained impact effects. The existing 5.6-second timeline, mouth clearance, authoritative simulation, Kitsu head/eye fixes and Shibuya arena are preserved.
+
+Selected-profile Kurama assets preload alongside Kitsu before renderer construction, with accessible loading/failure feedback and the procedural fallback. Imported geometry is shared; articulated transforms and fade materials are independent. Profile changes preserve the cast origin, pose and time. Desktop/mobile model totals including all tails and contours are **17,519 / 11,197 triangles**, with six model draws and peak fox-effect draws **15 / 14**. See [the release report](docs/KURAMA-1.7.4.md), [four views](docs/kurama-review/four-views.png), and [reference comparison](docs/kurama-review/reference-comparison.png).
 
 ## v1.7.3 — Eye Fix, One Arena, Clear Instructions
 
@@ -710,3 +732,5 @@ Validation: **205 tests passed** and the production build succeeded. Cinematic t
 Kitsu's fox summon keeps its existing size. Its mouth-charged bomb grows to a more dominant scale, moves forward as it expands so the fox's face remains visible, and has a brighter animated core and rim. The launched bomb has a longer wake. After impact, the existing pooled shell becomes a translucent fire dome while wider flame fronts, thicker pressure rings, and embers spread from the captured impact position. The camera eases toward the strike during detonation. Reduced motion keeps a restrained static dome and pressure marks. No gameplay timing, hitboxes, scoring, cooldowns, or new draw objects were changed.
 
 Validation: **206 tests passed** and `npm run build` succeeded. The added renderer test checks that the bomb grows independently of the fox and that the aftermath reuses the bounded shell and rings. The charge and post-impact effects were reviewed in the local desktop preview; physical-phone appearance remains a manual check. The preview and source archive were refreshed. Git publishing and website deployment remain outside this patch.
+
+The pending hair detail pass is documented in [Hair detail review](docs/HAIR-DETAIL-REVIEW.md). It adds separate textured Blender candidates for all four normal heads and a local review at `/tests/hair-review.html`; publication and the current approved heads remain unchanged during visual review.

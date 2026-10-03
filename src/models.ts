@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { CHARACTERS, type CharacterId } from "./simulation";
 import { kitsuHeads, activeKitsuProfile } from './kitsu-head';
+import {normalHeads} from './normal-head-assets';
 const sphere = new THREE.SphereGeometry(1, 16, 12),
   box = new THREE.BoxGeometry(1, 1, 1),
   cone = new THREE.ConeGeometry(1, 1, 5);
@@ -295,6 +296,8 @@ const silhouetteMaterial = new THREE.MeshBasicMaterial({
   side: THREE.BackSide,
 });
 export function createHead(id: CharacterId) {
+  const sculpt=normalHeads.create(id,activeKitsuProfile());
+  if(sculpt){part(sculpt,sphere,CHARACTERS.find(c=>c.id===id)!.color,[0,.25,-.18],[.91,.55,.84]);return sculpt;}
   if(id==='ember'){
     const imported=kitsuHeads.create(activeKitsuProfile());
     if(imported){part(imported,sphere,CHARACTERS.find(c=>c.id===id)!.color,[0,.25,-.18],[.91,.55,.84]);return imported;}
@@ -378,6 +381,7 @@ function silhouetteGeometry(id: CharacterId, transformed = false) {
 
 // Instances share cached silhouette geometry/material, so callers only detach them.
 export function createHeadOutline(id: CharacterId) {
+  const sculpt=normalHeads.outline(id,activeKitsuProfile());if(sculpt)return sculpt;
   if(id==='ember'){const outline=kitsuHeads.outline(activeKitsuProfile());if(outline)return outline;}
   const outline = new THREE.Mesh(silhouetteGeometry(id), silhouetteMaterial);
   outline.userData.sharedSilhouette = true;

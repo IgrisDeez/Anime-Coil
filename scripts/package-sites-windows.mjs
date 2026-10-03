@@ -17,6 +17,12 @@ try{
  assert.equal(metadata.static.directory,'dist');
  assert.ok((await fs.stat(path.join(stage,'dist/index.html'))).isFile());
  for(const profile of ['desktop','mobile'])assert.deepEqual(await fs.readFile(path.join(stage,`dist/assets/kitsu/kitsu-head-${profile}.glb`)),await fs.readFile(path.join(project,`public/assets/kitsu/kitsu-head-${profile}.glb`)));
+ for(const profile of ['desktop','mobile'])assert.deepEqual(await fs.readFile(path.join(stage,`dist/assets/kurama/kurama-${profile}.glb`)),await fs.readFile(path.join(project,`public/assets/kurama/kurama-${profile}.glb`)));
+ for(const name of ['kitsu','kairo','pomu','shiro'])for(const profile of ['desktop','mobile'])assert.deepEqual(await fs.readFile(path.join(stage,`dist/assets/heads/${name}/${name}-head-${profile}.glb`)),await fs.readFile(path.join(project,`public/assets/heads/${name}/${name}-head-${profile}.glb`)));
+ const version=JSON.parse(await fs.readFile(path.join(project,'package.json'),'utf8')).version;
+ assert.ok((await fs.readFile(path.join(stage,'dist/index.html'),'utf8')).includes('v'+version));
+ const bundles=(await fs.readdir(path.join(stage,'dist/assets'))).filter(n=>n.endsWith('.js'));
+ for(const name of bundles)assert.ok(!(await fs.readFile(path.join(stage,'dist/assets',name),'utf8')).includes('/assets/roster/candidates/'),'Release must load approved runtime head paths');
  await fs.mkdir(path.dirname(archive),{recursive:true});
  run('tar',['-C',stage,'-czf',archive,'dist']);
  const entries=run('tar',['-tzf',archive]).replaceAll('\\','/').split(/\r?\n/);

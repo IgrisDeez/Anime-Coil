@@ -1,10 +1,13 @@
+// Approved Stage 1 Kurama sculpture and tailed beast bomb.
 import * as THREE from 'three';
 import { CastSnapshot, foxFlight } from './cinematic-staging';
-import { createFoxSummon, foxTailGeometry } from './fox-model';
+import { foxTailGeometry, type FoxSummonModel } from './fox-model';
+import { createKuramaSummon, kuramaAssets, disposeKuramaInstance, kuramaFadeMaterial } from './kurama-assets';
 export { foxTailGeometry } from './fox-model';
 import { Arena, NUKE_BLAST, NUKE_DURATION, RADIUS } from './simulation';
 import { ultimateFrame } from './ultimate-presentation';
 import type { DetailProfile } from './worlds/types';
+import type { UltimateVisualFrame } from './ultimate-visual';
 
 const smooth = (a: number, b: number, t: number) => THREE.MathUtils.smoothstep(t, a, b);
 
@@ -24,8 +27,8 @@ export interface FoxStaging {
 /** A separate, bounded summon/launch renderer; simulation time owns every stage. */
 export class FoxCinematic {
   readonly group = new THREE.Group();
-  private sculpture = createFoxSummon();
-  private beast = this.sculpture.beast;
+  private sculpture: FoxSummonModel;
+  private beast: THREE.Group;
   private tails: THREE.InstancedMesh;
   private tailEdges: THREE.InstancedMesh;
   private orb: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
@@ -67,11 +70,12 @@ export class FoxCinematic {
   get staging(): FoxStaging { return this.staged; }
   private cast = new CastSnapshot();
   private disposed = false;
+  private coverageSamples=0;
   constructor(scene: THREE.Scene, private profile: DetailProfile = 'desktop') {
+    this.sculpture=createKuramaSummon(profile);this.beast=this.sculpture.beast;
     const glow = (color: string, opacity = .7) => new THREE.MeshBasicMaterial({color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide, forceSinglePass: true});
-    this.tails = new THREE.InstancedMesh(foxTailGeometry(), new THREE.MeshToonMaterial({vertexColors:true,
-      emissive:'#a65117',emissiveIntensity:.16,transparent:true,opacity:.94}), 9);
-    this.tailEdges = new THREE.InstancedMesh(this.tails.geometry, glow('#ad4b1f', .85), 9);
+    this.tails = new THREE.InstancedMesh(kuramaAssets.tail(profile)??foxTailGeometry(), kuramaFadeMaterial(), 9);
+    this.tailEdges = new THREE.InstancedMesh(this.tails.geometry, glow('#9b581d', .75), 9);
     this.tails.name = 'fox-nine-tails'; this.tailEdges.name = 'fox-tail-contours';
     (this.tailEdges.material as THREE.MeshBasicMaterial).side = THREE.BackSide;
     this.tailEdges.renderOrder = 1; this.tails.renderOrder = 2;
@@ -93,11 +97,11 @@ export class FoxCinematic {
         float fine=noise3(p*2.5+vec3(slow*.7,-slow*.6,warp));
         float channels=pow(smoothstep(.48,.77,broad*.72+fine*.28),2.4);
         float hot=pow(smoothstep(.7,.9,broad*.67+fine*.33),1.8);
-        vec3 dark=vec3(.035,.006,.017), ember=vec3(.43,.045,.025);
+        vec3 dark=vec3(.016,.006,.029), ember=vec3(.125,.030,.24);
         vec3 color=mix(dark,ember,channels*.86);
-        color+=vec3(1.,.31,.035)*hot*(1.1+pressure*.35);
-        float rim=pow(1.-abs(viewNormal.z),3.2);
-        color+=vec3(.77,.17,.035)*rim*.42;
+        color+=vec3(.34,.07,.57)*hot*(.55+pressure*.45);
+        float rim=pow(1.-abs(viewNormal.z),5.8);
+        color+=vec3(.55,.08,.80)*rim*(.35+pressure*.2);
         gl_FragColor=vec4(color,alpha);}`,
     }));
     this.beast.name = 'fox-summon';
@@ -108,35 +112,57 @@ export class FoxCinematic {
       vertexShader:'varying vec3 spherePoint;varying vec3 viewNormal;void main(){spherePoint=normalize(position);viewNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
       fragmentShader:`uniform float time;uniform float alpha;varying vec3 spherePoint;varying vec3 viewNormal;
         void main(){float rough=sin(dot(spherePoint,vec3(13.7,21.1,9.3))+time*1.4)*sin(dot(spherePoint,vec3(25.2,7.8,18.4))-time*.9);
-          float rim=pow(1.-abs(viewNormal.z),2.5);float split=smoothstep(-.3,.65,rough);
-          gl_FragColor=vec4(vec3(1.,.29,.055),alpha*rim*(.3+.7*split));}`
+          float rim=pow(1.-abs(viewNormal.z),5.5);float split=smoothstep(-.3,.65,rough);
+          gl_FragColor=vec4(vec3(.65,.12,.95),alpha*rim*(.3+.7*split));}`
     }));
     this.shell.name = 'fox-bomb-shell';
-    this.wake = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 12, 1, true), glow('#ffb34c', .3));
+    this.wake = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 12, 1, true), glow('#8b58cc', .25));
     this.flames = new THREE.InstancedMesh(new THREE.ConeGeometry(1, 2, 5), glow('#ffffff', .66), 16);
     this.flames.frustumCulled=false;this.flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    for (let i=0;i<16;i++) this.flames.setColorAt(i,new THREE.Color(['#ffe0a1','#f78b39','#b9472d','#ffb44e'][i%4]));
-    this.smoke = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),glow('#74534b',.48),30);
-    this.fragments = new THREE.InstancedMesh(new THREE.TetrahedronGeometry(1),glow('#ffb653',.8),30);
+    for (let i=0;i<16;i++) this.flames.setColorAt(i,new THREE.Color(['#c29be8','#895cc2','#513d7b','#a375d1'][i%4]));
+    this.smoke = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),glow('#514859',.42),30);
+    this.fragments = new THREE.InstancedMesh(new THREE.TetrahedronGeometry(1),glow('#a982e3',.7),30);
     for (const mesh of [this.smoke,this.fragments]) { mesh.frustumCulled=false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); }
     for (let i = 0; i < 3; i++) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(1, .025, 5, 72), glow(i === 1 ? '#9e4931' : '#ffe1a0'));
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(1, .025, 5, 72), glow(i === 1 ? '#665080' : '#b497da'));
       ring.rotation.x = -Math.PI / 2; this.rings.push(ring); this.group.add(ring);
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(48 * 6), 3));
-    this.ribbons = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: '#ffe3a0', transparent: true, opacity: .7}));
+    this.ribbons = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: '#ba8cef', transparent: true, opacity: .7}));
     this.ribbons.frustumCulled = false;
     const points = new THREE.BufferGeometry();
     points.setAttribute('position', new THREE.BufferAttribute(new Float32Array(96 * 3), 3));
-    this.embers = new THREE.Points(points, new THREE.PointsMaterial({color:'#ffcb70', size:.5, transparent:true, depthWrite:false}));
+    this.embers = new THREE.Points(points, new THREE.PointsMaterial({color:'#c493f0', size:.5, transparent:true, depthWrite:false}));
     this.embers.frustumCulled = false;
     this.group.add(this.beast, this.orb, this.shell, this.wake, this.ribbons, this.embers, this.flames, this.smoke, this.fragments);
     this.beast.traverse(o=>{if(o instanceof THREE.Mesh)this.beastMaterials.push(o.material as THREE.Material);});
     this.group.name = 'fox-cinematic'; this.group.visible = false; scene.add(this.group);
   }
-  setProfile(profile: DetailProfile) { this.profile = profile; }
+  setMultisampleFade(samples:number){
+    this.coverageSamples=samples;
+    for(const m of this.beastMaterials)if(m instanceof THREE.MeshToonMaterial){m.alphaHash=samples<=0;m.alphaToCoverage=samples>0;m.transparent=false;m.needsUpdate=true;}
+  }
+  setProfile(profile: DetailProfile) {
+    if(this.disposed||profile===this.profile)return;
+    this.profile=profile;
+    const promote=()=>{if(!this.disposed&&this.profile===profile)this.swapSculpt(profile);};
+    if(kuramaAssets.stats(profile))promote();else void kuramaAssets.preload(profile).then(promote);
+  }
+  private swapSculpt(profile:DetailProfile){
+    const old=this.sculpture,next=createKuramaSummon(profile);
+    next.beast.position.copy(old.beast.position);next.beast.rotation.copy(old.beast.rotation);next.beast.scale.copy(old.beast.scale);
+    next.head.rotation.copy(old.head.rotation);next.leftPaw.rotation.copy(old.leftPaw.rotation);next.rightPaw.rotation.copy(old.rightPaw.rotation);
+    for(let i=0;i<next.meshes.length;i++)(next.meshes[i].material as THREE.Material).opacity=(old.meshes[i].material as THREE.Material).opacity;
+    const geometry=kuramaAssets.tail(profile)??foxTailGeometry(),previous=this.tails.geometry;
+    this.tails.geometry=geometry;this.tailEdges.geometry=geometry;if(!previous.userData.sharedKurama&&previous!==geometry)previous.dispose();
+    next.beast.add(this.tails,this.tailEdges);disposeKuramaInstance(old);
+    this.sculpture=next;this.beast=next.beast;this.group.add(this.beast);
+    this.beastMaterials=next.meshes.map(mesh=>mesh.material as THREE.Material).concat(this.tails.material as THREE.Material,this.tailEdges.material as THREE.Material);
+    this.setMultisampleFade(this.coverageSamples);
+  }
   clear() {
+
     this.group.visible = false; this.staged.active = false; this.cast.clear();
     this.staged.casterPosition.set(0,0,0); this.staged.summonOrigin.set(0,0,0); this.staged.casterFacing = 0;
     this.beast.rotation.set(0,0,0); this.sculpture.head.rotation.set(0,0,0);
@@ -153,7 +179,7 @@ export class FoxCinematic {
     this.staged.muzzle.set(0,0,0); this.staged.bombCenter.set(0,0,0); this.staged.firingDirection.set(0,0,0);
     this.staged.cameraFocus.set(0,0,0); this.staged.summonBounds.min.set(0,0,0); this.staged.summonBounds.max.set(0,0,0);
   }
-  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true) {
+  update(arena: Arena | undefined, camera: THREE.PerspectiveCamera, menu: boolean, reduced = false, cinematicCamera = true, visual?: Readonly<UltimateVisualFrame>) {
     const shot = !menu && arena?.player.alive && arena.state !== 'over' && arena.cinematic;
     this.group.visible = !this.disposed && !!shot && shot.kind === 'fox';
     if (!this.group.visible || !shot || !arena) { this.clear(); return; }
@@ -180,15 +206,15 @@ export class FoxCinematic {
     this.sculpture.leftPaw.rotation.z = reduced ? -.04 : -.04-tension*.055;
     this.sculpture.rightPaw.rotation.z = reduced ? .04 : .04+tension*.055;
     for(const material of this.beastMaterials)material.opacity=manifest*fade;
-    this.tailTilt.setFromAxisAngle(this.xAxis, -Math.PI / 2 - .16);
+    this.tailTilt.setFromAxisAngle(this.xAxis, -Math.PI / 2 - .20);
     for (let i = 0; i < 9; i++) {
-      const rank=i-4, flex=reduced?0:Math.sin(t*1.05+i*.72)*.023*tension;
-      this.dummy.position.set(rank*.4,8.1+Math.abs(rank)*.14,-2.65-(i%2)*.43);
-      this.dummy.quaternion.setFromAxisAngle(this.zAxis,-rank*.245+flex).multiply(this.tailTilt);
-      this.dummy.rotateY(rank*.055);
-      this.dummy.scale.set(6.3+Math.abs(rank)*.22,6.0-(i%2)*.3,9.1-Math.abs(rank)*.48+(i%2)*.16);
-      this.dummy.updateMatrix(); this.tailEdges.setMatrixAt(i, this.dummy.matrix);
-      this.dummy.scale.multiplyScalar(.945); this.dummy.updateMatrix(); this.tails.setMatrixAt(i, this.dummy.matrix);
+      const rank=i-4, recoil=Math.max(0,t-2.5-i*.035), sweep=Math.sin(Math.min(1,recoil/.6)*Math.PI), flex=reduced?0:Math.sin(t*1.4+i*.73)*.065*tension+sweep*(i%2?-.27:.25)*(1-Math.min(1,b/1.1));
+      this.dummy.position.set(rank*.34,7.2+Math.abs(rank)*.1,-2.3-(i%2)*.35);
+      this.dummy.quaternion.setFromAxisAngle(this.zAxis,-rank*.253+flex).multiply(this.tailTilt);
+      this.dummy.rotateY(rank*.052+(reduced?0:Math.sin(t*1.8+i*.63)*.07*tension+sweep*.14));
+      this.dummy.scale.set(5.0+Math.abs(rank)*.10,5.1-(i%3)*.23,8.6-Math.abs(rank)*.35+(i%2)*.28);
+      this.dummy.updateMatrix(); this.tails.setMatrixAt(i, this.dummy.matrix);
+      this.dummy.scale.multiplyScalar(1.018); this.dummy.updateMatrix(); this.tailEdges.setMatrixAt(i, this.dummy.matrix);
     }
     this.tails.instanceMatrix.needsUpdate = this.tailEdges.instanceMatrix.needsUpdate = true;
     this.group.updateMatrixWorld(true);
@@ -207,24 +233,25 @@ export class FoxCinematic {
     this.shell.visible = this.orb.visible || (b < 1.8 && shot.detonated);
     if (this.orb.visible) {
       this.shell.position.copy(this.orb.position);
-      this.shell.scale.setScalar(radius * 1.09);
+      this.shell.scale.setScalar(radius * 1.025);
       this.shell.material.uniforms.alpha.value = .16 + charge*.07;
     } else if (this.shell.visible) {
       const dome = reduced ? 25 : 10 + b * 40;
       this.shell.position.set(this.impact.x, 2.5, this.impact.z);
       this.shell.scale.set(dome, dome * .46, dome);
-      this.shell.material.uniforms.alpha.value = (reduced ? .11 : .23) * (1 - smooth(.1, 1.8, b));
+      this.shell.material.uniforms.alpha.value = (reduced ? .035 : .035+.15*(1-smooth(.04,.24,b))) * (1 - smooth(.1, 1.8, b));
     }
     this.orb.material.uniforms.time.value = reduced ? 0 : t;
     this.orb.material.uniforms.alpha.value = THREE.MathUtils.clamp((t-.65) / .3, 0, 1);
-    this.orb.material.uniforms.pressure.value = reduced ? .25 : charge;
+    this.orb.material.uniforms.pressure.value = reduced ? .25 : smooth(1.5,2.5,t);
+
     this.shell.material.uniforms.time.value = reduced ? 0 : t;
     this.wake.visible = !reduced && t >= 2.5 && t < 3.4;
     const wakeLength = 1 + launch * 17;
     this.wake.position.copy(this.orb.position).addScaledVector(this.flightDirection,-wakeLength*.5);
     this.wake.quaternion.setFromUnitVectors(this.up,this.flightDirection);
-    this.wake.scale.set(radius * .65, wakeLength, radius * .65);
-    this.flames.count = shot.detonated && b < 1.75 ? (reduced ? 6 : this.profile === 'mobile' ? 8 : 16) : 0;
+    this.wake.scale.set(radius * .30, wakeLength, radius * .30);
+    this.flames.count = !visual?.managed && shot.detonated && b < 1.75 ? (reduced ? 4 : this.profile === 'mobile' ? 6 : 12) : 0;
     for(let i=0;i<this.flames.count;i++) {
       const layer=i%3,age=Math.max(0,b-layer*.07),a=i*2.39996+layer*.21;
       const r=reduced?12:5+Math.min(1,age/1.35)*(79+layer*8);
@@ -235,7 +262,7 @@ export class FoxCinematic {
     }
     this.flames.instanceMatrix.needsUpdate=true;
     this.flames.visible=this.flames.count>0;
-    this.smoke.count = shot.detonated && b < 2.1 ? reduced ? 6 : this.profile === 'mobile' ? 14 : 30 : 0;
+    this.smoke.count = !visual?.managed && shot.detonated && b < 2.1 ? reduced ? 6 : this.profile === 'mobile' ? 14 : 30 : 0;
     for(let i=0;i<this.smoke.count;i++) {
       const layer=i%3, delay=(i%6)*.045+layer*.06, age=Math.max(0,b-delay);
       const growth=Math.min(1,age/(.28+layer*.12));
@@ -249,10 +276,10 @@ export class FoxCinematic {
     this.smoke.instanceMatrix.needsUpdate=true;
     this.smoke.visible=this.smoke.count>0;
     (this.smoke.material as THREE.MeshBasicMaterial).opacity=fade*(reduced?.3:.48);
-    this.fragments.count=shot.detonated && b<1.9 ? reduced ? 0 : this.profile==='mobile' ? 14 : 30 : 0;
+    this.fragments.count=!visual?.managed && shot.detonated && b<1.9 ? reduced ? 0 : this.profile==='mobile' ? 14 : 30 : 0;
     for(let i=0;i<this.fragments.count;i++) {
       const a=i*2.39996, speed=15+i%7*3, r=3+b*speed;
-      this.dummy.position.set(this.impact.x+Math.cos(a)*r,2+b*(7+i%5*3),this.impact.z+Math.sin(a)*r);
+      this.dummy.position.set(this.impact.x+Math.cos(a)*r,Math.max(.4,2+b*(12+i%5*3)-b*b*11),this.impact.z+Math.sin(a)*r);
       this.dummy.rotation.set(b*2+i,b*1.4,i*.3);
       this.dummy.scale.setScalar((.55+i%4*.22)*Math.max(.001,1-b/1.9));
       this.dummy.updateMatrix();this.fragments.setMatrixAt(i,this.dummy.matrix);
@@ -269,9 +296,11 @@ export class FoxCinematic {
       ring.material.opacity = b > 0 ? Math.min(1,age/.12)*Math.max(0, 1-age/1.9) * .77 : manifest * .45;
     }
     const lines = this.ribbons.geometry.attributes.position as THREE.BufferAttribute;
-    const tailAftermath=shot.detonated && b < 1.45;
-    const lineCount = reduced ? 0 : tailAftermath ? this.profile === 'mobile' ? 18 : 36 : this.profile === 'mobile' ? 24 : 48;
+    const tailAftermath=!visual?.managed && shot.detonated && b < 1.45;
+    const lineCount = reduced || (visual?.managed&&shot.detonated) ? 0 : tailAftermath ? this.profile === 'mobile' ? 18 : 36 : this.profile === 'mobile' ? 24 : 48;
     this.ribbons.geometry.setDrawRange(0, lineCount * 2);
+    this.ribbons.material.color.setHex(shot.detonated?0xffa731:0xffdf8b);
+    this.embers.material.color.setHex(shot.detonated?0xffa22c:0xffe5a4);
     this.ribbons.visible = !reduced && ((t > .9 && t < 2.5) || tailAftermath);
     for (let i=0;i<lineCount;i++) {
       if (tailAftermath) {
@@ -290,17 +319,26 @@ export class FoxCinematic {
     }
     lines.needsUpdate=true;
     const particles=this.embers.geometry.attributes.position as THREE.BufferAttribute;
-    const count=reduced?8:this.profile==='mobile'?40:96;
+    const count=visual?.managed&&shot.detonated?0:reduced?8:this.profile==='mobile'?40:96;
     this.embers.visible = true;
     this.embers.geometry.setDrawRange(0,count); this.embers.material.opacity=manifest*fade*.75;
     for(let i=0;i<count;i++) {
       const a=i*2.39996, drift=reduced?0:t;
       const r=b>0?4+b*(17+i%16):6+i%14;
+      if(t>.9&&t<2.5){
+        const flow=reduced?.4:((i*.173-t*.65)%1+1)%1, distance=radius+1+flow*(5+radius*.32);
+        particles.setXYZ(i,chargeX+Math.cos(a)*distance,chargeY+Math.sin(a)*distance*.72,chargeZ+Math.sin(i*.91)*distance*.38);
+        continue;
+      }
       particles.setXYZ(i,(b>0?this.impact.x:this.beast.position.x)+Math.cos(a)*r,
         b>0?2+((i*.83+drift*4)%25):(i*.83+drift*3)%18,
         (b>0?this.impact.z:this.beast.position.z)+Math.sin(a)*r);
     }
     particles.needsUpdate=true;
+    if(visual?.managed && shot.detonated){
+      this.shell.visible=false;this.flames.visible=false;this.smoke.visible=false;this.fragments.visible=false;
+      this.ribbons.visible=false;this.embers.visible=false;for(const ring of this.rings)ring.visible=false;
+    }
     this.stageCamera(camera,t,radius);
     if (frame.cameraWeight>0 && cinematicCamera) {
       this.basePosition.copy(camera.position);
@@ -355,9 +393,10 @@ export class FoxCinematic {
   }
   dispose() {
     if(this.disposed)return; this.disposed=true; this.clear();
+
     const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
     this.group.traverse(o=>{if(o instanceof THREE.Mesh || o instanceof THREE.Points || o instanceof THREE.LineSegments){
-      geometries.add(o.geometry); const list=Array.isArray(o.material)?o.material:[o.material];list.forEach(m=>materials.add(m));
+      if(!o.geometry.userData.sharedKurama)geometries.add(o.geometry); const list=Array.isArray(o.material)?o.material:[o.material];list.forEach(m=>materials.add(m));
       if(o instanceof THREE.InstancedMesh)o.dispose();
     }});
     geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());this.group.removeFromParent();
