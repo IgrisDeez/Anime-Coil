@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type {DetailProfile} from './worlds/types';
 
-export const CITY_FAMILIES=['Rounded','Glass','Shop','Terrace','Station','Arcade'] as const;
+export const CITY_FAMILIES=['Rounded','Glass','Shop','Terrace','Station','Arcade','Qfront','Magnet','Landmark109','StationTower','Hotel','Civic','RoofGarden','SlantTower'] as const;
 export type CityFamily=typeof CITY_FAMILIES[number];
 export type ProfileLoader=(profile:DetailProfile)=>Promise<THREE.Group>;
 const triangles=(g:THREE.BufferGeometry)=>(g.index?.count??g.attributes.position.count)/3;
@@ -30,20 +30,25 @@ function finiteMeshes(source:THREE.Group){
   });return {count,total};
 }
 export function validateCityKit(source:THREE.Group,profile:DetailProfile){
-  const root=source.getObjectByName('ShibuyaKit_'+profile);if(!root||root.userData.schemaVersion!==1||root.userData.familyCount!==6||root.position.lengthSq()>1e-9)throw Error('Invalid city kit root');
-  const stats=finiteMeshes(source);if(stats.count!==14||stats.total>(profile==='desktop'?5000:4000))throw Error('City prototype budget');
+  const root=source.getObjectByName('ShibuyaKit_'+profile);if(!root||root.userData.schemaVersion!==2||root.userData.familyCount!==CITY_FAMILIES.length||root.position.lengthSq()>1e-9)throw Error('Invalid city kit root');
+  const stats=finiteMeshes(source);if(stats.count!==CITY_FAMILIES.length*3+2||stats.total>(profile==='desktop'?10000:8500))throw Error('City prototype budget');
   for(const family of CITY_FAMILIES){
     const g:THREE.Object3D|undefined=root.getObjectByName(`City_${family}_${profile}`);if(!g||g.parent!==root||g.userData.family!==family||g.position.lengthSq()>1e-9)throw Error('Missing architectural family');
-    for(const batch of ['Stone','Windows']){const mesh:THREE.Object3D|undefined=g.getObjectByName(`City_${family}_${batch}_${profile}`);if(!(mesh instanceof THREE.Mesh)||mesh.parent!==g)throw Error('Missing city batch');}
+    for(const batch of ['Stone','Windows','Atlas']){const mesh:THREE.Object3D|undefined=g.getObjectByName(`City_${family}_${batch}_${profile}`);if(!(mesh instanceof THREE.Mesh)||mesh.parent!==g)throw Error('Missing city batch');
+      if(batch==='Atlas'&&(!mesh.geometry.attributes.uv||!(mesh.material as THREE.MeshStandardMaterial).map))throw Error('Missing facade atlas');}
     const size=g.userData.baseSize;if(!Array.isArray(size)||size.length!==3||size.some(v=>!Number.isFinite(v)||v<=0))throw Error('Invalid kit bounds');
     const bounds=new THREE.Box3().setFromObject(g);if(bounds.min.y<-.01||bounds.max.y>55||bounds.max.z<7||bounds.max.x<8)throw Error('City orientation/bounds');
   }
   for(const prop of ['Meeting','Furniture']){const group:THREE.Object3D|undefined=root.getObjectByName(`City_${prop}_${profile}`);if(group?.parent!==root||group.children.length!==1||!(group.children[0] instanceof THREE.Mesh))throw Error('Missing city furniture');}
-  return {triangles:stats.total,draws:stats.count,families:6};
+  return {triangles:stats.total,draws:stats.count,families:CITY_FAMILIES.length};
 }
 export function validatePomuUltimate(source:THREE.Group,profile:DetailProfile){
   const root=source.getObjectByName('PomuUltimate_'+profile),head=source.getObjectByName('PomuGear5Head_'+profile),fist=source.getObjectByName('PomuHakiFist_'+profile),mount=source.getObjectByName('PomuGear5Mount_'+profile),eyes=source.getObjectByName('PomuGear5Eyes_'+profile);
-  if(!root||root.userData.schemaVersion!==1||root.userData.duration!==5.6||root.userData.killTime!==3.4||head?.parent!==root||fist?.parent!==root||mount?.parent!==head||eyes?.parent!==mount)throw Error('Invalid Gear 5 hierarchy');
+  if(!root||root.userData.schemaVersion!==2||root.userData.duration!==5.6||root.userData.killTime!==3.4||head?.parent!==root||fist?.parent!==root||mount?.parent!==head||eyes?.parent!==mount)throw Error('Invalid Gear 5 hierarchy');
+  for(const anchor of ['Wrist','Contact','StrikeAxis']){const node:THREE.Object3D|undefined=fist.getObjectByName(`PomuFist${anchor}_${profile}`);if(node?.parent!==fist||node.position.toArray().some(v=>!Number.isFinite(v)))throw Error('Invalid fist anchor');}
+  const axis=fist.userData.strikeAxis,wrist=fist.userData.wristAnchor,contact=fist.userData.knuckleContact;
+  for(const v of [axis,wrist,contact])if(!Array.isArray(v)||v.length!==3||v.some(n=>!Number.isFinite(n)))throw Error('Missing fist metadata');
+  if(axis[0]!==0||axis[1]!==0||axis[2]!==1||wrist[2]>-.7||contact[2]<.5)throw Error('Invalid fist orientation');
   if(Math.abs(mount.position.y-.12)>1e-5||Math.abs(eyes.position.y-1.28)>1e-5||eyes.position.x!==0||eyes.position.z!==0)throw Error('Gear 5 attachment/pivot');
   const all=finiteMeshes(source);let headTriangles=352,fistTriangles=0;
   for(const batch of ['Skin','Clouds','Ink','EyeWhites','Iris','Pupils']){
@@ -72,13 +77,14 @@ class ProfileCache<T> {
   stats(profile:DetailProfile){return this.assets.get(profile)?.stats;}
   dispose(){if(this.disposed)return;this.disposed=true;this.assets.forEach(a=>disposeAsset(a.source));this.assets.clear();}
 }
-function replaceMaterials(source:THREE.Group,create:(batch:string)=>THREE.Material){
+function replaceMaterials(source:THREE.Group,create:(batch:string,original:THREE.Material)=>THREE.Material){
   const originals=assetResources(source),materials=new Map<string,THREE.Material>();
-  source.traverse(o=>{if(!(o instanceof THREE.Mesh))return;const key=o.userData.batch as string;let material=materials.get(key);if(!material){material=create(key);materials.set(key,material);}o.material=material;o.geometry.userData.sharedLivingAsset=true;});
-  originals.materials.forEach(m=>m.dispose());originals.textures.forEach(t=>t.dispose());
+  source.traverse(o=>{if(!(o instanceof THREE.Mesh))return;const key=o.userData.batch as string;let material=materials.get(key);if(!material){material=create(key,o.material as THREE.Material);materials.set(key,material);}o.material=material;o.geometry.userData.sharedLivingAsset=true;});
+  const retained=assetResources(source).textures;
+  originals.materials.forEach(m=>m.dispose());originals.textures.forEach(t=>{if(!retained.has(t))t.dispose();});
 }
 export class CityKitCache extends ProfileCache<ReturnType<typeof validateCityKit>>{
-  constructor(loader:ProfileLoader=p=>loadGLB('shibuya/city-kit',p)){super(loader,validateCityKit,source=>replaceMaterials(source,batch=>batch==='Windows'?new THREE.MeshBasicMaterial({vertexColors:true}):new THREE.MeshLambertMaterial({vertexColors:true})));}
+  constructor(loader:ProfileLoader=p=>loadGLB('shibuya/city-kit',p)){super(loader,validateCityKit,source=>replaceMaterials(source,(batch,original)=>batch==='Windows'?new THREE.MeshBasicMaterial({vertexColors:true}):new THREE.MeshLambertMaterial({vertexColors:true,map:batch==='Atlas'?(original as THREE.MeshStandardMaterial).map:null})));}
   family(profile:DetailProfile,family:CityFamily){return this.source(profile)?.getObjectByName(`City_${family}_${profile}`) as THREE.Group|undefined;}
   prop(profile:DetailProfile,name:'Meeting'|'Furniture'){return this.source(profile)?.getObjectByName(`City_${name}_${profile}`) as THREE.Group|undefined;}
 }

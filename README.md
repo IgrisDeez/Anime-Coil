@@ -1,5 +1,13 @@
-# Anime Coil v1.7.7 — Living Shibuya and Gear 5
+# Anime Coil v1.7.8 — Dense Shibuya and Haki Punch
 Anime Coil is a solo browser game. Choose Kitsu, Kairo, Pomu, or Shiro and play against 20 computer-controlled snakes in Shibuya. Collect orbs to grow, avoid collisions, and use your character’s skill and ultimate. Play without a time limit in Endless, set an energy record in the three-minute Sprint, or earn points for orbs and direct eliminations in Bounty Hunt. Guided Practice is available from Help.
+
+## v1.7.8 — Dense Shibuya and Haki Punch
+
+Shibuya now has a connected junction with paved crossing landings, road-aligned lane paint and eight populated building fronts. Fourteen Blender architecture families add balcony hotels, rooftop gardens, civic buildings, angled towers and recognizable shopping/station landmarks. Store names stay stable with fitted lettering and fewer competing signs. The original arena clearance and gameplay remain intact.
+
+Pomu's Haki punch uses a rebuilt closed fist with explicit wrist/contact anchors and a tangent-matched elastic arm. The conflicting screen-overlay fist is removed; impact, fragments and fading smoke use red Haki colors. The approved normal roster, textured hair, Gear 5 head and other finishers are preserved.
+
+Review [the release report and measurements](docs/DENSE-SHIBUYA-1.7.8.md), [road and density comparison](docs/dense-shibuya-1.7.8/road-study.png), [city views](docs/dense-shibuya-1.7.8/city-four-views.png), [fist views](docs/dense-shibuya-1.7.8/fist-four-views.png), [matched captures](docs/dense-shibuya-1.7.8/matched-comparison.png), and [complete punch recording](docs/dense-shibuya-1.7.8/cinematic/desktop-gear5-complete.webm). Editable [city](assets/shibuya/v178/README.md) and [Pomu](assets/pomu-gear5/v178/README.md) masters and profile exports accompany the release. Physical-phone testing remains unperformed.
 
 ## v1.7.7 — Living Shibuya and Gear 5
 

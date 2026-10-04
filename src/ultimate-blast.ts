@@ -3,11 +3,12 @@ import { RADIUS } from './simulation';
 import type { DetailProfile } from './worlds/types';
 import { AFTERMATH, type UltimateVisualFrame } from './ultimate-visual';
 import type { UltimateKind } from './ultimate-presentation';
+import {HAKI} from './haki-palette';
 
 const STYLES = { fox: 0, spirit: 1, purple: 2, skybreaker: 3 } as const;
 const PALETTES = {
   fox: ['#fff2ba', '#ff9b27', '#72494a'], spirit: ['#f0ffff', '#40bcff', '#546d8b'],
-  purple: ['#fbeaff', '#ac59ff', '#5b486f'], skybreaker: ['#fffaf1', '#ded6ee', '#7c748e'],
+  purple: ['#fbeaff', '#ac59ff', '#5b486f'], skybreaker: [HAKI.hot,HAKI.energy,HAKI.ash],
 } as const;
 const COLORS = Object.fromEntries(Object.entries(PALETTES).map(([kind, colors]) => [kind, colors.map(c => new THREE.Color(c))])) as Record<UltimateKind, THREE.Color[]>;
 export function blastCounts(profile: DetailProfile, reduced = false) {
@@ -76,7 +77,7 @@ export class UltimateBlast {
         float centre=1.-smoothstep(.12,.53,r);
         float slit=style>1.5&&style<2.5?smoothstep(.025,.07,abs(point.x+point.y*.48+sin(point.y*19.)*.015))*smoothstep(.02,.05,abs(point.y-point.x*.3-.13)):1.;
         vec3 color=mix(energy,hot,centre*.94);float alpha=opacity*edge*mix(.26,.98,centre)*slit;
-        if(style>2.5){float comic=1.-smoothstep(.018,.065,abs(r-(.55+.075*sin(a*9.))));color=mix(vec3(.105,.085,.15),hot,centre);alpha=opacity*edge*max(comic,centre*.7);}
+        if(style>2.5){float comic=1.-smoothstep(.018,.065,abs(r-(.55+.075*sin(a*9.))));color=mix(energy,hot,centre*.65);alpha=opacity*edge*max(comic,centre*.7);}
         if(alpha<.012)discard;gl_FragColor=vec4(color,alpha);
         #include <colorspace_fragment>
       }`);

@@ -59,8 +59,8 @@ export function shibuyaLife(b:WorldBuilder) {
       }
     }
     for(let i=0;i<8;i++){
-      const angle=Math.floor(i/2)*Math.PI/2,along=i%2?72:-72;
-      dummy.position.set(along*Math.cos(angle)+144*Math.sin(angle),4,-along*Math.sin(angle)+144*Math.cos(angle));dummy.rotation.set(0,0,0);dummy.scale.setScalar(1);dummy.updateMatrix();signals.setMatrixAt(i,dummy.matrix);
+      const [x,z]=CITY_WALK[i];
+      dummy.position.set(x,4,z);dummy.rotation.set(0,0,0);dummy.scale.setScalar(1);dummy.updateMatrix();signals.setMatrixAt(i,dummy.matrix);
       signals.setColorAt(i,new THREE.Color(walk?'#e9849d':'#79d9b8'));
     }
     if(signals.instanceColor)signals.instanceColor.needsUpdate=true;

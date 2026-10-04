@@ -70,10 +70,13 @@ export function finishSurface(material: THREE.MeshToonMaterial | THREE.MeshBasic
       #ifdef USE_MAP
         vec3 face = abs(normalize(surfaceNormal));
         vec2 surfaceUV = face.y >= face.x && face.y >= face.z ? surfacePosition.xz : (face.x > face.z ? surfacePosition.zy : surfacePosition.xy);
-        ${ground && cartoon ? `float cartoonDistance = length(surfaceWorldPos.xz-cartoonCenter);
+        ${ground && cartoon ? `float cartoonRipple = 0.0;
+        if(cartoonIntensity>0.0){
+        float cartoonDistance = length(surfaceWorldPos.xz-cartoonCenter);
         float cartoonFalloff = 1.0-smoothstep(20.0,24.0,cartoonDistance);
-        float cartoonRipple = cartoonIntensity*cartoonFalloff;
-        if(cartoonRipple>0.0)surfaceUV += cartoonRipple * vec2(sin(cartoonDistance*.65-cartoonTime*2.0+surfaceWorldPos.z*.17),cos(cartoonDistance*.6-cartoonTime*1.7+surfaceWorldPos.x*.13))*.23;` : ''}
+        cartoonRipple = cartoonIntensity*cartoonFalloff;
+        if(cartoonRipple>0.0)surfaceUV += cartoonRipple * vec2(sin(cartoonDistance*.65-cartoonTime*2.0+surfaceWorldPos.z*.17),cos(cartoonDistance*.6-cartoonTime*1.7+surfaceWorldPos.x*.13))*.23;
+        }` : ''}
         diffuseColor *= texture2D(map, surfaceUV / ${SURFACE_SCALE[kind].toFixed(1)});
         ${ground && cartoon ? 'diffuseColor.rgb *= 1.0 + cartoonRipple*.06;' : ''}
       #endif`);

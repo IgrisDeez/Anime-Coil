@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import './gltf-test-env';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import * as THREE from 'three';
@@ -21,7 +22,7 @@ const city=(p:DetailProfile)=>parse('city',p),pomu=(p:DetailProfile)=>parse('pom
 const ready=Promise.all((['desktop','mobile'] as const).flatMap(p=>[cityKitAssets.preload(p,city),pomuUltimateAssets.preload(p,pomu)])).then(r=>assert.ok(r.every(Boolean)));
 const frame={time:2,dt:1/60,camera:{x:0,y:60,z:30},focus:{x:0,z:0},mode:'game' as const,paused:false,reducedMotion:false};
 for(const profile of ['desktop','mobile'] as const)test(`${profile}: actual city and Gear 5 exports have valid orientation, finite geometry, bounds and budgets`,async()=>{
-  const c=await city(profile),p=await pomu(profile);assert.equal(validateCityKit(c,profile).families,6);
+  const c=await city(profile),p=await pomu(profile);assert.equal(validateCityKit(c,profile).families,14);
   const stats=validatePomuUltimate(p,profile);assert.equal(stats.headTriangles,profile==='desktop'?5644:3812);assert.ok(stats.fistTriangles<(profile==='desktop'?3000:1800));
   const hand=p.getObjectByName(`PomuHaki_Hand_${profile}`) as THREE.Mesh,positions=hand.geometry.attributes.position,idx=hand.geometry.index!,a=new THREE.Vector3(),b=new THREE.Vector3(),v=new THREE.Vector3(),cross=new THREE.Vector3();let volume=0;
   for(let i=0;i<idx.count;i+=3){a.fromBufferAttribute(positions,idx.getX(i));b.fromBufferAttribute(positions,idx.getX(i+1));v.fromBufferAttribute(positions,idx.getX(i+2));volume+=a.dot(cross.crossVectors(b,v))/6;}assert.ok(volume>.1,'closed Haki skin faces outward');
@@ -47,14 +48,39 @@ test('failed, invalid and late profile loads preserve fallback and dispose owned
 });
 for(const profile of ['desktop','mobile'] as const)test(`${profile}: imported city keeps clearance, population, culling budgets and cache ownership over map rebuilds`,async()=>{
   await ready;const source=cityKitAssets.family(profile,'Rounded')!,shared=assetResources(source),counts=new Map<object,number>();
-  for(const g of shared.geometries)g.addEventListener('dispose',()=>counts.set(g,(counts.get(g)??0)+1));
+  for(const g of [...shared.geometries,...shared.textures])g.addEventListener('dispose',()=>counts.set(g,(counts.get(g)??0)+1));
   let signature='';for(let i=0;i<3;i++){const env=buildEnvironment('shibuya',profile),stats=env.stats;if(signature)assert.equal(JSON.stringify(stats),signature);signature=JSON.stringify(stats);
     assert.ok(stats.drawCalls<=PROFILES[profile].maxCalls,JSON.stringify(stats));assert.ok(stats.triangles<=PROFILES[profile].maxTriangles);assert.ok(stats.materials<=32);assert.equal(stats.actors,profile==='desktop'?72:24);
-    assert.equal(new Set(env.landmarks.filter(g=>g.name.startsWith('city-front')).map(g=>g.userData.family)).size,5);
+    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-front')).length,48);
+    assert.ok(new Set(env.landmarks.filter(g=>g.name.startsWith('city-front')).map(g=>g.userData.family)).size>=9);
     for(const g of env.landmarks){const b=g.userData.bounds;assert.ok(Math.hypot(Math.max(b.min[0],Math.min(0,b.max[0])),Math.max(b.min[2],Math.min(0,b.max[2])))>=RADIUS+6);}
     const umbrellas=env.group.getObjectByName('shibuya-umbrellas') as THREE.InstancedMesh;assert.equal(umbrellas.count,profile==='desktop'?64:20);
     env.update(frame);const snapshot=Array.from(umbrellas.instanceMatrix.array);env.update({...frame,time:9,paused:true});assert.deepEqual(Array.from(umbrellas.instanceMatrix.array),snapshot);
     env.dispose();env.dispose();assert.equal(counts.size,0);
+  }
+});
+
+test('all eight punch headings contact the captured target and share the authored wrist tangent',async()=>{
+  await ready;
+  for(const profile of ['desktop','mobile'] as const)for(let i=0;i<8;i++){
+    const a=new Arena('cloud',()=>.5,0,0),fx=new SkybreakerCinematic(new THREE.Scene(),profile),camera=new THREE.PerspectiveCamera(43,1.6,.1,600);
+    a.player.angle=i*Math.PI/4;a.player.x=90*Math.cos(a.player.angle);a.player.z=90*Math.sin(a.player.angle);a.activateNuke(a.player);
+    const s=a.cinematic!;s.time=3.4;s.detonated=true;camera.position.set(a.player.x,50,a.player.z+28);camera.lookAt(a.player.x,0,a.player.z);
+    const before=JSON.stringify(a);fx.update(a,camera,false);assert.equal(JSON.stringify(a),before);
+    const p=fx.staging,down=new THREE.Vector3(0,-1,0);
+    assert.ok(p.knuckleContact.distanceTo(new THREE.Vector3(s.impact.x,-.46,s.impact.z))<1e-8);
+    assert.ok(p.strikeDirection.dot(down)>.9999);assert.ok(p.armEndTangent.dot(p.strikeDirection)>.9999);
+    assert.ok(p.wristPosition.y>p.knuckleContact.y+8);
+    for(const choice of [profile==='desktop'?'mobile':'desktop',profile] as const){fx.setProfile(choice);fx.update(a,camera,false);assert.ok(fx.staging.knuckleContact.distanceTo(p.knuckleContact)<1e-8);assert.equal(s.time,3.4);}
+    fx.dispose();
+  }
+});
+
+test('Pomu Haki retains its red palette at the kill frame while other finishers keep their monochrome presentation',()=>{
+  for(const kind of ['skybreaker','fox','spirit','purple'] as const){
+    const clock=new UltimateVisualClock(),shot={kind,time:3.4,detonated:true} as Arena['cinematic'];
+    const f=clock.update(shot,false,false,true,true);assert.equal(f.keyframe,true);assert.equal(f.grayscale,kind==='skybreaker'?0:1);
+    shot!.time=3.46;assert.equal(clock.update(shot,false,false,true,true).grayscale===0,kind==='skybreaker');
   }
 });
 test('floor, paint and wet decals share cinematic-time deformation, reset on expiry and retain static vertex buffers',()=>{

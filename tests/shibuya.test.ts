@@ -4,11 +4,25 @@ import * as THREE from 'three';
 import { WorldBuilder } from '../src/worlds/builder.ts';
 import { shibuya } from '../src/worlds/shibuya.ts';
 import { buildEnvironment } from '../src/environments.ts';
-import { CITY_BLOCKS, CITY_ROAD, CITY_WALK, ROAD_MARKINGS, routePose } from '../src/worlds/shibuya-layout.ts';
+import { CITY_BLOCKS, CITY_ROAD, CITY_WALK, CITY_FRONTAGES, CITY_STREETS, CROSSINGS, ROAD_MARKINGS, routePose } from '../src/worlds/shibuya-layout.ts';
+import {RADIUS} from '../src/simulation';
 import { CityBillboards, BILLBOARD_REGIONS } from '../src/worlds/shibuya-art.ts';
 import { finishSurface, surfacePixels } from '../src/worlds/surfaces.ts';
 
 const frame={time:0,dt:1/60,camera:{x:0,z:0},focus:{x:0,z:0},mode:'game' as const,paused:false,reducedMotion:false};
+test('Paved corner mesh leaves the road opening uncovered with finite upward faces',()=>{
+  const b=new WorldBuilder('mobile');
+  const mesh=b.polygon('#fff',[[-10,-10],[10,-10],[10,10],[-10,10]],-.44,'stone',[[[-4,-4],[-4,4],[4,4],[4,-4]]],3);
+  const p=mesh.geometry.attributes.position,n=mesh.geometry.attributes.normal;let area=0;
+  for(let i=0;i<p.count;i+=3){
+    area+=Math.abs((p.getX(i+1)-p.getX(i))*(p.getZ(i+2)-p.getZ(i))-(p.getZ(i+1)-p.getZ(i))*(p.getX(i+2)-p.getX(i)))/2;
+    const x=(p.getX(i)+p.getX(i+1)+p.getX(i+2))/3,z=(p.getZ(i)+p.getZ(i+1)+p.getZ(i+2))/3;
+    assert.ok(Math.abs(x)>=4-1e-6||Math.abs(z)>=4-1e-6,'asphalt opening has no pavement faces');
+  }
+  assert.ok(Math.abs(area-336)<1e-4);
+  for(let i=0;i<n.count;i++){assert.ok(Number.isFinite(p.getX(i)));assert.ok(n.getY(i)>.99);}
+  b.dispose();
+});
 test('Shibuya road and sidewalk loops close without a seam and have upward normals',()=>{
   const b=new WorldBuilder('mobile');
   for(const route of [CITY_ROAD,CITY_WALK]){
@@ -19,20 +33,22 @@ test('Shibuya road and sidewalk loops close without a seam and have upward norma
     for(let i=0;i<n.count;i++)assert.ok(n.getY(i)>.99);
   }b.dispose();
 });
-test('Shibuya has four facade families, grounded foundations and two finished station landmarks',()=>{
+test('Shibuya has thirteen placed architectural families, grounded foundations and a station tower',()=>{
   assert.equal(new Set(CITY_BLOCKS.map(b=>b.kind)).size,4);
   const b=new WorldBuilder('desktop');shibuya(b);
-  assert.equal(b.landmarks.filter(g=>g.name.startsWith('station-')).length,2);
+  assert.equal(new Set(CITY_BLOCKS.map(block=>block.family)).size,13);
+  const station=CITY_BLOCKS.findIndex(block=>block.family==='StationTower');
+  assert.ok(new THREE.Box3().setFromObject(b.landmarks.find(g=>g.name==='city-front-'+station)!).max.y>=148);
   for(const g of b.landmarks.filter(g=>g.name.startsWith('city-front-'))){
     const box=new THREE.Box3().setFromObject(g);assert.ok(box.min.y<=-.48);
     const signs=g.children.filter(o=>o.userData.signText);assert.ok(signs.length>0);
-    assert.ok(signs.every(o=>['shop','neon'].includes(o.userData.signArt)));
+    assert.ok(signs.every(o=>['shop','neon','column'].includes(o.userData.signArt)));
   }b.finish();b.dispose();
 });
 test('Shibuya actor routes wrap deterministically and stay outside the playable circle',()=>{
   const pose={x:0,z:0,angle:0};
   for(const route of [CITY_WALK,CITY_ROAD])for(let d=-500;d<5000;d+=13){
-    routePose(route,d,pose);assert.ok(Number.isFinite(pose.x+pose.z+pose.angle));assert.ok(Math.hypot(pose.x,pose.z)>140);
+    routePose(route,d,pose);assert.ok(Number.isFinite(pose.x+pose.z+pose.angle));assert.ok(Math.hypot(pose.x,pose.z)>RADIUS+6);
   }
   routePose(CITY_WALK,0,pose);assert.deepEqual([pose.x,pose.z],CITY_WALK[0]);
 });
@@ -64,23 +80,33 @@ test('Shibuya signage remains stable rather than replacing shop identities on a 
   const b=new WorldBuilder('mobile');shibuya(b);assert.equal(b.motions.length,6);b.finish();b.dispose();
 });
 
-test('Shibuya packs eight aligned frontages per district and preserves all 32 on mobile',()=>{
-  assert.equal(CITY_BLOCKS.length,32);
-  for(let district=0;district<4;district++){
-    const blocks=CITY_BLOCKS.filter(block=>block.district===district);assert.equal(blocks.length,8);
-    assert.ok(blocks.every(block=>block.rotation===-district*Math.PI/2));
-    for(let i=1;i<blocks.length;i++){const distance=Math.hypot(blocks[i].x-blocks[i-1].x,blocks[i].z-blocks[i-1].z);assert.ok(distance>=32);if(i!==4)assert.ok(distance<36,'frontages have only narrow gaps');}
+test('Shibuya packs 48 narrow lots across eight asymmetric street fronts on both profiles',()=>{
+  assert.equal(CITY_BLOCKS.length,48);
+  for(let section=0;section<CITY_FRONTAGES.length;section++){
+    const front=CITY_FRONTAGES[section],blocks=CITY_BLOCKS.slice(section*6,section*6+6);
+    assert.ok(blocks.every(block=>block.rotation===front.rotation&&block.district===front.district));
+    for(let i=1;i<blocks.length;i++){
+      const a=blocks[i-1],c=blocks[i],along=(c.x-a.x)*Math.cos(front.rotation)-(c.z-a.z)*Math.sin(front.rotation);
+      assert.ok(Math.abs(along-(a.width+c.width)/2-1.8)<1e-8,'lot frontage separation stays coherent');
+    }
   }
   for(const profile of ['desktop','mobile'] as const){const env=buildEnvironment('shibuya',profile);
-    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-front-')).length,32);
-    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-middle-')).length,profile==='desktop'?24:16);
-    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-skyline-')).length,profile==='desktop'?24:16);env.dispose();}
+    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-front-')).length,48);
+    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-middle-')).length,profile==='desktop'?48:32);
+    assert.equal(env.landmarks.filter(g=>g.name.startsWith('city-skyline-')).length,profile==='desktop'?64:48);env.dispose();}
 });
 
-test('intersection markings use common crossing and lane anchors with rotational symmetry',()=>{
-  assert.ok(ROAD_MARKINGS.length>150);assert.deepEqual(new Set(ROAD_MARKINGS.map(mark=>mark.kind)),new Set(['crossing','lane','stop','hatch']));
-  const quarter=ROAD_MARKINGS.length/4;
-  for(let i=0;i<quarter;i++){const a=ROAD_MARKINGS[i],b=ROAD_MARKINGS[i+quarter];assert.ok(Math.abs(a.x-b.z*-1)<1e-9);assert.ok(Math.abs(a.z-b.x)<1e-9);assert.ok(Number.isFinite(a.x+a.z+a.width+a.length+a.angle));}
+test('five continuous zebra crossings and lane paint follow the researched street graph',()=>{
+  assert.equal(CROSSINGS.length,5);assert.ok(CITY_STREETS.some(street=>street.name==='center-gai'&&street.width===8));
+  assert.ok(ROAD_MARKINGS.length>100);assert.deepEqual(new Set(ROAD_MARKINGS.map(mark=>mark.kind)),new Set(['crossing','lane','stop']));
+  let offset=0;
+  for(const crossing of CROSSINGS){
+    const dx=crossing.to[0]-crossing.from[0],dz=crossing.to[1]-crossing.from[1],length=Math.hypot(dx,dz),count=Math.floor(length/4);
+    for(const mark of ROAD_MARKINGS.slice(offset,offset+count)){
+      const along=((mark.x-crossing.from[0])*dx+(mark.z-crossing.from[1])*dz)/(length*length);
+      assert.ok(along>0&&along<1);assert.ok(Math.abs((mark.x-crossing.from[0])*dz-(mark.z-crossing.from[1])*dx)<1e-7);assert.ok(Math.abs(mark.angle-Math.atan2(dx,dz))<1e-9);
+    }offset+=count;
+  }
   assert.ok(ROAD_MARKINGS.some(mark=>Math.hypot(mark.x,mark.z)>110));
 });
 
@@ -88,7 +114,7 @@ test('district batches have finite local bounds containing every authored instan
   for(const profile of ['desktop','mobile'] as const){const env=buildEnvironment('shibuya',profile),matrix=new THREE.Matrix4(),point=new THREE.Vector3();
     for(let i=0;i<4;i++){const district=env.group.getObjectByName(`shibuya-district-${i}`);assert.ok(district);let batches=0;
       district.traverse(o=>{if(!(o instanceof THREE.InstancedMesh))return;batches++;assert.ok(o.boundingSphere);const sphere=o.boundingSphere;
-        assert.ok(Number.isFinite(sphere.radius+sphere.center.x+sphere.center.y+sphere.center.z));assert.ok(Math.hypot(sphere.center.x,sphere.center.z)>180);
+        assert.ok(Number.isFinite(sphere.radius+sphere.center.x+sphere.center.y+sphere.center.z));assert.ok(Math.hypot(sphere.center.x,sphere.center.z)>RADIUS);
         for(let k=0;k<o.count;k++){o.getMatrixAt(k,matrix);point.setFromMatrixPosition(matrix);assert.ok(point.distanceTo(sphere.center)<=sphere.radius+1e-4);}
       });assert.ok(batches>0);
     }env.dispose();}

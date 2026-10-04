@@ -6,6 +6,8 @@ import { createSurfaceTexture, finishSurface, type SurfaceKind } from "./surface
 import { SummonClearance } from "./summon-clearance";
 import {attachRubberStreet,rubberDisk} from './rubber-street';
 import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import {cityType} from './sign-type';
+import {HAKI} from '../haki-palette';
 export type Shape = "box" | "ball" | "cylinder" | "cone" | "disk" | "pebble" | "gable";
 export type Style = SurfaceKind | "matte" | "glow" | "shadow" | "foliage" | "crowd";
 function gableGeometry() {
@@ -30,6 +32,7 @@ export class WorldBuilder {
   readonly detail;
   private purpleTint = new THREE.Color("#aa65ff");
   private cartoonTint = new THREE.Color('#fff2de');
+  private hakiTint = new THREE.Color(HAKI.energy);
   private lampBreath = {value:1};
   private wind = {value:0};
   private windStrength = {value:1};
@@ -41,13 +44,12 @@ export class WorldBuilder {
   private signMaterial: THREE.MeshBasicMaterial;
   private signCount = 0;
   private signEntries = new Map<string,number>();
-  private signs: {text:string;color:string}[] = [];
-  private signPhase = -1;
   private signContext?: CanvasRenderingContext2D;
   private dynamic = new Set<THREE.Object3D>();
   private clusters = new Set<THREE.Object3D>();
   private clusterBounds = new Map<THREE.Object3D,THREE.Box3>();
   private importedMaterials=new Map<string,THREE.Material>();
+  private borrowedTextures=new Set<THREE.Texture>();
   private viewFrustum = new THREE.Frustum();
   private viewProjection = new THREE.Matrix4();
   private viewBounds = new THREE.Box3();
@@ -118,7 +120,7 @@ export class WorldBuilder {
     this.cartoon.time.value=frame.reducedMotion?0:cartoonShot?.time??0;
     this.cartoon.intensity.value=cartoonShot&&!frame.reducedMotion?Math.max(0,cartoonStrength):0;
     const response=reaction(frame.ultimate,frame.reducedMotion);
-    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(frame.ultimate?.kind === "fox" ? this.cartoonTint : this.purpleTint,response.tint).lerp(this.cartoonTint,this.cartoon.intensity.value*.08).multiplyScalar(response.light);
+    (this.surface.glow as THREE.MeshBasicMaterial).color.set("white").lerp(frame.ultimate?.kind==="skybreaker"?this.hakiTint:frame.ultimate?.kind === "fox" ? this.cartoonTint : this.purpleTint,response.tint).lerp(this.cartoonTint,this.cartoon.intensity.value*.08).multiplyScalar(response.light);
     this.signMaterial.color.copy((this.surface.glow as THREE.MeshBasicMaterial).color).multiplyScalar(frame.reducedMotion ? 1 : .98 + Math.sin(frame.time * .45) * .02);
   }
   clearPresentation(){this.clearance.update();this.clearance.updateCamera();this.cartoon.intensity.value=0;this.cartoon.time.value=0;(this.surface.glow as THREE.MeshBasicMaterial).color.set("white");this.signMaterial.color.set("white");}
@@ -126,7 +128,7 @@ export class WorldBuilder {
   material<T extends THREE.Material>(m:T):T {this.materials.add(m);return m;}
   /** Geometry stays in the application cache; only clearance material clones belong to this world. */
   imported(source:THREE.Object3D,parent:THREE.Group){
-    const clone=source.clone(true);clone.traverse(o=>{if(!(o instanceof THREE.Mesh)||Array.isArray(o.material))return;const key=o.material.uuid;const mat=this.importedMaterials.get(key)??this.material(o.material.clone());this.importedMaterials.set(key,mat);o.material=mat;o.userData.districtCitySurface=o.userData.batch==='Stone'||o.userData.batch==='Windows';});parent.add(clone);return clone;
+    const clone=source.clone(true);clone.traverse(o=>{if(!(o instanceof THREE.Mesh)||Array.isArray(o.material))return;const key=o.material.uuid;const mat=this.importedMaterials.get(key)??this.material(o.material.clone());this.importedMaterials.set(key,mat);o.material=mat;for(const value of Object.values(mat))if(value instanceof THREE.Texture)this.borrowedTextures.add(value);o.userData.districtCitySurface=['Stone','Windows','Atlas'].includes(o.userData.batch);});parent.add(clone);return clone;
   }
   texture<T extends THREE.Texture>(t:T):T {this.textures.add(t);return t;}
   part(parent:THREE.Group,shape:Shape,color:string,x:number,y:number,z:number,w:number,h:number,d:number,style:Style="matte") {
@@ -159,38 +161,52 @@ export class WorldBuilder {
     const mesh=new THREE.Mesh(geo,this.surfaceMaterial(style));mesh.userData.color=c;this.group.add(mesh);return mesh;
   }
   disk(c:string,x:number,z:number,r:number,y=-.48) {const m=this.part(this.group,"disk",c,x,y,z,r,r,1,"glow");m.rotation.x=-Math.PI/2;return m;}
+  /** Subdivided ground patch; vertices are authored once and use the existing rubber shader. */
+  polygon(c:string,outline:readonly (readonly [number,number])[],y:number,style:SurfaceKind,holes:readonly (readonly (readonly [number,number])[])[]=[],steps=this.profile==='mobile'?8:12){
+    const positions:number[]=[],uv:number[]=[],points=[...outline,...holes.flat()];
+    const triangles=THREE.ShapeUtils.triangulateShape(outline.map(p=>new THREE.Vector2(...p)),holes.map(h=>h.map(p=>new THREE.Vector2(...p))));
+    for(const [a,b,d] of triangles){
+      const sample=(i:number,j:number)=>{const p=points[a],q=points[b],r=points[d];return [p[0]+(q[0]-p[0])*i/steps+(r[0]-p[0])*j/steps,y,p[1]+(q[1]-p[1])*i/steps+(r[1]-p[1])*j/steps];};
+      const face=(corners:number[][])=>{for(const p of corners){positions.push(...p);uv.push(p[0],p[2]);}};
+      for(let i=0;i<steps;i++)for(let j=0;j<steps-i;j++){
+        face([sample(i,j),sample(i,j+1),sample(i+1,j)]);
+        if(i+j<steps-1)face([sample(i+1,j),sample(i,j+1),sample(i+1,j+1)]);
+      }
+    }
+    const geo=this.geo(new THREE.BufferGeometry());geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.computeVertexNormals();
+    const mesh=new THREE.Mesh(geo,this.surfaceMaterial(style));mesh.userData.color=c;this.group.add(mesh);return mesh;
+  }
   landmark(name:string,x:number,z:number,rotation=0):THREE.Group {
     const g=new THREE.Group();g.name=name;g.position.set(x,0,z);g.rotation.y=rotation;g.userData.decorative=true;this.group.add(g);this.landmarks.push(g);return g;
   }
   shadow(g:THREE.Group,x:number,z:number,w:number,d:number) {
     const m=this.part(g,"disk","#ffffff",x,-.41,z,w,d,1,"shadow");m.rotation.x=-Math.PI/2;
   }
-  sign(g:THREE.Group,text:string,color:string,x:number,y:number,z:number,w:number,h=3,art:'plain'|'neon'|'shop'|'metro'='plain',reuse=false) {
+  sign(g:THREE.Group,text:string,color:string,x:number,y:number,z:number,w:number,h=3,art:'plain'|'neon'|'shop'|'metro'|'column'='plain',reuse=false) {
     const key=text+'|'+color+'|'+art,cached=reuse?this.signEntries.get(key):undefined;
     if(cached===undefined&&this.signCount>=64)throw new Error("Sign atlas is full");
     const index=cached??this.signCount++,col=index%4,row=Math.floor(index/4),cw=this.detail.atlas/4,ch=this.detail.atlas/16,c=this.signContext;
-    if(cached===undefined){this.signs.push({text,color});if(reuse)this.signEntries.set(key,index);}
+    if(cached===undefined&&reuse)this.signEntries.set(key,index);
     if(c&&cached===undefined){
-      c.fillStyle=art==='plain'?'#202b3d':art==='shop'?'#342b35':'#182538';c.fillRect(col*cw,row*ch,cw,ch);
-      const inset=art==='plain'?2:4;
-      c.strokeStyle=color;c.lineWidth=2;c.strokeRect(col*cw+inset,row*ch+inset,cw-inset*2,ch-inset*2);
-      if(art!=='plain'){
-        c.fillStyle=color;c.fillRect(col*cw+8,row*ch+8,art==='metro'?cw-16:3,art==='metro'?3:ch-16);
-        if(art==='neon'){c.globalAlpha=.25;c.fillRect(col*cw+12,row*ch+ch-12,cw-24,3);c.globalAlpha=1;}
+      c.save();c.fillStyle=art==='shop'?'#302a30':'#152237';c.fillRect(col*cw,row*ch,cw,ch);
+      c.translate(col*cw+cw/2,row*ch+ch/2);
+      c.textAlign='center';c.textBaseline='middle';
+      if(art==='column'){
+        c.rotate(-Math.PI/2);
+        c.fillStyle=color;c.fillRect(-ch*.36,-cw*.44,ch*.72,2);
+        const glyphs=Array.from(text),step=cw*.70/glyphs.length;
+        c.fillStyle='#fff1db';
+        for(let i=0;i<glyphs.length;i++){cityType(c,glyphs[i],Math.min(ch*.62,step*.72),ch*.74);c.fillText(glyphs[i],0,(i-(glyphs.length-1)/2)*step);}
+      }else{
+        c.fillStyle=color;c.fillRect(-cw*.40,ch*.34,cw*.80,Math.max(1,ch*.035));
+        c.fillStyle=art==='neon'?color:'#f6ead8';
+        cityType(c,text,ch*.49,cw*.78);c.fillText(text,0,-ch*.015);
       }
-      c.fillStyle=color;c.textAlign='center';c.textBaseline='middle';c.font=`bold ${Math.round(ch*(art==='plain'?.5:art==='shop'?.54:.47))}px sans-serif`;c.fillText(text,col*cw+cw/2,row*ch+ch/2,cw-(art==='plain'?12:24));
+      c.restore();
     }
     const geo=this.geo(new THREE.PlaneGeometry(w,h)),uv=geo.attributes.uv;
-    for(let i=0;i<uv.count;i++)uv.setXY(i,(col*cw+3+uv.getX(i)*(cw-6))/this.detail.atlas,1-(row*ch+3+(1-uv.getY(i))*(ch-6))/this.detail.atlas);
+    for(let i=0;i<uv.count;i++){const u=uv.getX(i),v=uv.getY(i),su=art==='column'?1-v:u,sv=art==='column'?u:v;uv.setXY(i,(col*cw+3+su*(cw-6))/this.detail.atlas,1-(row*ch+3+(1-sv)*(ch-6))/this.detail.atlas);}
     const mesh=new THREE.Mesh(geo,this.signMaterial);mesh.position.set(x,y,z);mesh.userData.color="#ffffff";mesh.userData.signText=text;mesh.userData.signArt=art;g.add(mesh);return mesh;
-  }
-  animateSigns(time:number,reduced:boolean) {
-    const phase=reduced?0:Math.floor(time/8)%2;
-    if(phase===this.signPhase||!this.signContext)return;
-    this.signPhase=phase;
-    const c=this.signContext,cw=this.detail.atlas/4,ch=this.detail.atlas/16;
-    this.signs.forEach((sign,index)=>{if(index%3)return;const col=index%4,row=Math.floor(index/4);c.fillStyle="#202b3d";c.fillRect(col*cw+4,row*ch+4,cw-8,ch-8);c.fillStyle=sign.color;c.textAlign="center";c.textBaseline="middle";c.font=`bold ${Math.round(ch*.5)}px sans-serif`;c.fillText(phase?"WELCOME / ようこそ":sign.text,col*cw+cw/2,row*ch+ch/2,cw-12);});
-    this.atlas.needsUpdate=true;
   }
   // Geometry travels along the line between two points; useful for cables, ropes and rails.
   beam(g:THREE.Group,c:string,a:THREE.Vector3,b:THREE.Vector3,r=.12) {
@@ -267,7 +283,7 @@ export class WorldBuilder {
   }
   stats(particles=0):WorldStats {
     let drawCalls=0,triangles=0;this.group.traverse(o=>{if(o instanceof THREE.Mesh&&o.visible){drawCalls++;triangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3*(o instanceof THREE.InstancedMesh?o.count:1);}else if(o instanceof THREE.Points||o instanceof THREE.LineSegments)drawCalls++;});
-    return {drawCalls,triangles:Math.ceil(triangles),materials:this.materials.size,textures:this.textures.size,particles,actors:this.backgroundActors};
+    return {drawCalls,triangles:Math.ceil(triangles),materials:this.materials.size,textures:new Set([...this.textures,...this.borrowedTextures]).size,particles,actors:this.backgroundActors};
   }
   dispose(){this.group.traverse(o=>{if(o instanceof THREE.InstancedMesh)o.dispose();});this.textures.forEach(t=>t.dispose());this.geometries.forEach(g=>g.dispose());this.materials.forEach(m=>m.dispose());this.motions.length=0;this.group.clear();}
 }

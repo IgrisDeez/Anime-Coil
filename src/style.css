@@ -965,15 +965,16 @@ body.player-dead #nuke { opacity: .78; }
   clip-path: polygon(50% 0, 61% 31%, 89% 11%, 69% 45%, 100% 54%, 66% 62%, 86% 92%, 54% 72%, 42% 100%, 35% 68%, 4% 84%, 28% 53%, 0 43%, 34% 38%, 15% 9%, 44% 30%);
 }
 .skybreaker-ink-rays {
-  background: repeating-conic-gradient(from 9deg, #16151c 0 2deg, transparent 2deg 11deg, #16151c 11deg 13deg, transparent 13deg 25deg);
+  background: repeating-conic-gradient(from 9deg, #931d36 0 2deg, transparent 2deg 11deg, #24101c 11deg 13deg, transparent 13deg 25deg);
   mask-image: radial-gradient(ellipse, transparent 0 18%, #000 29% 77%, transparent 92%);
   transform: scale(1.18, .54) translateY(26%);
 }
 .skybreaker-ink-arm {
-  background: #16151c;
+  display: none;
   clip-path: polygon(59% 0, 72% 0, 67% 39%, 75% 54%, 64% 64%, 53% 49%);
 }
 .skybreaker-ink-fist {
+  display: none;
   inset: 22% 25% 29%;
   background: #16151c;
   clip-path: polygon(15% 16%, 31% 7%, 45% 10%, 57% 4%, 72% 11%, 86% 21%, 96% 36%, 89% 75%, 72% 95%, 29% 94%, 9% 72%, 0 41%);
@@ -981,22 +982,21 @@ body.player-dead #nuke { opacity: .78; }
 }
 .skybreaker-ink-dent {
   inset: 59% 13% 18%;
-  background: #16151c;
+  background: #68152a;
   clip-path: polygon(0 61%, 22% 44%, 34% 50%, 46% 26%, 61% 48%, 73% 33%, 100% 62%, 78% 69%, 58% 61%, 44% 78%, 22% 65%);
 }
 .skybreaker-ink-core {
   inset: 59% 31% 28%;
-  background: #fff;
+  background: #f24d63;
   clip-path: polygon(50% 0, 61% 35%, 100% 19%, 70% 55%, 89% 100%, 52% 71%, 19% 100%, 32% 59%, 0 23%, 41% 36%);
 }
 #cinematic.purple-impact-keyframe .purple-impact-art,
 #cinematic.skybreaker-impact-keyframe .skybreaker-impact-art { opacity: 1; }
-#cinematic.purple-impact-keyframe .cinema-dim,
-#cinematic.skybreaker-impact-keyframe .cinema-dim { background: #faf9f5; opacity: .5; }
+#cinematic.purple-impact-keyframe .cinema-dim { background: #faf9f5; opacity: .5; }
+#cinematic.skybreaker-impact-keyframe .cinema-dim { background: #3c101f; opacity: .12; }
 #cinematic.purple-impact-keyframe .purple-flare,
 #cinematic.skybreaker-impact-keyframe .purple-flare { opacity: 0; }
-#cinematic.purple-impact-monochrome .purple-impact-art,
-#cinematic.skybreaker-impact-monochrome .skybreaker-impact-art { filter: grayscale(1); }
+#cinematic.purple-impact-monochrome .purple-impact-art { filter: grayscale(1); }
 #cinematic.impact-anchor-hidden .spirit-impact-art,
 #cinematic.impact-anchor-hidden .fox-impact-art,
 #cinematic.impact-anchor-hidden .purple-impact-art,
@@ -1600,8 +1600,8 @@ body.reduced-motion * { animation: none !important; transition-property: opacity
 
 #cinematic.fox .purple-flare { background: radial-gradient(ellipse, #ffe8b9, #e79439 35%, transparent 72%); }
 #cinematic.fox .cinema-title strong { color: #ffe2a2; text-shadow: 0 2px 2px #4b242c, 0 0 16px #8e3b1c; }
-#cinematic.skybreaker .purple-flare { background: radial-gradient(ellipse, #fffaf0, #d6bde9 36%, transparent 73%); }
-#cinematic.skybreaker .cinema-title strong { color: #fff8eb; text-shadow: 0 2px 2px #514062, 0 0 17px #aa84c4; }
+#cinematic.skybreaker .purple-flare { background: radial-gradient(ellipse, #ffd0cc, #d92140 36%, transparent 73%); }
+#cinematic.skybreaker .cinema-title strong { color: #fff1e9; text-shadow: 0 2px 2px #541725, 0 0 17px #bf2546; }
 
 /* v1.6.1: shared dialog rhythm and a fixed Settings navigation. */
 .sheet:is(#help-dialog, #settings-dialog, #challenges-dialog)[open] {

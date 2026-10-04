@@ -85,6 +85,9 @@ test('Skybreaker curved arm and ink rebound reuse their geometry across stages',
   const arm=fx.group.getObjectByName('skybreaker-elastic-arm') as THREE.Mesh,dent=fx.group.getObjectByName('skybreaker-ink-rebound') as THREE.Mesh;
   const geometry=arm.geometry,positions=geometry.getAttribute('position'),before=Array.from(positions.array),version=(positions as THREE.BufferAttribute).version;
   const shader={uniforms:{} as Record<string,{value:unknown}>,vertexShader:'#include <beginnormal_vertex>\n#include <begin_vertex>',fragmentShader:''};(arm.material as THREE.Material).onBeforeCompile(shader as never,{} as never);
-  assert.match(shader.vertexShader,/armBend\*sin/);assert.ok((shader.uniforms.armBend.value as THREE.Vector3).length()>5);
+  assert.match(shader.vertexShader,/armPoint\(position.y\)/);
+  assert.ok((shader.uniforms.armEnd.value as THREE.Vector3).distanceTo(shader.uniforms.armControlB.value as THREE.Vector3)>5);
+  const tangent=(shader.uniforms.armEnd.value as THREE.Vector3).clone().sub(shader.uniforms.armControlB.value as THREE.Vector3).normalize();
+  assert.ok(tangent.dot(fx.staging.strikeDirection)>.9999);
   a.cinematic!.time=3.7;a.cinematic!.detonated=true;fx.update(a,camera(),false);assert.equal(arm.geometry,geometry);assert.deepEqual(Array.from(positions.array),before);assert.equal((positions as THREE.BufferAttribute).version,version);assert.ok(fx.group.children.some(o=>o instanceof THREE.InstancedMesh&&o.visible&&o.count===24),'smoke reactivates after initial cleanup');assert.ok(fx.group.children.some(o=>o instanceof THREE.InstancedMesh&&o.visible&&o.count===20),'stars reactivate after cleanup');assert.ok((dent.material as THREE.ShaderMaterial).uniforms.age.value>0);fx.clear();assert.equal((dent.material as THREE.ShaderMaterial).uniforms.alpha.value,0);fx.dispose();
 });

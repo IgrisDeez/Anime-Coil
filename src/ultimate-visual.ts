@@ -43,10 +43,10 @@ export class UltimateVisualClock {
     const soft = reducedMotion || reducedFlashes;
     f.keyframe = !soft && !this.presented;
     if (f.keyframe) {
-      f.phase = 'keyframe'; f.grayscale = 1; f.contrast = 2.2; f.brightness = 1.12; f.ink = 1;
+      f.phase = 'keyframe'; f.grayscale = shot.kind==='skybreaker'?0:1; f.contrast = shot.kind==='skybreaker'?1.45:2.2; f.brightness = shot.kind==='skybreaker'?1.04:1.12; f.ink = 1;
       if (advancing) this.presented = true;
     } else if (f.age < .12 && !soft) {
-      f.phase = 'monochrome'; f.grayscale = .78 * (1 - smooth(.035, .12, f.age));
+      f.phase = 'monochrome'; f.grayscale = shot.kind==='skybreaker'?0:.78 * (1 - smooth(.035, .12, f.age));
       f.contrast = 1 + .42 * (1 - smooth(.035, .15, f.age)); f.ink = .36 * (1 - smooth(.035, .15, f.age));
     } else {
       f.phase = 'residual';
