@@ -41,9 +41,11 @@ test('practice measures each step only while it is active', () => {
   assert.equal(guide.complete, true);
 });
 
-test('practice prompts show the selected E skill and rebound key', () => {
+test('practice skill prompts match default, custom, and touch controls', () => {
   const guide = new PracticeGuide('nova');
   guide.skip(); guide.skip(); guide.skip();
+  assert.equal(guide.label, 'Use your skill once.');
+  assert.equal(guide.detailForKey('E', false), 'Press E or click Ki Cannon.');
   assert.match(guide.detailForKey('R', false), /Press R or click Ki Cannon/);
   assert.match(guide.detailForKey('R', true), /Tap Ki Cannon/);
 });
