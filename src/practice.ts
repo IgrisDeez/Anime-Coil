@@ -4,7 +4,7 @@ export const PRACTICE_STEPS = [
   'Turn with your mouse or joystick.',
   'Collect five glowing energy orbs.',
   'Hold Boost for one second.',
-  'Use your E skill once.',
+  'Use your skill once.',
   'Practice complete. Return to the lobby to play a match.',
 ] as const;
 
