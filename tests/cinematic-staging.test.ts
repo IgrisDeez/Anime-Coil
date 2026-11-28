@@ -75,10 +75,46 @@ for(const kind of ['spirit','skybreaker'] as const){
     }fx.dispose();
   });
 }
-test('Spirit Bomb wake follows the flight derivative and mobile retains the essential core',()=>{
-  const fx=new SpiritCinematic(new THREE.Scene(),'mobile'),a=new Arena('nova',()=>.5,0,0);a.activateNuke(a.player);a.cinematic!.time=2.9;fx.update(a,camera(),false,false,false);
-  const wake=fx.group.children.find(o=>o instanceof THREE.InstancedMesh&&o.geometry instanceof THREE.ConeGeometry) as THREE.InstancedMesh,m=new THREE.Matrix4();wake.getMatrixAt(wake.count-1,m);
-  const axis=new THREE.Vector3(0,1,0).transformDirection(m);assert.ok(axis.distanceTo(fx.staging.wakeDirection)<1e-6);assert.ok(axis.y<0);assert.equal(wake.count,6);fx.dispose();
+test('Spirit Bomb mobile trail follows the falling core and hides in reduced motion', () => {
+  const effect = new SpiritCinematic(new THREE.Scene(), 'mobile');
+  const arena = new Arena('nova', () => .5, 0, 0);
+  arena.activateNuke(arena.player);
+  arena.cinematic!.time = 2.9;
+  effect.update(arena, camera(), false, false, false);
+
+  const ribbons = effect.group.children.filter((object): object is THREE.Mesh =>
+    object instanceof THREE.Mesh && object.name === 'spirit-gather-ribbon');
+  const visible = ribbons.filter(ribbon => ribbon.visible);
+  assert.equal(visible.length, 1);
+  const wake = visible[0];
+  const segments = 31;
+  assert.equal(wake.geometry.drawRange.count, 2 * segments * 6, 'mobile draws two strands');
+
+  // The two strands are opposite each other around the flight centerline.
+  const positions = wake.geometry.getAttribute('position');
+  const centerAt = (sample: number) => {
+    const center = new THREE.Vector3();
+    const point = new THREE.Vector3();
+    for (const strand of [0, 1]) {
+      const offset = (strand * (segments + 1) + sample) * 2;
+      center.add(point.fromBufferAttribute(positions, offset));
+      center.add(point.fromBufferAttribute(positions, offset + 1));
+    }
+    return center.multiplyScalar(.25);
+  };
+  const start = centerAt(0);
+  const end = centerAt(segments);
+  const tangent = end.clone().sub(centerAt(segments - 1)).normalize();
+  assert.ok(tangent.y < 0);
+  assert.ok(tangent.dot(effect.staging.wakeDirection) > .999);
+  const core = new THREE.Vector3().copy(effect.staging.orbCenter);
+  assert.ok(end.y > core.y && end.y < start.y);
+  assert.ok(end.distanceTo(core) < start.distanceTo(core));
+
+  effect.update(arena, camera(), false, true, false);
+  assert.ok(ribbons.every(ribbon => !ribbon.visible));
+  assert.equal(effect.group.getObjectByName('spirit-orb-surface')?.parent?.visible, true);
+  effect.dispose();
 });
 test('Skybreaker curved arm and ink rebound reuse their geometry across stages',()=>{
   const fx=new SkybreakerCinematic(new THREE.Scene()),a=new Arena('cloud',()=>.5,0,0);a.activateNuke(a.player);a.cinematic!.time=2.2;fx.update(a,camera(),false);

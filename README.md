@@ -1,5 +1,17 @@
-# Anime Coil v1.7.8 — Dense Shibuya and Haki Punch
+# Anime Coil v1.8.1 — Skill and Ultimate VFX
 Anime Coil is a solo browser game. Choose Kitsu, Kairo, Pomu, or Shiro and play against 20 computer-controlled snakes in Shibuya. Collect orbs to grow, avoid collisions, and use your character’s skill and ultimate. Play without a time limit in Endless, set an energy record in the three-minute Sprint, or earn points for orbs and direct eliminations in Bounty Hunt. Guided Practice is available from Help.
+
+## v1.8.1 — Skill and Ultimate VFX
+
+Kitsu’s bomb gains jagged violet fractures and a braided wake. Kairo’s Spirit Bomb carries curved cyan plasma currents into its impact. Pomu’s sculpted fist picks up graphite shading and red pressure blades. Shiro’s cyan and red charges ignite in sequence, fuse into a dark violet core, and split into an asymmetric rupture.
+
+Fox Rush leaves swept flames along the coil. Ki Cannon gets a sharper aim line and a directional projectile trail. Elastic Twist uses ivory and coral springs that follow turns. Infinity Veil has inward-moving rings and clear boundary marks. Boost wakes, pickups, and eliminations have distinct shapes.
+
+The VFX preserve gameplay timing, collision, and reduced-motion settings. All four ultimates were checked in live browser casts. Desktop and phone-width browser captures cover charges, releases, impacts, recovery, and the four skills.
+
+## v1.8.0 — Illustrated lobby and arcade fallback
+
+The illustrated character lobby and Canvas 2D fallback from the public site are included in the GitHub source. Matches use the 3D Shibuya renderer when WebGL 2 is available. The fallback is also available with `?view=arcade`.
 
 ## v1.7.8 — Dense Shibuya and Haki Punch
 

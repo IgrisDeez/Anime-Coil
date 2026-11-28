@@ -853,7 +853,7 @@ body.player-dead #nuke { opacity: .78; }
   position: absolute;
   left: var(--spirit-impact-x, 50%);
   top: var(--spirit-impact-y, 52%);
-  width: min(92vmin, 850px);
+  width: min(67vmin, 630px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   opacity: var(--spirit-ink, 0);
@@ -879,14 +879,14 @@ body.player-dead #nuke { opacity: .78; }
   box-shadow: 0 0 0 12px #10131b;
 }
 #cinematic.spirit-impact-keyframe .spirit-impact-art { opacity: 1; }
-#cinematic.spirit-impact-keyframe .cinema-dim { background: #f8f8f4; opacity: .45; }
+#cinematic.spirit-impact-keyframe .cinema-dim { background: #e9faff; opacity: .21; }
 #cinematic.spirit-impact-keyframe .purple-flare { opacity: 0; }
 #cinematic.spirit-impact-monochrome .spirit-impact-art { filter: grayscale(1); }
 .fox-impact-art {
   position: absolute;
   left: var(--fox-impact-x, 50%);
   top: var(--fox-impact-y, 52%);
-  width: min(96vmin, 900px);
+  width: min(73vmin, 685px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   opacity: var(--fox-ink, 0);
@@ -922,7 +922,7 @@ body.player-dead #nuke { opacity: .78; }
   clip-path: polygon(50% 0, 62% 19%, 86% 11%, 80% 36%, 100% 52%, 77% 64%, 87% 91%, 58% 78%, 49% 100%, 39% 78%, 10% 89%, 23% 62%, 0 50%, 23% 36%, 14% 10%, 40% 21%);
 }
 #cinematic.fox-impact-keyframe .fox-impact-art { opacity: 1; }
-#cinematic.fox-impact-keyframe .cinema-dim { background: #fff6dd; opacity: .43; }
+#cinematic.fox-impact-keyframe .cinema-dim { background: #312041; opacity: .22; }
 #cinematic.fox-impact-keyframe .purple-flare { opacity: 0; }
 #cinematic.fox-impact-monochrome .fox-impact-art { filter: grayscale(1); }
 .purple-impact-art,
@@ -930,7 +930,7 @@ body.player-dead #nuke { opacity: .78; }
   position: absolute;
   left: var(--impact-art-x, 50%);
   top: var(--impact-art-y, 52%);
-  width: min(96vmin, 920px);
+  width: min(75vmin, 700px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   opacity: 0;
@@ -992,7 +992,7 @@ body.player-dead #nuke { opacity: .78; }
 }
 #cinematic.purple-impact-keyframe .purple-impact-art,
 #cinematic.skybreaker-impact-keyframe .skybreaker-impact-art { opacity: 1; }
-#cinematic.purple-impact-keyframe .cinema-dim { background: #faf9f5; opacity: .5; }
+#cinematic.purple-impact-keyframe .cinema-dim { background: #261831; opacity: .17; }
 #cinematic.skybreaker-impact-keyframe .cinema-dim { background: #3c101f; opacity: .12; }
 #cinematic.purple-impact-keyframe .purple-flare,
 #cinematic.skybreaker-impact-keyframe .purple-flare { opacity: 0; }

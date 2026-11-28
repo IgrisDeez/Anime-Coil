@@ -56,7 +56,7 @@ test('ultimate transitions clear pending E particles and projectiles',()=>{
 });
 
 test('equipped boost trails produce distinct visible marks beside the coil',()=>{
-  for(const [style,expected] of [['original',3],['petals',1],['starlight',2]] as const){
+  for(const [style,expected] of [['original',4],['petals',1],['starlight',2]] as const){
     const arena=new Arena('ember',()=>.5,0,0),fx=new SkillEffects();
     fx.seed(arena);
     fx.setBoostTrail(style);
@@ -67,7 +67,7 @@ test('equipped boost trails produce distinct visible marks beside the coil',()=>
     assert.ok(meshes[expected].count>0,`${style} has its own visual mark`);
     if(style==='original'){
       const matrix=new THREE.Matrix4(),position=new THREE.Vector3();
-      meshes[3].getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
+      meshes[expected].getMatrixAt(0,matrix);position.setFromMatrixPosition(matrix);
       const point=arena.player.body[2];
       assert.ok(Math.hypot(position.x-point.x,position.z-point.z)>bodyRadiusAt(2,arena.player.body.length,arena.player.mass));
     }

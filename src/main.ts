@@ -8,6 +8,8 @@ import { EliminationStampView } from './elimination-stamps';
 import { SpeedWindView } from './speed-wind';
 import "./style.css";
 import "./moonlit.css";
+import "./arcade-lobby.css";
+import { ArcadeRenderer } from "./arcade-renderer";
 import {
   Arena,
   CHARACTERS,
@@ -29,8 +31,6 @@ import { profileFor } from './worlds/types';
 import { AudioEngine } from "./audio";
 import { DEFAULT_AUDIO, loadAudio, saveAudio, type AudioChannel } from "./audio-settings";
 import {
-  MAPS,
-  getMap,
   loadMap,
   saveMap,
   type MapId,
@@ -63,7 +63,7 @@ let refreshDiagnostics: (now:number)=>void = ()=>{};
 let renderSimulationStep=0;
 let simulationConstructor= Arena, simulationRandom:()=>number=Math.random;
 let simulationBenchmark:ReturnType<typeof import('../tests/simulation-benchmark').installSimulationBenchmark>|undefined;
-async function installSimulationReview(){if(import.meta.env.DEV && new URLSearchParams(location.search).has('simBench')) { const {installSimulationBenchmark}=await import('../tests/simulation-benchmark');
+async function installSimulationReview(){if(view instanceof GameRenderer && import.meta.env.DEV && new URLSearchParams(location.search).has('simBench')) { const {installSimulationBenchmark}=await import('../tests/simulation-benchmark');
  simulationBenchmark=installSimulationBenchmark({start:()=>start(),choose,arena:()=>arena,view,constructor:ctor=>simulationConstructor=ctor,random:rng=>simulationRandom=rng,clock:()=>{last=performance.now();}});
 }}
 const deathPresentation = new DeathPresentation();
@@ -75,7 +75,8 @@ const speedWind = new SpeedWindView(el<HTMLCanvasElement>('boost-speed-lines'));
 const windFrom={x:0,y:0},windTo={x:0,y:0};
 const leaderboard = new Leaderboard(el('leaders'), hudMotion);
 const canvas = el<HTMLCanvasElement>("world");
-let view: GameRenderer;
+let view: GameRenderer | ArcadeRenderer;
+let modelVisible = false;
 const audio = new AudioEngine();
 let selected: CharacterId = "ember",
   arena: Arena | undefined,
@@ -111,7 +112,7 @@ audio.prefs = loadAudio(mapStorage);
 let selectedMap: MapId = loadMap(mapStorage);
 function chooseMap(id: MapId, persist = true) {
   selectedMap = id;
-  view.setMap(id);
+  if (view instanceof GameRenderer) view.setMap(id);
   compass.setMap(id);
   if (persist) saveMap(id, mapStorage);
 }
@@ -145,7 +146,7 @@ function clearSkinPreview() {
   view?.setMenuSkinPreview(null);
   setHidden(el('skin-preview-controls'), true);
   removeClasses(el('menu'), 'previewing-skin');
-  view?.updateLobbyViewport();
+  if (view instanceof GameRenderer) view.updateLobbyViewport();
 }
 function showSkinPreview(id: BodySkinId) {
   const skin = BODY_SKINS.find(item => item.id === id);
@@ -162,7 +163,7 @@ function showSkinPreview(id: BodySkinId) {
   setHidden(el('skin-preview-equip'), !unlocked);
   setHidden(el('skin-preview-controls'), false);
   el('menu').classList.add('previewing-skin');
-  view.updateLobbyViewport();
+  if (view instanceof GameRenderer) view.updateLobbyViewport();
   el<HTMLDialogElement>('challenges-dialog').close();
 }
 function renderChallenges() {
@@ -231,7 +232,18 @@ let accumulator = 0,
 let deathContactRemaining = 0;
 const deathContactPoint = { x: 0, z: 0 };
 const projectedCue = { x: 0, y: 0 };
+const steeringKeys = new Set<string>();
+let keyHeading: number | undefined;
+let keyboardSteering = false;
+function updateKeyHeading() {
+  const dx = Number(steeringKeys.has('ArrowRight')) - Number(steeringKeys.has('ArrowLeft'));
+  const dz = Number(steeringKeys.has('ArrowDown')) - Number(steeringKeys.has('ArrowUp'));
+  if (dx || dz) keyHeading = Math.atan2(dz, dx);
+}
 function clearInput() {
+  keyboardSteering = false;
+  steeringKeys.clear();
+  keyHeading = undefined;
   clearSkillVisual();
   boostKey = false;
   boostPointer = false;
@@ -347,10 +359,6 @@ document.querySelectorAll<HTMLButtonElement>('.key-binding').forEach(button => b
 document.querySelectorAll<HTMLButtonElement>('.quality-choice').forEach(button => button.addEventListener('click', () => {
   settings.graphics = button.dataset.quality as typeof settings.graphics;
   view?.setGraphicsChoice(settings.graphics);
-  if (view && screen === 'menu') {
-    const postcards = view.mapThumbnails();
-    MAPS.forEach((map, index) => (el<HTMLImageElement>(`map-${map.id}`).src = postcards[index]));
-  }
   saveGameSettings(settings, mapStorage); refreshSettings();
 }));
 document.querySelectorAll<HTMLButtonElement>('.motion-choice').forEach(button => button.addEventListener('click', () => {
@@ -427,12 +435,16 @@ function choose(id: CharacterId) {
   const changed = selected !== id;
   selected = id;
   const c = CHARACTERS.find((c) => c.id === id)!;
-  if (changed) { view.setHero(id); view.reactToSelection(); }
+  if (changed) { view.setHero(id); if (view instanceof GameRenderer) view.reactToSelection(); }
   document
     .querySelectorAll<HTMLButtonElement>(".character")
     .forEach((b) =>
       setAttribute(b, "aria-pressed", String(b.dataset.character === id)),
     );
+  el('menu').style.setProperty('--fighter-color', c.color);
+  el('menu').style.setProperty('--fighter-art', `url("/art/${id}.webp")`);
+  setText(el('fighter-role'), c.title);
+  setText(el('signature-move'), c.power);
   setText(el("power-name"), c.power);
   setText(el("hero-name"), c.name);
   setText(el("hero-description"), c.description);
@@ -443,7 +455,7 @@ function choose(id: CharacterId) {
   setText(el("ultimate-description"), ultimate.description);
   setHidden(el("purple-badge"), false);
   setText(el("ultimate-badge-name"), ultimateFor(id).name);
-  view.updateLobbyViewport();
+  if (view instanceof GameRenderer) view.updateLobbyViewport();
   applyAccent();
   if (changed) {
     hudMotion.reduced = motionPreference.reduced;
@@ -622,6 +634,14 @@ function resume() {
 
   canvas.focus();
 }
+el('model-toggle').onclick = () => {
+  modelVisible = !modelVisible;
+  setClass(el('menu'), 'show-model', modelVisible);
+  setAttribute(el('model-toggle'), 'aria-pressed', String(modelVisible));
+  setText(el('model-toggle'), modelVisible ? 'View artwork' : 'View 3D model');
+  if (view instanceof GameRenderer) view.updateLobbyViewport();
+};
+el('lobby-practice').onclick = () => start('practice');
 el("play").onclick = () => start();
 el("restart").onclick = () => start(arena?.mode ?? selectedMode);
 el("change").onclick = menu;
@@ -685,6 +705,9 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   if (screen !== "game" || arena?.state !== "playing") return;
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) {
+    e.preventDefault(); keyboardSteering = true; steeringKeys.add(e.code); updateKeyHeading(); return;
+  }
   if (e.code === settings.keys.boost) {
     e.preventDefault();
     if (arena.player.alive) boostKey = true;
@@ -696,10 +719,11 @@ window.addEventListener("keydown", (e) => {
   }
 });
 window.addEventListener("keyup", (e) => {
+  if (steeringKeys.delete(e.code)) updateKeyHeading();
   if (e.code === settings.keys.boost) boostKey = false;
 });
 canvas.addEventListener("pointermove", (e) => {
-  if (e.pointerType === "mouse") mouse = { x: e.clientX, y: e.clientY };
+  if (e.pointerType === "mouse") { keyboardSteering = false; mouse = { x: e.clientX, y: e.clientY }; }
 });
 canvas.addEventListener("pointerdown", (e) => {
   if (screen !== "game") return;
@@ -757,7 +781,7 @@ document.addEventListener("visibilitychange", () => {
   audio.setHidden(document.hidden);
 });
 window.addEventListener("blur", pause);
-window.addEventListener("resize", () => view?.resize());
+window.addEventListener("resize", () => { if (view instanceof GameRenderer) view.resize(); });
 const timeLabel = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 function updateHUD() {
@@ -924,7 +948,7 @@ function frame(now: number) {
   if (arena?.state === "playing") {
     while (accumulator >= STEP) {
       const angle =
-        touchAngle ??
+        touchAngle ?? (keyboardSteering ? keyHeading ?? arena.player.angle : undefined) ??
         (matchMedia("(pointer:coarse)").matches
           ? arena.player.angle
           : view.steering(mouse.x, mouse.y, arena));
@@ -958,7 +982,7 @@ function frame(now: number) {
       if (practiceGuide) { practiceGuide.update(STEP, arena.player, arena.events); updatePracticeGuide(); }
       view.profiler.simulation.leave();
       if(view.profiler.enabled)view.profiler.simulation.enter('events-effects');
-      view.handleEvents(arena.events, arena);
+      if (view instanceof GameRenderer) view.handleEvents(arena.events, arena);
       view.profiler.simulation.leave();
       if(view.profiler.enabled)view.profiler.simulation.enter('events-stamps');
       const eliminations = eliminationStamps.ingest(arena.events);
@@ -1053,7 +1077,7 @@ function frame(now: number) {
   }
   view.cinematicCameraEnabled = comfort.cameraEnabled;
   view.profiler.finish('dom',beforeRenderDomStamp);
-  view.render(arena, now / 1000, accumulator / STEP, dt, motionPreference.reduced, renderSimulationStep);
+  if (screen === 'game' || modelVisible || skinPreview.skin) view.render(arena, now / 1000, accumulator / STEP, dt, motionPreference.reduced, renderSimulationStep);
   const afterRenderDomStamp=view.profiler.stamp();
   if (shot && arena) cinematicImpactAnchor(shot.kind, shot.impact, arena.player, impactWorld);
   const impactAnchorVisible = !!shot && view.projectPoint(impactWorld.x, impactWorld.z, projectedCue, impactWorld.y, true);
@@ -1096,37 +1120,40 @@ async function initializeRenderer() {
  const feedback=document.createElement('div');feedback.id='head-loading';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.textContent='Loading Shibuya and character models…';
 
  document.body.append(feedback);el('menu').inert=true;
- const profile=settings.graphics==='auto'?profileFor(innerWidth,matchMedia('(pointer:coarse)').matches):settings.graphics==='low'?'mobile':'desktop';
- selectKitsuProfile(profile);
- const ready=(await Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile),preloadLivingAssets(profile).then(r=>r.every(Boolean))])).every(Boolean);
- feedback.textContent=ready?'Shibuya and character models ready.':'A visual model is unavailable. Using the original model.';
- if(ready)feedback.remove();else setTimeout(()=>feedback.remove(),6000);
- el('menu').inert=false;
  try {
+  if (new URLSearchParams(location.search).get('view') !== 'arcade' && canvas.getContext('webgl2', {antialias:true, alpha:false, powerPreference:'high-performance'})) {
+    const profile = settings.graphics === 'auto' ? profileFor(innerWidth,matchMedia('(pointer:coarse)').matches) : settings.graphics === 'low' ? 'mobile' : 'desktop';
+    selectKitsuProfile(profile);
+    await Promise.all([preloadNormalHeads(profile),kuramaAssets.preload(profile),preloadLivingAssets(profile)]);
+    const renderer = new GameRenderer(canvas, settings.graphics);
+    view = renderer;
+    renderer.onHeadProfileLoad = (loading, ready) => {
+      if (loading || !ready) {
+        feedback.textContent = loading ? 'Loading character models…' : 'Using the original character models.';
+        document.body.append(feedback);
+        if (!loading) setTimeout(() => feedback.remove(), 6000);
+      } else feedback.remove();
+    };
+    setHidden(el('model-toggle'), false);
+    refreshDiagnostics = installWorldDiagnostics(renderer,()=>screen, id=>chooseMap(id,false), reduced => { motionPreference.previewReduced = reduced; });
+  } else {
+    view = new ArcadeRenderer(canvas);
+    canvas.setAttribute('aria-label', 'Top-down arcade snake arena');
+  }
   applyAccent();
-  view = new GameRenderer(canvas, settings.graphics);
-  view.onHeadProfileLoad=(loading,ready)=>{
-    feedback.textContent=loading?'Loading Shibuya and character models…':ready?'Shibuya and character models ready.':'A visual model is unavailable. Using the original model.';
-    if(loading||!ready){if(!feedback.isConnected)document.body.append(feedback);}else feedback.remove();
-    if(!loading){const images=view.portraits();CHARACTERS.forEach((c,i)=>(el<HTMLImageElement>(`portrait-${c.id}`).src=images[i]));if(!ready)setTimeout(()=>feedback.remove(),6000);}
-  };
   view.cinematicCameraEnabled = settings.cinematicCamera;
   view.setGraphicsChoice(settings.graphics);
   applyCosmetics();
   choose(selected);
-  const maps = view.mapThumbnails();
-  MAPS.forEach((m, i) => (el<HTMLImageElement>(`map-${m.id}`).src = maps[i]));
   chooseMap(selectedMap, false);
-  const portraits = view.portraits();
-  CHARACTERS.forEach(
-    (c, i) => (el<HTMLImageElement>(`portrait-${c.id}`).src = portraits[i]),
-  );
-  refreshDiagnostics=installWorldDiagnostics(view,()=>screen, id=>chooseMap(id,false), reduced => { motionPreference.previewReduced = reduced; });
   await installSimulationReview();
   requestAnimationFrame(frame);
 } catch (error) {
-  console.error("WebGL initialization failed", error);
+  console.error("Arena initialization failed", error);
   setHidden(el("fatal"), false);
+} finally {
+  feedback.remove();
+  el("menu").inert = false;
 }
 }
 void initializeRenderer();
@@ -1137,12 +1164,12 @@ canvas.addEventListener("webglcontextlost", (e) => {
 });
 
 if (import.meta.hot) import.meta.hot.dispose(() => {
-  view?.disposeCinematics();
+  if (view instanceof GameRenderer) view.disposeCinematics();
   motionPreference.dispose(); hudMotion.clear(); compass.dispose(); leaderboard.clear(); eliminationStamps.dispose();
 });
 
 // Read lobby geometry only on scrolling and resizing.
-const updateLobbyViewport = () => view?.updateLobbyViewport();
+const updateLobbyViewport = () => { if (view instanceof GameRenderer) view.updateLobbyViewport(); };
 void document.fonts.ready.then(updateLobbyViewport);
 el("menu").addEventListener("scroll", updateLobbyViewport, { passive: true });
 if (import.meta.hot) import.meta.hot.dispose(() => el("menu").removeEventListener("scroll", updateLobbyViewport));

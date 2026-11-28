@@ -49,10 +49,21 @@ export function spectralFistGeometry(detail: 'desktop' | 'mobile'): THREE.Buffer
 /** Flat tapered manga slash, facing upward along the world ground plane. */
 export function taperedSlashGeometry(): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute([
-    -.58,0,-.07,  -.58,0,.07,  .62,0,0,
-  ], 3));
-  geometry.setIndex([0,1,2]);
+  const positions: number[] = [], indices: number[] = [];
+  const contour = [
+    [-.67, -.082, -.067], [-.42, -.076, .027], [-.14, -.057, .083],
+    [.15, -.024, .093], [.42, .002, .067], [.63, .028, .030],
+  ];
+  for (let row = 0; row < contour.length; row++) {
+    const [x, lower, upper] = contour[row];
+    positions.push(x, 0, lower, x, 0, upper);
+    if (row < contour.length-1) {
+      const i = row*2;
+      indices.push(i, i+1, i+2, i+1, i+3, i+2);
+    }
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
   geometry.computeVertexNormals();
   return geometry;
 }
@@ -65,7 +76,7 @@ export function impactStarGeometry(): THREE.BufferGeometry {
     const a = i * Math.PI / 8, r = i % 2 ? .32 : 1;
     positions.push(Math.cos(a)*r, 0, Math.sin(a)*r);
   }
-  for (let i = 0; i < 16; i++) indices.push(0, i+1, (i+1)%16+1);
+  for (let i = 0; i < 16; i++) indices.push(0, (i+1)%16+1, i+1);
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setIndex(indices); geometry.computeVertexNormals();

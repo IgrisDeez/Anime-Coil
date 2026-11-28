@@ -39,6 +39,81 @@ function giantFistGeometry() {
   return merged;
 }
 
+/** Curved pressure blades hug the knuckles and peel back along the wrist. */
+function punchPressureGeometry() {
+  const geometry = new THREE.BufferGeometry();
+  const positions: number[] = [], uvs: number[] = [], accents: number[] = [], indices: number[] = [];
+  const lanes = [
+    { angle: -.55, sweep: 1.82, width: .18, length: 1.63, accent: 1 },
+    { angle: 2.62, sweep: 1.44, width: .17, length: 1.58, accent: .85 },
+    { angle: .34, sweep: .91, width: .085, length: 1.75, accent: .35 },
+    { angle: 3.45, sweep: .97, width: .095, length: 1.68, accent: .45 },
+    { angle: 1.55, sweep: .65, width: .07, length: 1.15, accent: .15 },
+  ];
+  const segments = 16;
+  for (const lane of lanes) {
+    const base = positions.length / 3;
+    for (let i = 0; i <= segments; i++) {
+      const q = i / segments;
+      const taper = .03 + .97 * Math.sin(q * Math.PI) ** .62;
+      const angle = lane.angle + lane.sweep * q;
+      const radius = .94 + q * .31;
+      for (const edge of [0, 1]) {
+        const a = angle + (edge - .5) * lane.width * taper * 2;
+        positions.push(Math.cos(a) * radius, Math.sin(a) * radius * .65,
+          .69 - lane.length * q + (edge - .5) * lane.width * taper);
+        uvs.push(q, edge);
+        accents.push(lane.accent);
+      }
+      if (i === 0) continue;
+      const a = base + (i - 1) * 2, b = a + 2;
+      indices.push(a, a + 1, b, a + 1, b + 1, b);
+    }
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setAttribute('accent', new THREE.Float32BufferAttribute(accents, 1));
+  geometry.setIndex(indices);
+  return geometry;
+}
+
+function hakiSurface() {
+  return new THREE.ShaderMaterial({
+    vertexColors: true,
+    uniforms: { force: { value: 0 } },
+    vertexShader: `
+      varying vec3 handNormal, pigment;
+      varying float knuckle;
+      void main() {
+        handNormal = normalMatrix * normal;
+        pigment = color.rgb;
+        knuckle = position.z;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+      }
+    `,
+    fragmentShader: `
+      varying vec3 handNormal, pigment;
+      varying float knuckle;
+      uniform float force;
+      void main() {
+        vec3 normal = normalize(handNormal);
+        float light = dot(normal, normalize(vec3(-.39, .44, .81)));
+        float planes = .36 * smoothstep(.03, .10, light) + .64 * smoothstep(.60, .70, light);
+        float iron = dot(pigment, vec3(.21, .72, .07));
+        vec3 graphite = mix(vec3(.012, .008, .017), vec3(.155, .145, .181), planes);
+        graphite = graphite * (.67 + .44 * iron) + pigment * .085;
+        float edge = pow(1. - max(0., normal.z), 2.7);
+        float front = smoothstep(-.27, .70, knuckle);
+        float rim = edge * (.20 + .80 * smoothstep(-.49, .54, normal.x)) * front;
+        vec3 color = graphite + vec3(.38, .017, .029) * rim * (.37 + force * .63);
+        gl_FragColor = vec4(color, 1.);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  });
+}
+
 /** Pomu's one-shot cartoon slam. Every object is cached and all motion follows cinematic time. */
 export class SkybreakerCinematic {
   readonly group = new THREE.Group();
@@ -62,7 +137,8 @@ export class SkybreakerCinematic {
   private cast = new CastSnapshot();
   private creases: THREE.LineSegments;
   private curls: THREE.InstancedMesh;
-  private wind: THREE.LineSegments;
+  private pressure: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>;
+  private handMaterial = hakiSurface();
   private lightning:THREE.LineSegments;
   private sculpted=false;
   private wrist=new THREE.Vector3();
@@ -86,7 +162,11 @@ export class SkybreakerCinematic {
   constructor(scene: THREE.Scene, private profile: DetailProfile = 'desktop') {
     const mat = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({color, transparent: opacity < 1, opacity, depthWrite: opacity === 1, side: THREE.DoubleSide, forceSinglePass:true});
     this.fistGeometry = giantFistGeometry();
-    this.fist = new THREE.Group();this.fallbackFist=new THREE.Mesh(this.fistGeometry,new THREE.MeshToonMaterial({color:'#281820'}));this.fist.add(this.fallbackFist);
+    const fallbackColor = new Float32Array(this.fistGeometry.getAttribute('position').count * 3).fill(.11);
+    this.fistGeometry.setAttribute('color', new THREE.BufferAttribute(fallbackColor, 3));
+    this.fist = new THREE.Group();
+    this.fallbackFist = new THREE.Mesh(this.fistGeometry, this.handMaterial);
+    this.fist.add(this.fallbackFist);
     this.ink = new THREE.Mesh(this.fistGeometry, new THREE.MeshBasicMaterial({color:HAKI.ink, side:THREE.BackSide}));
     this.ink.scale.setScalar(1.045);
     this.cuff = new THREE.Mesh(new THREE.TorusGeometry(1, .19, 6, 24), mat('#fff6ee'));
@@ -119,11 +199,37 @@ export class SkybreakerCinematic {
     const curlPoints=[];for(let i=0;i<25;i++){const a=i/24*Math.PI*2.8,r=.35+i/24*.65;curlPoints.push(new THREE.Vector3(Math.cos(a)*r,Math.sin(a)*r,0));}
     this.curls=new THREE.InstancedMesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curlPoints),24,.12,5,false),mat('#fffaf3',.8),12);
     this.curls.frustumCulled=false;this.curls.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const windGeo=new THREE.BufferGeometry();windGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(12*6),3));
-    const windPosition=windGeo.attributes.position as THREE.BufferAttribute;
-    for(let i=0;i<12;i++){const a=i*Math.PI/6;windPosition.setXYZ(i*2,Math.cos(a),0,Math.sin(a));windPosition.setXYZ(i*2+1,Math.cos(a)*1.3,1,Math.sin(a)*1.3);}
-    const windMat=new THREE.LineBasicMaterial({color:'#fff2dd',transparent:true,opacity:.7});windMat.onBeforeCompile=shader=>{Object.assign(shader.uniforms,this.armUniforms);shader.vertexShader='uniform vec3 armEnd;uniform float armRadius;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed=armEnd+vec3(position.x*armRadius*6.,3.+position.y*12.,position.z*armRadius*6.);');};windMat.customProgramCacheKey=()=> 'gear5-speed-lines';
-    this.wind=new THREE.LineSegments(windGeo,windMat);this.wind.frustumCulled=false;
+    this.pressure = new THREE.Mesh(punchPressureGeometry(), new THREE.ShaderMaterial({
+      uniforms: { force: { value: 0 } },
+      transparent: true, side: THREE.DoubleSide, forceSinglePass: true, depthWrite: false,
+      vertexShader: `
+        attribute float accent;
+        varying vec2 blade;
+        varying float brightness;
+        void main() {
+          blade = uv;
+          brightness = accent;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);
+        }
+      `,
+      fragmentShader: `
+        varying vec2 blade;
+        varying float brightness;
+        uniform float force;
+        void main() {
+          float tips = smoothstep(0., .16, blade.x) * (1. - smoothstep(.63, 1., blade.x));
+          float edge = smoothstep(.0, .09, blade.y) * (1. - smoothstep(.84, 1., blade.y));
+          float ivory = (1. - smoothstep(.11, .46, blade.x)) * brightness;
+          float lip = 1. - smoothstep(.10, .58, blade.y);
+          vec3 red = mix(vec3(.26, .008, .025), vec3(.90, .032, .11), brightness);
+          vec3 colour = mix(red, vec3(1., .81, .72), ivory * (.52 + .48 * lip));
+          gl_FragColor = vec4(colour, force * tips * edge * (.63 + .37 * brightness));
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }
+      `,
+    }));
+    this.pressure.name = 'skybreaker-strike-pressure';
     const boltGeo=new THREE.BufferGeometry(),bolts:number[]=[];
     for(let i=0;i<10;i++)for(let j=0;j<4;j++)for(const q of [j/4,(j+1)/4]){const a=i*Math.PI/5,r=.7+q*.6;bolts.push(Math.cos(a)*r,Math.sin(a)*r,q);}
     boltGeo.setAttribute('position',new THREE.Float32BufferAttribute(bolts,3));
@@ -156,7 +262,7 @@ export class SkybreakerCinematic {
       mesh.frustumCulled = false;
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     }
-    this.group.add(this.ink, this.fist, this.cuff, this.arm, this.shadow, this.dent, this.smoke, this.stars, this.creases, this.curls, this.wind,this.lightning);
+    this.group.add(this.ink, this.fist, this.cuff, this.arm, this.shadow, this.dent, this.smoke, this.stars, this.creases, this.curls, this.pressure,this.lightning);
     this.group.visible = false;
     scene.add(this.group);
     this.fistGeometry.computeBoundingBox();this.localFistBounds.copy(this.fistGeometry.boundingBox!);
@@ -164,7 +270,10 @@ export class SkybreakerCinematic {
   }
   setProfile(profile: DetailProfile) {
     this.profile=profile;const sculpt=pomuUltimateAssets.fist(profile);
+    this.pressure.geometry.setDrawRange(0, (profile === 'mobile' ? 3 : 5) * 16 * 6);
     if(sculpt){
+      const hand = sculpt.getObjectByName('PomuHaki_Hand_' + profile) as THREE.Mesh;
+      hand.material = this.handMaterial;
       this.wristAnchor.copy(sculpt.getObjectByName('PomuFistWrist_'+profile)!.position);this.contactAnchor.copy(sculpt.getObjectByName('PomuFistContact_'+profile)!.position);
       this.localFistBounds.setFromObject(sculpt);this.fist.clear();this.fist.add(...sculpt.children);this.sculpted=true;}
     else if(this.sculpted){this.fist.clear();this.fist.add(this.fallbackFist);this.sculpted=false;this.wristAnchor.set(0,-.015,-.82);this.contactAnchor.set(0,.12,.81);this.fistGeometry.computeBoundingBox();this.localFistBounds.copy(this.fistGeometry.boundingBox!);}
@@ -176,6 +285,7 @@ export class SkybreakerCinematic {
     this.staged.fistBounds.makeEmpty();this.staged.expression=gear5Expression(5.6);
     for(const child of this.group.children){child.visible=false;child.position.set(0,0,0);child.rotation.set(0,0,0);if(child instanceof THREE.InstancedMesh)child.count=0;}
     const material=this.dent.material as THREE.ShaderMaterial;material.uniforms.age.value=material.uniforms.alpha.value=0;
+    this.pressure.material.uniforms.force.value = this.handMaterial.uniforms.force.value = 0;
   }
   dispose() {
     if (this.disposed) return;
@@ -183,7 +293,8 @@ export class SkybreakerCinematic {
 
     this.group.parent?.remove(this.group);
     const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>();
-    geometries.add(this.fistGeometry);materials.add(this.fallbackFist.material as THREE.Material);
+    geometries.add(this.fistGeometry);
+    materials.add(this.handMaterial);
     this.group.traverse(object => {
       if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
         if(!object.geometry.userData.sharedLivingAsset){geometries.add(object.geometry);materials.add(object.material as THREE.Material);}
@@ -299,7 +410,14 @@ export class SkybreakerCinematic {
       this.dummy.position.set((blast>0?0:shoulderX)+Math.cos(a)*r,blast>0?4+age*7:shoulderY+1.6+i%2,(blast>0?0:shoulderZ)+Math.sin(a)*r);
       this.dummy.rotation.set(0,-this.cast.angle,a*.2+(reduced?0:t*.25));this.dummy.scale.setScalar((blast>0?3.5:.6)*linger);this.dummy.updateMatrix();this.curls.setMatrixAt(i,this.dummy.matrix);
     }this.curls.instanceMatrix.needsUpdate=true;
-    this.wind.visible=!reduced && t>2.5 && t<3.4;
+    const softened = reduced || visual?.reducedFlashes;
+    const pressure = smooth(2.52, 2.83, t) * (1 - smooth(3.36, 3.46, t));
+    this.pressure.visible = !reduced && pressure > .015;
+    this.pressure.position.copy(this.fist.position);
+    this.pressure.quaternion.copy(this.fist.quaternion);
+    this.pressure.scale.copy(this.fist.scale).multiplyScalar(1 + pressure * .065);
+    this.pressure.material.uniforms.force.value = pressure * (softened ? .48 : .91);
+    this.handMaterial.uniforms.force.value = softened ? .12 : .26 + Math.max(pressure, .62 * windup * (1 - retract)) * .74;
     const frame = ultimateFrame('skybreaker', t, reduced);
     if(visual?.managed && blast>=0 && shot.detonated){
       for(const ring of this.rings)ring.visible=false;this.smoke.visible=false;this.stars.visible=false;this.curls.visible=false;

@@ -185,3 +185,63 @@ test('Skybreaker silhouette is bounded on both profiles and clears after cinemat
     effect.dispose();effect.dispose();assert.equal(scene.children.length,0);
   }
 });
+
+test('boost wake tapers along the sampled coil and clears when motion is reduced', () => {
+  const arena = new Arena('ember', () => .5, 0, 0);
+  const effects = new SkillEffects();
+  const [, , , aims, slashes] = effects.group.children as THREE.InstancedMesh[];
+  arena.player.boosting = true;
+  effects.update(arena, .04, .04, false);
+  effects.update(arena, .07, .03, false);
+  assert.equal(aims.count, 0);
+  assert.equal(slashes.count, 2);
+  const left = new THREE.Matrix4();
+  const right = new THREE.Matrix4();
+  slashes.getMatrixAt(0, left);
+  slashes.getMatrixAt(1, right);
+  const center = new THREE.Vector3().setFromMatrixPosition(left)
+    .add(new THREE.Vector3().setFromMatrixPosition(right)).multiplyScalar(.5);
+  const sampled = arena.player.body[2];
+  assert.ok(Math.hypot(center.x - sampled.x, center.z - sampled.z) < 1e-5);
+  assert.ok(new THREE.Vector3().setFromMatrixScale(left).x < new THREE.Vector3().setFromMatrixScale(right).x);
+
+  effects.update(arena, .07, 0, false);
+  const frozen = new THREE.Matrix4();
+  slashes.getMatrixAt(0, frozen);
+  assert.deepEqual(frozen.elements, left.elements);
+  effects.update(arena, .10, .03, true);
+  assert.equal(slashes.count, 0);
+  effects.update(arena, .16, .06, false);
+  assert.equal(slashes.count, 0);
+  effects.dispose();
+});
+
+test('pickup and death accents remain distinct, bounded, and respect reduced motion', () => {
+  for (const profile of ['desktop', 'mobile'] as const) {
+    const arena = new Arena('nova', () => .5, 0, 0);
+    const effects = new SkillEffects();
+    effects.setProfile(profile);
+    const [, sparks, rings, , , stars] = effects.group.children as THREE.InstancedMesh[];
+    effects.ingest([
+      {type: 'collect', id: 0, x: 2, z: 4},
+      {type: 'collect', id: 0, x: 3, z: 5},
+      {type: 'death', id: 1, x: -2, z: 5, killerId: 0},
+      {type: 'player-elimination', id: 1, x: -2, z: 5},
+    ], true, .4);
+    effects.update(arena, .04, .04, false);
+    assert.equal(rings.count, 1);
+    assert.equal(stars.count, 2);
+    assert.equal(sparks.count, profile === 'mobile' ? 7 : 10);
+    assert.ok(stars.geometry.getAttribute('normal').getY(0) > .99);
+
+    effects.update(arena, .07, .03, true);
+    assert.equal(rings.count, 1);
+    assert.equal(stars.count, 0);
+    assert.equal(sparks.count, 0);
+    effects.update(arena, .46, .39, false);
+    assert.equal(rings.count, 0);
+    assert.equal(stars.count, 0);
+    assert.equal(sparks.count, 0);
+    effects.dispose();
+  }
+});

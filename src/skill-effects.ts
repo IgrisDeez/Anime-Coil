@@ -47,7 +47,7 @@ export class SkillEffects {
   private colors = new Map<string, THREE.Color>();
   private cores = this.pool(new THREE.SphereGeometry(1,12,8), 96, 1);
   private sparks = this.pool(new THREE.OctahedronGeometry(1), 768, .75);
-  private ribbons = this.pool(new THREE.TorusGeometry(1,.03,5,40), 160, .62);
+  private ribbons = this.pool(new THREE.RingGeometry(.943, 1, 48).rotateX(Math.PI), 160, .76);
   private aims = this.pool(new THREE.BoxGeometry(1,1,1), 96, .56);
   private slashes = this.pool(taperedSlashGeometry(), 192, .78);
   private stars = this.pool(impactStarGeometry(), 48, .72);
@@ -75,7 +75,7 @@ export class SkillEffects {
   }
   private put(mesh: THREE.InstancedMesh, x:number,y:number,z:number,sx:number,sy:number,sz:number,color:string, ry=0, rx=0) {
     if(mesh.count>=mesh.instanceMatrix.count) return;
-    this.dummy.position.set(x,y,z); this.dummy.scale.set(sx,sy,sz); this.dummy.rotation.set(rx,ry,0); this.dummy.updateMatrix();
+    this.dummy.position.set(x,y,z); this.dummy.scale.set(sx,sy,sz); this.dummy.rotation.set(rx,ry,0,'YXZ'); this.dummy.updateMatrix();
     mesh.setMatrixAt(mesh.count,this.dummy.matrix);
     if(!this.colors.has(color)) this.colors.set(color,new THREE.Color(color));
     const tint=this.colors.get(color)!,array=mesh.instanceColor?.array,o=mesh.count*3;
@@ -111,17 +111,21 @@ export class SkillEffects {
       if(s.charge) {
         const d=s.charge.direction, r=HEAD_HIT_RADIUS*size+KI_RADIUS+.1;
         const x=hx+Math.cos(d)*r,z=hz+Math.sin(d)*r;
-        const progress=1-s.charge.remaining/KI_CHARGE, scale=.26+progress*.55;
-        this.put(this.cores,x,hy,z,scale,scale,scale,'#71d8ff');
-        this.put(this.cores,x,hy+.015,z,scale*.48,scale*.48,scale*.48,'#f2ffff');
-        // A narrow locked line shows direction, not a wider damage corridor.
-        this.put(this.aims,x+Math.cos(d)*KI_RANGE/2,-.29,z+Math.sin(d)*KI_RANGE/2,KI_RANGE,.025,.045,'#67c9f4',-d);
-        if(!reduced) {
-          this.put(this.ribbons,x,hy,z,1.35-progress*.65,1.35-progress*.65,1.35-progress*.65,'#a4edff',0,Math.PI/2);
-          const strokes=this.profile==='mobile'?3:6;
-          for(let i=0;i<strokes;i++) {
-            const a=i*Math.PI*2/strokes+time*2, orbit=(1-progress)*1.75+.4;
-            this.put(this.slashes,x+Math.cos(a)*orbit,hy+Math.sin(a*2)*.18,z+Math.sin(a)*orbit,.9*(1-progress*.4),1,.28,'#b8f5ff',-a);
+        const progress = THREE.MathUtils.clamp(1 - s.charge.remaining / KI_CHARGE, 0, 1);
+        const scale = .29 + progress * .56;
+        this.put(this.cores, x, hy, z, scale, scale, scale, '#88dfed');
+        this.put(this.cores, x, hy + scale*.60, z, scale*.47, scale*.47, scale*.47, '#edfeff');
+        // The aim stays on the committed line and ends at the actual range.
+        this.put(this.aims, x+Math.cos(d)*KI_RANGE/2, -.25, z+Math.sin(d)*KI_RANGE/2,
+          KI_RANGE, .025, .13, '#70c8fc', -d);
+        if (!reduced) {
+          const orbit = 2.1 - progress*1.28;
+          this.put(this.ribbons, x, hy, z, orbit, orbit*.67, 1, '#50bafb', -d, 1.07);
+          const strokes = this.profile === 'mobile' ? 3 : 5;
+          for (let i = 0; i < strokes; i++) {
+            const angle = i*Math.PI*2/strokes + time*5.3 + d;
+            this.put(this.slashes, x+Math.cos(angle)*orbit, hy+.12, z+Math.sin(angle)*orbit,
+              1.15 + progress*.48, 1, 1.45, i % 2 ? '#54bbff' : '#dcfaff', -angle - 1.52);
           }
         }
       }
@@ -134,44 +138,58 @@ export class SkillEffects {
           this.trails.push({id:s.id,x:point.x,z:point.z,angle,color:c.color,age:0,elastic:s.character==='cloud',scale:size});
         }
         if(s.character==='ember') {
-          const clearance=(anchor?.clearance??size*1.3)+size*.22;
-          const closing=Math.min(1,s.active/.25);
-          for(const side of [-1,1]) {
-            const a=s.angle+side*1.62;
-            this.put(this.slashes,hx+Math.cos(a)*clearance,hy-.12,hz+Math.sin(a)*clearance,
-              1.5*size*closing,1,.65*size*closing,side<0?'#fff0c5':'#ffa352',-s.angle+side*.24);
+          const clearance = (anchor?.clearance ?? size*1.3) + size*.27;
+          const closing = Math.min(1, s.active/.25);
+          for (const side of [-1, 1]) {
+            const angle = s.angle + side*1.77;
+            const flameLength = size*closing*(side < 0 ? 3.05 : 2.6);
+            this.put(this.slashes, hx+Math.cos(angle)*clearance, hy+.03, hz+Math.sin(angle)*clearance,
+              flameLength, 1, 2.6*size*closing, side < 0 ? '#ffe7a5' : '#ff8b35', -s.angle+side*.33);
           }
         }
         if(s.character==='eclipse') {
           // The complete ring is the authoritative 12-unit field; all other layers stay inside it.
-          this.put(this.ribbons,hx,-.17,hz,VEIL_RADIUS,VEIL_RADIUS,VEIL_RADIUS,'#e4c8ff',0,Math.PI/2);
-          if(!reduced) {
-            const waves=this.profile==='mobile'?1:2;
-            for(let wave=0;wave<waves;wave++) {
-              const radius=2+((time*.35+wave*.5)%1)*(VEIL_RADIUS-2.5);
-              this.put(this.ribbons,hx,-.23,hz,radius,radius,radius,wave?'#d4bcff':'#b18de9',0,Math.PI/2);
+          this.put(this.ribbons, hx, -.17, hz, VEIL_RADIUS, VEIL_RADIUS, 1, '#ad8cff', 0, Math.PI/2);
+          if (!reduced) {
+            const waves = this.profile === 'mobile' ? 1 : 2;
+            for (let wave = 0; wave < waves; wave++) {
+              const phase = (time*.46 + wave*.48) % 1;
+              const radius = VEIL_RADIUS*(.18 + .69*(1-phase));
+              this.put(this.ribbons, hx, -.23, hz, radius, radius, 1,
+                wave ? '#7456bf' : '#a683ed', 0, Math.PI/2);
             }
-            const accents=this.profile==='mobile'?4:8;
-            for(let arc=0;arc<accents;arc++) {
-              const a=arc*Math.PI*2/accents+time*.16;
-              this.put(this.slashes,hx+Math.cos(a)*VEIL_RADIUS,-.15,hz+Math.sin(a)*VEIL_RADIUS,.85,1,.34,'#f4dcff',-a-Math.PI/2);
+            const accents = this.profile === 'mobile' ? 4 : 8;
+            for (let tick = 0; tick < accents; tick++) {
+              const angle = tick*Math.PI*2/accents + time*.23;
+              const radius = VEIL_RADIUS - .85;
+              this.put(this.slashes, hx+Math.cos(angle)*radius, -.11, hz+Math.sin(angle)*radius,
+                2.15, 1, 2.3, tick % 2 ? '#956df1' : '#f6dcff', -angle+Math.PI+.27);
             }
           }
         }
         if(s.character==='cloud') {
-          const turn=Math.max(-.45,Math.min(.45,angleDelta(s.previousAngle,s.angle)*5));
-          const closing=.7+.3*Math.min(1,s.active/.25);
-          const clearance=(anchor?.clearance??1.4*size)+size*.6;
-          const springSize=Math.min(1.4,(.6+Math.abs(turn)*.25)*size)*closing;
-          for(let side of [-1,1]) {
-            const a=s.angle+side*(1.2+turn*.3);
-            this.put(this.ribbons,hx+Math.cos(a)*clearance,hy-.1,
-              hz+Math.sin(a)*clearance,springSize,
-              springSize,springSize,side<0?'#fff0d5':'#ffab9e',-a,Math.PI/2);
+          const turn = THREE.MathUtils.clamp(angleDelta(s.previousAngle, s.angle)*6, -.55, .55);
+          const closing = .64 + .36*Math.min(1, s.active/.25);
+          const clearance = (anchor?.clearance ?? 1.4*size) + size*.86;
+          const spring = Math.min(2.04, (1.16+Math.abs(turn)*.40)*size)*closing;
+          for (const side of [-1, 1]) {
+            const angle = s.angle + side*(1.65+turn*.48);
+            const squash = 1-side*turn*.45;
+            const loopX = hx + Math.cos(angle)*clearance;
+            const loopZ = hz + Math.sin(angle)*clearance;
+            this.put(this.ribbons, loopX, hy+.37, loopZ, spring*1.24*squash, spring*.91, 1,
+              side < 0 ? '#fff8e8' : '#ffa0ba', -s.angle + side*.40, reduced ? Math.PI/2 : 1.34+side*.16);
+            if (!reduced) {
+              const tangent = s.angle + side*(.56 + turn*.73);
+              this.put(this.slashes, loopX + Math.cos(tangent)*spring*.27, hy+.53,
+                loopZ + Math.sin(tangent)*spring*.27, spring*1.46, 1, spring*1.91,
+                side < 0 ? '#ffc9aa' : '#fff1d6', -tangent);
+            }
           }
-          if(!reduced && this.profile==='desktop') this.put(this.ribbons,
-            hx-Math.cos(s.angle)*clearance,hy-.2,
-            hz-Math.sin(s.angle)*clearance,springSize*.7,springSize*.7,springSize*.7,'#ffc5ae',0,Math.PI/2);
+          if (!reduced && this.profile === 'desktop') {
+            this.put(this.ribbons, hx-Math.cos(s.angle)*clearance, hy-.22, hz-Math.sin(s.angle)*clearance,
+              spring*.72, spring*.55, 1, '#ffa9b2', -s.angle+.52, 1.20);
+          }
         }
       }
       if(s.slowed) this.put(this.ribbons,s.x,.15,s.z,1.3*size,1.3*size,1.3*size,'#ad8bcf',reduced?0:time*.3,Math.PI/2);
@@ -180,9 +198,10 @@ export class SkillEffects {
     if(player.alive && boost.intensity>.01 && !arena.cinematic) {
       const direction = player.angle;
       const forwardX = Math.cos(direction), forwardZ = Math.sin(direction);
-      const motes=reduced?1:Math.round((boost.enhanced?8:4)*boost.intensity);
+      const maxMotes = this.profile === 'mobile' ? (boost.enhanced ? 5 : 3) : (boost.enhanced ? 8 : 4);
+      const motes = reduced ? 1 : Math.round(maxMotes * boost.intensity);
       for(let i=0;i<motes;i++) {
-        const phase=(time*1.3+i/Math.max(1,motes))%1;
+        const phase = reduced ? .32 : (time * 1.3 + i / motes) % 1;
         const spread=(i%2?1:-1)*(.35+(i%3)*.34);
         const x=player.x-forwardX*(1+phase*5)-Math.sin(direction)*spread;
         const z=player.z-forwardZ*(1+phase*5)+Math.cos(direction)*spread;
@@ -202,34 +221,20 @@ export class SkillEffects {
         this.boostMarks.push({x:point.x,z:point.z,angle,radius:bodyRadiusAt(Math.min(2,body.length-1),body.length,player.mass)+.8,scale:serpentScale(player.mass)*(boost.enhanced?1.2:1),age:0,style:this.boostTrail,color:boost.enhanced?'#ffad64':CHARACTERS.find(c=>c.id===player.character)!.color});
         if(this.boostMarks.length>BOOST_MARK_LIMIT) this.boostMarks.shift();
       }
-    } else if(!player.boosting) this.boostMarkClock=0;
-    for(const mark of this.boostMarks) {
-      const life=1-mark.age/BOOST_MARK_LIFETIME;
-      const sideX=-Math.sin(mark.angle),sideZ=Math.cos(mark.angle);
-      const colors=mark.style==='original' ? [mark.color,'#fff0c9'] as const : TRAIL_COLORS[mark.style];
-      for(const side of [-1,1]) {
-        const drift=mark.style==='petals' ? mark.age*2.1 : 0;
-        const x=mark.x+sideX*side*(mark.radius+drift),z=mark.z+sideZ*side*(mark.radius+drift);
-        if(mark.style==='original')
-          this.put(this.aims,x,.18,z,Math.max(.02,1.8*mark.scale*life),.12*life,.23*life,side===1?colors[0]:colors[1],-mark.angle);
-        else if(mark.style==='petals')
-          this.put(this.sparks,x,.4+mark.age,z,.42*mark.scale*life,.08*life,.62*mark.scale*life,side===1?colors[0]:colors[1],-mark.angle+mark.age*3);
-        else {
-          this.put(this.sparks,x,.4+mark.age*.35,z,.42*mark.scale*life,.42*mark.scale*life,.42*mark.scale*life,side===1?colors[0]:colors[1]);
-          if(side===1) this.put(this.ribbons,x,.16,z,.6*mark.scale*life,.6*mark.scale*life,.6*mark.scale*life,colors[0],0,Math.PI/2);
-        }
-      }
-    }
+    } else if (reduced || !player.alive || !player.boosting) this.boostMarkClock = 0;
     if(this.trails.length>SKILL_TRAIL_LIMIT) this.trails.splice(0,this.trails.length-SKILL_TRAIL_LIMIT);
     for(const t of this.trails) {
       const life=1-t.age/.45;
       if(t.elastic) {
-        this.put(this.ribbons,t.x,.18,t.z,t.scale*(.8+t.age)*life,t.scale*(.8+t.age)*life,t.scale*(.8+t.age)*life,
-          '#ffc2a8',0,Math.PI/2);
+        const puff = t.scale*(1.04+t.age*.9)*life;
+        this.put(this.ribbons, t.x, .28+t.age, t.z, puff*1.37, puff*.69, 1,
+          '#ffc6ba', -t.angle+t.age*1.9, 1.30);
       } else {
         const nx=-Math.sin(t.angle),nz=Math.cos(t.angle);
-        for(const side of [-1,1]) this.put(this.slashes,t.x+nx*side*.68*t.scale,.38,t.z+nz*side*.68*t.scale,
-          2.15*t.scale*life,1,.75*t.scale*life,side<0?'#fff0c5':'#ff9b4f',-t.angle+side*.12);
+        const spread = t.scale*(.79+t.age*.65);
+        for (const side of [-1,1]) this.put(this.slashes, t.x+nx*side*spread, .42+t.age*.17, t.z+nz*side*spread,
+          (side < 0 ? 3.05 : 3.8)*t.scale*life, 1, 2.03*t.scale*life,
+          side < 0 ? '#ffdd91' : '#ed663c', -t.angle+side*.24);
         if(this.profile==='desktop') this.put(this.sparks,t.x,.5+t.age,t.z,.18*t.scale*life,.25*t.scale*life,.18*t.scale*life,'#ffd883');
       }
     }
@@ -237,43 +242,65 @@ export class SkillEffects {
       const life=1-b.age/.45, anchor=anchors?.get(b.id);
       const bx=b.character==='eclipse'&&anchor?.x!==undefined?anchor.x:b.x;
       const bz=b.character==='eclipse'&&anchor?.z!==undefined?anchor.z:b.z;
-      if(b.kind==='impact') {
-        this.put(this.stars,bx,.68,bz,2.2*life,.14,2.2*life,'#f2ffff',-b.direction);
-        if(!reduced) for(let i=0;i<(this.profile==='mobile'?5:8);i++) {
-          const a=b.direction+(i/(this.profile==='mobile'?5:8)-.5)*Math.PI*1.3;
-          this.put(this.slashes,bx+Math.cos(a)*b.age*5,.69,bz+Math.sin(a)*b.age*5,
-            2.1*life,1,.38*life,i%2?'#4bb9f4':'#c5f7ff',-a);
+      if (b.kind === 'impact') {
+        const hit = 1-THREE.MathUtils.smoothstep(b.age, .055, .24);
+        if (hit > 0) this.put(this.stars, bx, .82, bz, 3.1*hit, 1, 1.8*hit, '#edfeff', -b.direction);
+        if (!reduced) {
+          const radius = 1.0+b.age*6;
+          this.put(this.ribbons, bx, .32, bz, radius*.67, radius, 1, '#5abffa', -b.direction, Math.PI/2);
+          const count = this.profile === 'mobile' ? 4 : 6;
+          for (let i = 0; i < count; i++) {
+            const angle = b.direction+(i/(count-1)-.5)*Math.PI*1.18;
+            const distance = .62+b.age*(6+i%2*4);
+            this.put(this.slashes, bx+Math.cos(angle)*distance, .63+b.age, bz+Math.sin(angle)*distance,
+              (2.05+i%2)*life, 1, 1.65*life, i%2 ? '#49afff' : '#d7fbff', -angle);
+          }
         }
-      } else if(b.kind==='launch') {
-        this.put(this.stars,bx,.75,bz,1.25*life,.12,1.25*life,'#dffbff',-b.direction);
-        if(!reduced) for(const side of [-1,1]) {
-          const a=b.direction+side*.4;
-          this.put(this.slashes,bx+Math.cos(a)*b.age*2,.72,bz+Math.sin(a)*b.age*2,1.45*life,1,.34*life,'#85dcff',-a);
+      } else if (b.kind === 'launch') {
+        this.put(this.stars, bx, .80, bz, 2.1*life, 1, .68*life, '#f4ffff', -b.direction);
+        if (!reduced) for (const side of [-1, 1]) {
+          const angle = b.direction+side*.52;
+          const distance = .65+b.age*3.7;
+          this.put(this.slashes, bx+Math.cos(angle)*distance, .72, bz+Math.sin(angle)*distance,
+            2.1*life, 1, 1.35*life, '#77d4fa', -angle);
         }
-      } else if(b.character==='ember') {
-        // A pointed fox silhouette at the confirmed activation, then a short flame fan.
-        this.put(this.stars,bx,.52,bz,1.05*life,.12,1.05*life,'#ffb85f',-b.direction);
-        for(const side of [-1,1]) this.put(this.slashes,bx-Math.sin(b.direction)*side*.78,.85,
-          bz+Math.cos(b.direction)*side*.78,1.4*life,1,.48*life,'#ffe4a2',-b.direction+side*.55);
-        this.put(this.slashes,bx+Math.cos(b.direction)*1.1,.78,bz+Math.sin(b.direction)*1.1,
-          2.1*life,1,.46*life,'#fff3c5',-b.direction);
-        if(!reduced) for(let i=0;i<(this.profile==='mobile'?4:7);i++) {
-          const a=b.direction+(i-3)*.24;
-          this.put(this.slashes,bx+Math.cos(a)*(.8+b.age*3),.46,bz+Math.sin(a)*(.8+b.age*3),
-            1.7*life,1,.34*life,i%2?'#ff9653':'#ffd279',-a);
+      } else if (b.character === 'ember') {
+        const surge = 1-Math.pow(1-Math.min(1,b.age/.19), 2);
+        this.put(this.stars, bx, .57, bz, 1.4*life, 1, .95*life, '#ffcf75', -b.direction);
+        for (const side of [-1, 1]) {
+          const edge = b.direction + side*1.72;
+          const offset = .88+surge*.50;
+          this.put(this.slashes, bx+Math.cos(edge)*offset, .86, bz+Math.sin(edge)*offset,
+            2.55*life, 1, 2.5*life, side < 0 ? '#ffd78c' : '#ff7d40', -b.direction+side*.40);
         }
-      } else if(b.character==='cloud') {
-        this.put(this.stars,bx,.5,bz,1.1*life,.12,1.1*life,'#fff0d8',-b.direction);
-        if(!reduced) for(let i=0;i<(this.profile==='mobile'?2:4);i++) {
-          const a=b.direction+Math.PI*(i%2?-.5:.5);
-          this.put(this.ribbons,bx+Math.cos(a)*(1+b.age*3),.65+i*.08,bz+Math.sin(a)*(1+b.age*3),
-            (.5+i*.12)*life,(.5+i*.12)*life,(.5+i*.12)*life,i%2?'#ffc0b4':'#fff2d7',0,Math.PI/2);
+        this.put(this.slashes, bx+Math.cos(b.direction)*1.15, .79, bz+Math.sin(b.direction)*1.15,
+          2.75*life, 1, 1.72*life, '#fff1b7', -b.direction);
+        if (!reduced) {
+          const count = this.profile === 'mobile' ? 3 : 6;
+          for (let i = 0; i < count; i++) {
+            const angle = b.direction+(i/(count-1)-.5)*1.9;
+            const distance = .9+surge*(1.1+i%2*.75);
+            this.put(this.slashes, bx+Math.cos(angle)*distance, .45+b.age*.63, bz+Math.sin(angle)*distance,
+              (1.7+i%2*.50)*life, 1, 2.0*life, i%2 ? '#ea573c' : '#ffb95f', -angle+.18);
+          }
         }
-      } else if(b.character==='eclipse') {
-        this.put(this.ribbons,bx,-.19,bz,Math.min(VEIL_RADIUS,2+b.age*28),
-          Math.min(VEIL_RADIUS,2+b.age*28),Math.min(VEIL_RADIUS,2+b.age*28),'#f0d7ff',0,Math.PI/2);
+      } else if (b.character === 'cloud') {
+        this.put(this.stars, bx, .52, bz, 1.2*life, 1, .88*life, '#fff2d9', -b.direction);
+        if (!reduced) {
+          const count = this.profile === 'mobile' ? 2 : 4;
+          for (let i = 0; i < count; i++) {
+            const angle = b.direction + (i%2 ? -1 : 1)*(1.13+i*.19);
+            const distance = .7+b.age*4.8+i*.21;
+            const loop = (.78+i*.13)*life;
+            this.put(this.ribbons, bx+Math.cos(angle)*distance, .66+i*.09, bz+Math.sin(angle)*distance,
+              loop*1.32, loop*.78, 1, i%2 ? '#ff9aac' : '#fff1d6', -angle+.36, 1.2+i*.11);
+          }
+        }
+      } else if (b.character === 'eclipse') {
+        const radius = Math.min(VEIL_RADIUS, 2.6+b.age*29);
+        this.put(this.ribbons, bx, -.13, bz, radius, radius, 1, '#e4c8ff', 0, Math.PI/2);
       } else {
-        this.put(this.stars,bx,.7,bz,.9*life,.12,.9*life,'#d8f8ff',-b.direction);
+        this.put(this.stars, bx, .70, bz, 1.25*life, 1, .72*life, '#d8f8ff', -b.direction);
       }
       if(!reduced) for(let i=0;i<(this.profile==='mobile'?4:8);i++) {
         const a=b.direction+i*Math.PI*2/(this.profile==='mobile'?4:8);
@@ -282,43 +309,86 @@ export class SkillEffects {
         this.put(this.sparks,bx+Math.cos(a)*distance,.55+b.age,bz+Math.sin(a)*distance,size,size,size,b.color);
       }
     }
-    for (const r of this.life.slots) {
-      if (!r.active) continue;
-      const life = 1 - r.age / .45;
-      if (r.kind === 'spawn') {
-        const radius = reduced ? 1.35 : 1 + r.age * 5;
-        this.put(this.ribbons, r.x, -.26, r.z, radius, radius, radius, '#a7cbb3', 0, Math.PI / 2);
-      } else if (r.kind === 'death') {
-        const radius = reduced ? 1.05 : .6 + r.age * 2.8;
-        this.put(this.ribbons, r.x, -.26, r.z, radius, radius, radius, '#e7a17c', 0, Math.PI / 2);
-        if (reduced) continue;
-        const count = 6;
-        for (let i = 0; i < count; i++) {
-          const a = i * Math.PI * 2 / count, distance = .2 + r.age * 3;
-          const size = .32 * life;
-          this.put(this.sparks, r.x + Math.cos(a) * distance, .4 + r.age * 1.5, r.z + Math.sin(a) * distance, size, size, size, '#ddd3c2');
+    for(const p of arena.projectiles) {
+      // The sphere is the hit radius. All extended artwork streams behind it.
+      const dx = Math.cos(p.direction), dz = Math.sin(p.direction);
+      this.put(this.cores, p.x, .75, p.z, p.radius, p.radius, p.radius, '#b8f4ff');
+      this.put(this.sparks, p.x, .75+p.radius*.71, p.z,
+        p.radius*.46, p.radius*.45, p.radius*.46, '#eafcff');
+      this.put(this.slashes, p.x-dx*1.73, .76, p.z-dz*1.73, 3.15, 1, 3.45, '#46b5fc', -p.direction);
+      if (!reduced) {
+        const strands = this.profile === 'mobile' ? 2 : 4;
+        for (let i = 0; i < strands; i++) {
+          const side = i%2 ? 1 : -1;
+          const distance = 1.2+i*.59;
+          const offset = side*(.25+i*.10);
+          this.put(this.slashes, p.x-dx*distance-dz*offset, .83, p.z-dz*distance+dx*offset,
+            2.65-i*.21, 1, 1.55-i*.17, i < 2 ? '#e6fcff' : '#51c9f4', -p.direction+side*.18);
         }
-      } else if (!reduced) {
-        const count = r.boosted?5:3;
-        for (let i = 0; i < count; i++) {
-          const a = i * Math.PI * 2 / count, distance = .2 + r.age * 1.2;
-          const size = (r.boosted?.24:.18) * life;
-          const streak=r.boosted?r.age*3+i*.13:0;
-          this.put(this.sparks, r.x + Math.cos(a) * distance-Math.cos(r.direction)*streak, .4 + r.age * 1.5, r.z + Math.sin(a) * distance-Math.sin(r.direction)*streak, size, size, size, '#f4dca3');
-        }
-        if(r.boosted) this.put(this.cores,r.x,.45,r.z,.28*life,.28*life,.28*life,'#fff7d6');
       }
     }
-    for(const p of arena.projectiles) {
-      // The solid core is exactly the simulation hit radius; glow never claims a larger hitbox.
-      this.put(this.cores,p.x,.75,p.z,p.radius,p.radius,p.radius,'#79d7ff');
-      this.put(this.sparks,p.x,.8,p.z,p.radius*.56,p.radius*.56,p.radius*.56,'#f0ffff');
-      this.put(this.slashes,p.x+Math.cos(p.direction)*.22,.76,p.z+Math.sin(p.direction)*.22,
-        2.3,1,.72,'#c4f4ff',-p.direction);
-      if(!reduced) for(let i=1;i<=(this.profile==='mobile'?2:4);i++) {
-        const fade=1-i/5;
-        this.put(this.slashes,p.x-Math.cos(p.direction)*i*.5,.75,p.z-Math.sin(p.direction)*i*.5,
-          1.2*fade,1,.32*fade,i%2?'#5dc7f8':'#e7fcff',-p.direction);
+    for (const reaction of this.life.slots) {
+      if (!reaction.active) continue;
+      const { kind, x, z, age, boosted, direction } = reaction;
+      const progress = age / .45;
+      const life = 1 - progress;
+      if (kind === 'spawn') {
+        const radius = reduced ? 1.35 : 1 + age * 5;
+        this.put(this.ribbons, x, -.26, z, radius, radius, radius, '#a7cbb3', 0, Math.PI / 2);
+      } else if (kind === 'death') {
+        const radius = reduced ? 1.05 : .75 + 2.05 * (1 - life ** 3);
+        this.put(this.ribbons, x, -.26, z, radius, radius, radius, '#e7a17c', 0, Math.PI / 2);
+        if (reduced) continue;
+
+        const flash = Math.max(0, 1 - age / .18);
+        if (flash > 0) {
+          this.put(this.stars, x, .62, z, 1.9 * flash, 1, 1.4 * flash, '#ffe2bb', .36);
+        }
+        const count = this.profile === 'mobile' ? 4 : 6;
+        for (let i = 0; i < count; i++) {
+          const angle = i * Math.PI * 2 / count + .36;
+          const distance = .55 + (1 - life ** 2) * (i % 2 ? 3.4 : 2.65);
+          const length = (i % 2 ? .9 : 1.15) * life;
+          this.put(this.sparks, x + Math.cos(angle) * distance, .43 + 1.1 * progress * life,
+            z + Math.sin(angle) * distance, length, .17 * life, .15 * life,
+            i % 2 ? '#e87551' : '#ffe6c3', -angle);
+        }
+      } else if (!reduced) {
+        const glint = Math.max(0, 1 - age / .16);
+        if (glint > 0) {
+          this.put(this.stars, x, .63, z, (boosted ? .95 : .67) * glint, 1, .54 * glint,
+            '#fff1b5', -direction);
+        }
+        const count = boosted && this.profile === 'desktop' ? 4 : 3;
+        for (let i = 0; i < count; i++) {
+          const angle = direction + i * Math.PI * 2 / count;
+          const distance = .18 + age * 1.9;
+          const size = (boosted ? .23 : .16) * life;
+          const streak = boosted ? age * 2.5 : 0;
+          this.put(this.sparks, x + Math.cos(angle) * distance - Math.cos(direction) * streak,
+            .43 + age * (1.5 + i * .35), z + Math.sin(angle) * distance - Math.sin(direction) * streak,
+            size * (boosted ? 2 : 1), size, size, i % 2 ? '#f6bd6c' : '#fff3c4', -direction);
+        }
+      }
+    }
+    for(const mark of this.boostMarks) {
+      const life=1-mark.age/BOOST_MARK_LIFETIME;
+      const sideX=-Math.sin(mark.angle),sideZ=Math.cos(mark.angle);
+      const colors=mark.style==='original' ? [mark.color,'#fff0c9'] as const : TRAIL_COLORS[mark.style];
+      for(const side of [-1,1]) {
+        const drift=mark.style==='petals' ? mark.age*2.1 : 0;
+        const x=mark.x+sideX*side*(mark.radius+drift),z=mark.z+sideZ*side*(mark.radius+drift);
+        if (mark.style === 'original') {
+          const width = mark.scale * life * 1.7;
+          const length = mark.scale * life * (side === 1 ? 2.9 : 2.1);
+          this.put(this.slashes, x, .23, z, length, 1, width, side === 1 ? colors[0] : colors[1],
+            -mark.angle + side * .16);
+        } else if(mark.style==='petals')
+          this.put(this.sparks,x,.4+mark.age,z,.42*mark.scale*life,.08*life,.62*mark.scale*life,side===1?colors[0]:colors[1],-mark.angle+mark.age*3);
+        else {
+          this.put(this.sparks,x,.4+mark.age*.35,z,.42*mark.scale*life,.42*mark.scale*life,.42*mark.scale*life,side===1?colors[0]:colors[1]);
+          if(side===1) this.put(this.ribbons,x,.16,z,.6*mark.scale*life,.6*mark.scale*life,.6*mark.scale*life,colors[0],0,Math.PI/2);
+        }
       }
     }
     for(let i=0;i<this.meshes.length;i++){

@@ -117,7 +117,7 @@ export class EliminationStampView {
 
   setAccent(color:string){this.root.style.setProperty('--ko-accent',color);}
 
-  draw(renderer: GameRenderer, frame: Readonly<PresentationFrame>) {
+  draw(renderer: Pick<GameRenderer, 'projectPoint'>, frame: Readonly<PresentationFrame>) {
     this.state.update(frame.dt);
     const width = innerWidth, height = innerHeight;
     for (let i = 0; i < this.nodes.length; i++) {

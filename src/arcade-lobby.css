@@ -1,0 +1,102 @@
+/* A fighter poster and a compact match desk share the screen. */
+:root[data-theme] #menu {
+  --paper:#f4efdf; --fighter-color:#ff9352; --fighter-art:url('/art/ember.webp');
+  color:var(--paper); background:#121316; padding:0 clamp(16px,3.25vw,64px) max(18px,env(safe-area-inset-bottom));
+  grid-template-rows:auto minmax(min-content,1fr); overflow:auto;
+}
+:root[data-theme] #menu .topbar {
+  padding: max(16px,env(safe-area-inset-top)) 0 15px; border-bottom:1px solid #454446;
+}
+:root[data-theme] #menu .brand { gap:9px; }
+:root[data-theme] #menu .brand > span { color:var(--paper); font:italic 900 clamp(24px,2.5vw,36px)/.96 Inter,sans-serif; letter-spacing:-.055em; text-transform:uppercase; }
+:root[data-theme] #menu .brand svg { color:#ff8055; width:36px; height:36px; }
+:root[data-theme] #menu .brand-coil { color:#ff8055; }
+:root[data-theme] #menu .brand small { color:#c8c3b8; font:600 10px/1.6 Inter,sans-serif; letter-spacing:.23em; }
+:root[data-theme] #menu nav {gap:8px}
+:root[data-theme] #menu .icon-button { width:44px; height:44px; border-radius:50%; background:#202125; border-color:#4b494a; color:var(--paper); }
+:root[data-theme] #menu .menu-content {
+  display:grid; grid-template-columns:minmax(0,1.65fr) minmax(320px,.85fr); grid-template-rows:minmax(0,1fr); gap:clamp(20px,3vw,56px);
+  width:100%; max-width:1700px; margin:auto; padding:clamp(16px,3vh,38px) 0 0; height:100%; min-height:480px; align-items:stretch;
+}
+:root[data-theme] #menu .lobby-showcase {
+  grid-column:1; grid-row:1; min-height:0; width:100%; height:100%; align-self:stretch; overflow:hidden;
+  border-radius:3px; border:1px solid #454446; isolation:isolate;
+}
+.fighter-art {position:absolute; inset:0; z-index:-1; background-image:linear-gradient(0deg,#101014ed,transparent 43%),var(--fighter-art); background-position:center,68% center; background-size:cover;}
+.fighter-caption {position:absolute; bottom:clamp(18px,4vw,58px); left:clamp(18px,3.5vw,62px); text-align:left;}
+#fighter-role {display:inline-block; color:#151413; background:var(--fighter-color); padding:5px 10px; font:800 .75rem/1 Inter,sans-serif; letter-spacing:.13em; transform:skew(-7deg);}
+:root[data-theme] #hero-name {color:#fffae9; margin:8px 0 0 -.055em; font:italic 900 clamp(64px,10.5vw,180px)/.91 Inter,sans-serif; text-transform:uppercase; letter-spacing:-.05em; text-shadow:0 3px 10px #17131960;}
+:root[data-theme] #menu .move-details {pointer-events:auto; display:flex; align-items:center; gap:10px; background:transparent; color:var(--paper); font:650 1rem Inter,sans-serif; padding:3px 0; min-height:44px; border:0; border-radius:0;}
+.venue,.model-toggle {position:absolute; top:16px; color:#fff5e7; background:#121316e8; border:1px solid #ffffff42; border-radius:2px; padding:8px 11px; font:650 .81rem/1.1 Inter,sans-serif;}
+.venue {left:16px; display:flex; align-items:center; gap:8px;}
+.location-mark {color:var(--fighter-color);font-size:1.05rem}
+.model-toggle {right:16px;pointer-events:auto;min-height:38px;}
+#menu:is(.show-model,.previewing-skin) .fighter-art, #menu.previewing-skin :is(.fighter-caption,.venue,.model-toggle) { display:none; }
+:root[data-theme] #menu:is(.show-model,.previewing-skin) {background:transparent;}
+:root[data-theme] #menu:is(.show-model,.previewing-skin) .selection-panel {background:#141519f2; padding:16px;}
+:root[data-theme] #menu .selection-panel {
+  grid-column:2; grid-row:1; width:100%; max-width:none; align-self:center; min-width:0;
+  padding:8px 0; margin:0; background:transparent; border:0; border-radius:0; box-shadow:none;
+}
+:root[data-theme] #menu .roster-panel h1 {position:static; clip-path:none; width:auto; height:auto; overflow:visible; color:var(--paper); font:850 clamp(27px,3.2vw,54px)/.99 Inter,sans-serif; letter-spacing:-.042em; margin:0 0 clamp(14px,2.3vh,24px);}
+#roster-title span {color:var(--fighter-color)}
+:root[data-theme] #menu .characters {grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+:root[data-theme] #menu .character {
+  display:block; position:relative; isolation:isolate; overflow:hidden; height:clamp(74px,12vh,156px);
+  min-height:0; padding:0; margin:0; border-radius:2px; border:1px solid #555050; background:#222328; box-shadow:none;
+}
+:root[data-theme] #menu .character::before {content:''; position:absolute; z-index:1; inset:0; background:linear-gradient(0deg,#09090edb,transparent 60%); pointer-events:none; }
+:root[data-theme] #menu .character img {position:absolute; inset:0; width:100%; height:100%; border-radius:0; object-fit:cover; object-position:65% 30%; filter:saturate(.7) brightness(.82);}
+:root[data-theme] #menu .character-name {position:absolute; z-index:2; bottom:7px; left:9px; color:#fff6e6; font:italic 850 1.02rem/1 Inter,sans-serif; letter-spacing:-.035em; text-transform:uppercase;}
+:root[data-theme] #menu .character[aria-pressed='true'] {border-color:var(--tile);outline:2px solid var(--tile);outline-offset:-3px;}
+:root[data-theme] #menu .character[aria-pressed='true'] img,#menu .character:hover img {filter:none;}
+:root[data-theme] #menu .selected-mark {z-index:2; top:0; right:0; bottom:auto; left:auto; width:22px; height:20px; display:none; border-radius:0; background:var(--tile); color:#141518; font:900 .82rem/20px Inter,sans-serif; text-align:center;}
+:root[data-theme] #menu .character[aria-pressed='true'] .selected-mark {display:block;}
+#menu .match-options {border-top:1px solid #464547; margin:clamp(16px,3vh,30px) 0 0; padding:clamp(14px,2.2vh,24px) 0;}
+:root[data-theme] #menu .section-label {position:static; width:auto; height:auto; clip-path:none; margin:0 0 10px;}
+:root[data-theme] #menu .section-label h3 {color:#e6e0d6; font:700 .82rem Inter,sans-serif;}
+:root[data-theme] #menu .mode-picker {gap:4px; margin:0; padding:4px; background:#202125; border:1px solid #444347; border-radius:5px;}
+:root[data-theme] #menu .mode-choice {min-height:38px; min-width:0; padding:4px 2px; color:#cec9c1; background:transparent; border:0; border-radius:2px; font:650 .82rem Inter,sans-serif;}
+:root[data-theme] #menu .mode-choice[aria-pressed=true] {background:#f3eddf; color:#161618;}
+:root[data-theme] #menu .mode-description {font-size:.85rem; color:#c2bdb4; margin:10px 0 0; text-align:left; min-height:1.3em;}
+:root[data-theme] #menu .best {display:flex; align-items:center; justify-content:space-between; margin:14px 0 0; font-size:.83rem;}
+:root[data-theme] #menu #best-label {color:#c7c1ba;}
+:root[data-theme] #menu #best-score {color:var(--paper); font-size:1rem;}
+:root[data-theme] #menu #play {border-radius:2px; color:#141416; background:var(--fighter-color); font:italic 850 clamp(22px,2vw,34px)/1 Inter,sans-serif; letter-spacing:-.035em; text-transform:uppercase; padding:14px 12px; min-height:52px; box-shadow:none; width:100%;}
+#menu .practice-link {display:block; margin:3px auto 0; min-height:40px; color:#d4cdc2; background:transparent; font:600 .84rem Inter,sans-serif; text-decoration:underline; text-underline-offset:4px;}
+:root[data-theme] #menu :is(button):focus-visible {outline:3px solid #fff3cc; outline-offset:2px;}
+@media (max-width:760px) and (orientation:portrait) {
+  :root[data-theme] #menu {padding:0 12px max(8px,env(safe-area-inset-bottom));}
+  :root[data-theme] #menu .topbar {padding:max(8px,env(safe-area-inset-top)) 0 8px;}
+  :root[data-theme] #menu .menu-content {grid-template-columns:1fr; grid-template-rows:minmax(200px,1fr) auto; gap:12px; padding:10px 0 0; min-height:min-content;}
+  :root[data-theme] #menu .lobby-showcase {grid-row:1; min-height:200px;}
+  :root[data-theme] #menu .selection-panel {grid-column:1;grid-row:2;padding:0;}
+  :root[data-theme] #menu .characters {grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px;}
+  :root[data-theme] #menu .character {height:clamp(54px,8.5dvh,90px);}
+  :root[data-theme] #menu .character-name {font-size:.8rem;left:5px;bottom:5px;}
+  :root[data-theme] #menu .roster-panel h1 {font-size:24px; margin:0 0 9px;}
+  #menu .match-options {padding:9px 0; margin-top:9px; display:grid; grid-template-columns:1fr auto; gap:5px;}
+  :root[data-theme] #menu .match-options .section-label {display:none;}
+  #menu .mode-picker {grid-column:1/-1;}
+  :root[data-theme] #menu .mode-description,:root[data-theme] #menu .best {margin:3px 0;font-size:.74rem;}
+  :root[data-theme] #menu .best {gap:5px;}
+  .fighter-caption {bottom:10px;left:15px;}
+  :root[data-theme] #hero-name {font-size:clamp(52px,16vw,100px);}
+  #fighter-role {font-size:.65rem;}
+  .venue,.model-toggle {top:8px; font-size:.72rem; padding:7px;}
+  .venue {left:8px;} .model-toggle {right:8px;}
+  :root[data-theme] #menu.previewing-skin .menu-content {grid-template-rows:1fr;}
+  :root[data-theme] #menu.previewing-skin .selection-panel {display:none;}
+}
+@media (orientation:landscape) and (max-height:600px) {
+  :root[data-theme] #menu {padding:0 12px 5px;}
+  :root[data-theme] #menu .topbar {padding:4px 0;}
+  :root[data-theme] #menu .menu-content {min-height:277px;grid-template-columns:1.2fr minmax(240px,.8fr);gap:14px;padding-top:7px;}
+  :root[data-theme] #menu .roster-panel h1 {font-size:24px;margin:0 0 6px;}
+  :root[data-theme] #menu .characters {grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
+  :root[data-theme] #menu .character {height:57px;}
+  :root[data-theme] #menu .character-name {font-size:.72rem;left:3px;bottom:4px;}
+  #menu .match-options {margin-top:9px;padding:8px 0;}
+  :root[data-theme] #menu .best {margin-top:5px;}
+  :root[data-theme] #menu .practice-link {min-height:30px;}
+}

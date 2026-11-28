@@ -7,8 +7,8 @@ import {HAKI} from './haki-palette';
 
 const STYLES = { fox: 0, spirit: 1, purple: 2, skybreaker: 3 } as const;
 const PALETTES = {
-  fox: ['#fff2ba', '#ff9b27', '#72494a'], spirit: ['#f0ffff', '#40bcff', '#546d8b'],
-  purple: ['#fbeaff', '#ac59ff', '#5b486f'], skybreaker: [HAKI.hot,HAKI.energy,HAKI.ash],
+  fox: ['#ffdae9', '#e04cff', '#322044'], spirit: ['#eaffff', '#29b8ff', '#183867'],
+  purple: ['#fdf0ff', '#9961ff', '#221230'], skybreaker: [HAKI.hot,HAKI.energy,HAKI.ash],
 } as const;
 const COLORS = Object.fromEntries(Object.entries(PALETTES).map(([kind, colors]) => [kind, colors.map(c => new THREE.Color(c))])) as Record<UltimateKind, THREE.Color[]>;
 export function blastCounts(profile: DetailProfile, reduced = false) {
@@ -31,7 +31,14 @@ const common = `uniform float age, duration, style, reach, quiet, softened, keyf
   vec3 upAxis(){return vec3(viewMatrix[0][1],viewMatrix[1][1],viewMatrix[2][1]);}
   void project(vec3 p){gl_Position=projectionMatrix*viewMatrix*vec4(p,1.);}`;
 const fragment = `uniform vec3 hot, energy, ash; uniform float style, age, softened;
-  varying vec2 point; varying float opacity, heat, category, noiseSeed;`;
+  varying vec2 point; varying float opacity, heat, category, noiseSeed;
+  float mask(float distance, float width, float feather) {
+    return 1. - smoothstep(width, width + feather, abs(distance));
+  }
+  vec2 turn(vec2 p, float angle) {
+    float c = cos(angle), s = sin(angle);
+    return vec2(c*p.x - s*p.y, s*p.x + c*p.y);
+  }`;
 
 function ribbonGeometry() {
   const g = new THREE.BufferGeometry(), p: number[] = [], uv: number[] = [], ix: number[] = [];
@@ -59,43 +66,127 @@ export class UltimateBlast {
     this.group.name = 'ultimate-blast';
     this.add('core-bursts', new THREE.PlaneGeometry(1, 1), 9, common + `
       void main(){point=uv*2.-1.;noiseSeed=eventSeed.z;category=0.;
-        bool mainHit=eventData.x<.5;float elapsed=age-eventData.y;
-        if(mainHit&&keyframe>.5)elapsed=0.;
-        float life=mainHit?.42:eventData.z;float t=max(0.,elapsed);
-        float radius=mainHit?(42.+ease(t/.18)*55.):(8.+eventSeed.y*13.)*ease(t/.1);
-        if(style>2.5)radius*=.84+.16*sin(t*23.);
-        vec3 centre=anchor+vec3(cos(eventSeed.x)*eventData.w,mainHit?9.:4.+eventSeed.y*10.,sin(eventSeed.x)*eventData.w);
-        if(mainHit)centre.y+=ease(t/.18)*8.;
-        opacity=step(0.,elapsed)*(1.-smoothstep(mainHit?.055:.09,life,t));
-        if(mainHit&&keyframe>.5)opacity=1.;
-        opacity*=mix(1.,.16,softened);radius=mix(radius,34.,quiet);
-        heat=mainHit?1.:.65;project(centre+(rightAxis()*point.x+upAxis()*point.y)*radius);
+        bool mainHit = eventData.x < .5;
+        float elapsed = age - eventData.y;
+        if (mainHit && keyframe > .5) elapsed = 0.;
+        float t = max(0., elapsed);
+        float expand = ease(t / .23);
+        float initial = style > 2.5 ? 32. : style > 1.5 ? 21. : style > .5 ? 26. : 25.;
+        float radius = mainHit ? initial + expand * 23. : (5. + eventSeed.y * 9.) * ease(t / .095);
+        float life = mainHit ? .40 : eventData.z * .74;
+        vec3 centre = anchor + vec3(cos(eventSeed.x) * eventData.w, mainHit ? 5.5 : 3. + eventSeed.y * 7.,
+          sin(eventSeed.x) * eventData.w);
+        if (mainHit) centre.y += expand * (style > 2.5 ? 2. : 5.);
+        opacity = step(0., elapsed) * (1. - smoothstep(mainHit ? .085 : .06, life, t));
+        if (mainHit && keyframe > .5) opacity = 1.;
+        if (!mainHit) opacity *= .52;
+        opacity *= mix(1., .22, softened);
+        radius = mix(radius, 26., quiet);
+        heat = mainHit ? 1. : .65;
+        category = mainHit ? 0. : 1.;
+        vec2 stretch = style > 2.5 ? vec2(1.38, .70) : vec2(1.);
+        project(centre + (rightAxis() * point.x * stretch.x + upAxis() * point.y * stretch.y) * radius);
       }`, fragment + `
-      void main(){float a=atan(point.y,point.x),r=length(point);
-        float teeth=.76+.13*sin(a*(style<.5?7.:style<1.5?11.:style<2.5?5.:9.)+noiseSeed*6.)+.07*sin(a*17.+noiseSeed*19.);
-        float edge=1.-smoothstep(teeth-.11,teeth,r);
-        float centre=1.-smoothstep(.12,.53,r);
-        float slit=style>1.5&&style<2.5?smoothstep(.025,.07,abs(point.x+point.y*.48+sin(point.y*19.)*.015))*smoothstep(.02,.05,abs(point.y-point.x*.3-.13)):1.;
-        vec3 color=mix(energy,hot,centre*.94);float alpha=opacity*edge*mix(.26,.98,centre)*slit;
-        if(style>2.5){float comic=1.-smoothstep(.018,.065,abs(r-(.55+.075*sin(a*9.))));color=mix(energy,hot,centre*.65);alpha=opacity*edge*max(comic,centre*.7);}
-        if(alpha<.012)discard;gl_FragColor=vec4(color,alpha);
+      void main() {
+        vec2 p = point;
+        float r = length(p);
+        float a = atan(p.y, p.x);
+        float fade = 1. - smoothstep(.81, .99, r);
+        float cut, rim, shine;
+        vec3 color;
+        float alpha;
+
+        if (style < .5) {
+          // Torn chakra flames roll around an ink-dark aperture.
+          vec2 claw = turn(p, .36);
+          float bearing = atan(claw.y, claw.x);
+          float tooth = pow(.5 + .5*sin(5.*bearing - 15.*r), 2.6);
+          float crest = .56 + .26*tooth + .045*sin(13.*bearing + r*21.);
+          rim = mask(r - crest, .015, .018);
+          float skirt = mask(r - crest + .11, .044, .021) * (.55 + .45*tooth);
+          float cavity = 1. - smoothstep(.40, .54, r);
+          shine = mask(claw.y + .16*sin(claw.x*7.), .012, .023) * (1. - smoothstep(.10, .48, abs(claw.x)));
+          color = mix(ash*.27, energy, max(rim*.68, skirt*.84));
+          color = mix(color, hot, max(shine, rim*.65));
+          alpha = max(cavity*.91, max(rim, skirt*.85));
+        } else if (style < 1.5) {
+          // A bright plasma cross punches through concentric cobalt fronts.
+          vec2 beam = turn(p, .24);
+          float crossA = mask(beam.y - .11*beam.x*beam.x, .026 + .033*(1.-r), .026);
+          float crossB = mask(beam.x + .18*beam.y, .011 + .022*(1.-r), .021);
+          shine = max(crossA*.91, crossB) * (1. - smoothstep(.36, .96, r));
+          float orbit = .50 + .071*sin(2.*a + 3.1*r) + .021*sin(11.*a);
+          rim = max(mask(r-orbit, .018,.015), mask(r-orbit-.12, .004,.010)*.58);
+          cut = .58 + .42*smoothstep(-.4,.18, sin(3.*a+.7));
+          float centre = 1. - smoothstep(.10,.30,r);
+          color = mix(ash*.65, energy, max(rim*.92, centre));
+          color = mix(color, hot, max(shine, centre));
+          alpha = max(shine, max(centre, rim*cut));
+        } else if (style < 2.5) {
+          // Short, broken knife strokes open around a hard eclipse.
+          vec2 tear = turn(p, -.67);
+          float f1 = mask(tear.y + .018*sin(23.*tear.x), .012, .019);
+          float f2 = mask(tear.x - .39*tear.y + .027*sign(tear.y), .007, .016);
+          shine = max(f1, f2*.77) * (1. - smoothstep(.39,.93,r));
+          float crown = .44+.075*sin(3.*a+.85)+.05*sin(9.*a+2.1);
+          rim = mask(r-crown,.018,.014) * smoothstep(-.6,-.23,sin(5.*a + 1.5));
+          float outline = mask(r-crown-.11,.006,.013) * smoothstep(.3,.67,cos(a*4.+.6));
+          float cavity = 1. - smoothstep(.36,.46,r);
+          color = mix(ash*.15, energy, max(rim*.83, outline));
+          color = mix(color, hot, shine);
+          alpha = max(cavity*.96, max(shine,max(rim,outline*.76)));
+        } else {
+          // Flat ink ridges and a serrated cream collision fan.
+          float spokes = pow(.5 + .5*sin(8.*a + .8*sin(3.*a)), 4.);
+          float silhouette = .28 + .50*spokes + .07*cos(a*3.5);
+          float body = 1. - smoothstep(silhouette-.035,silhouette,r);
+          float ink = mask(r-silhouette,.021,.013);
+          float gouge = mask(p.y - .28*p.x + .10,.015,.022) * smoothstep(.12,.54,r);
+          rim = mask(r- .66 + .08*sin(6.*a),.009,.02)*smoothstep(.2,.8,spokes);
+          shine = body*(1.-gouge);
+          color = mix(energy,hot,shine);
+          color = mix(color,ash*.25,ink*.84);
+          alpha = max(shine, max(ink, rim*.69));
+        }
+
+        // Keep the foreground shape dominant and make each small follow-up hit a brief spark.
+        if (category > .5) {
+          float splinter = mask(p.y + p.x*.15, .024, .035) * (1.-smoothstep(.14,.76,r));
+          alpha = max(rim*.49, splinter);
+          color = mix(energy, hot, splinter*.81);
+        }
+        alpha *= opacity * fade;
+        if (alpha < .012) discard;
+        gl_FragColor = vec4(color, alpha);
         #include <colorspace_fragment>
       }`);
     this.add('warped-waves', new THREE.RingGeometry(.9, 1, 96), 3, common + `
       void main(){point=uv;noiseSeed=eventSeed.z;category=0.;float elapsed=age-eventData.y;
         float t=max(0.,elapsed),theta=atan(position.y,position.x);
         float radius=mix(18.+reach*eventData.w*ease(t/(.72+eventSeed.y*.3)),82.,quiet);
-        float warp=1.+(.06+style*.01)*sin(theta*5.+eventSeed.z*7.)+.035*sin(theta*11.+age*2.);
-        if(style>2.5)radius+=sin(t*17.)*12.*exp(-t*3.);
-        vec3 pos=vec3(position.x*radius*warp,-.14+eventData.x*.025,position.y*radius*warp);
-        pos.y+=style>.5&&style<1.5?sqrt(max(0.,1.-dot(position.xy,position.xy)))*radius*.62:style<.5?sin(theta*3.+eventSeed.z)*3.*ease(t/.15):0.;
+        float warp = 1. + (style < .5 ? .06 : style < 1.5 ? .025 : style < 2.5 ? .07 : .04)
+          * sin(theta * (style > 2.5 ? 8. : 5.) + eventSeed.z * 3.);
+        warp += .014 * sin(theta * 11. + age * 2. * (1. - quiet));
+        if (style > 2.5) radius += sin(t * 15.) * 7. * exp(-t * 4.) * (1. - quiet);
+        vec3 pos = vec3(position.x * radius * warp, -.14 + eventData.x * .025, position.y * radius * warp);
+        float lift = sqrt(max(0., 1. - dot(position.xy, position.xy)));
+        if (style > .5 && style < 1.5) pos.y += lift * min(8., radius * .16) * (1. - quiet);
+        if (style > 2.5) pos.z *= .88 + .12 * cos(theta * 2.);
         opacity=step(0.,elapsed)*(1.-smoothstep(.25,duration-eventData.y,t))*(.75-eventData.x*.17);
         opacity*=mix(1.,.24,softened);heat=max(0.,1.-t*.9);project(anchor+pos);
       }`, fragment + `
-      void main(){float r=length(point*2.-1.);float edge=smoothstep(.78,.88,r)*(1.-smoothstep(.99,1.,r));
-        float a=atan(point.y-.5,point.x-.5);float broken=style>1.5&&style<2.5?step(-.3,sin(a*7.+noiseSeed*12.)):1.;
-        float modulation=.7+.3*sin(a*13.+noiseSeed*8.);float alpha=opacity*edge*modulation*broken;
-        if(alpha<.012)discard;gl_FragColor=vec4(mix(energy,hot,heat*.55),alpha);
+      void main() {
+        vec2 p = point * 2. - 1.;
+        float r = length(p), a = atan(p.y,p.x);
+        float head = mask(r - .981,.006,.006);
+        float echo = mask(r - .943 - .01*sin(a*7. + noiseSeed*7.),.005,.007);
+        float gap = 1.;
+        if (style < .5) gap = .35 + .65*smoothstep(-.28,.35,sin(a*5. + noiseSeed*7.));
+        if (style > 1.5 && style < 2.5) gap = smoothstep(-.52,-.22,sin(a*9. + noiseSeed*4.));
+        if (style > 2.5) gap = .45 + .55*smoothstep(-.4,.12,cos(a*6.));
+        float alpha = opacity * max(head, echo*.55) * gap;
+        if (alpha < .012) discard;
+        gl_FragColor = vec4(mix(energy, hot, heat*head*.68), alpha);
         #include <colorspace_fragment>
       }`);
     this.add('trails-fragments-sparks', ribbonGeometry(), 128, common + `
@@ -106,10 +197,10 @@ export class UltimateBlast {
         vec3 centre;float width,lengthAlong;heat=1.-clamp(t/durationHere,0.,1.);
         if(age<0.){
           float q=quiet>.5?.45:fract(-age*(.6+eventSeed.y*.3)+eventSeed.z);
-          float radius=3.+q*(style>1.5&&style<2.5?72.:56.);
+          float radius=4.+q*(style>1.5&&style<2.5?45.:38.);
           centre=gather+dir*radius+vec3(0.,(eventSeed.w-.3)*radius*.5,0.);
-          width=category<.5?.18+.2*(1.-q):.25+eventSeed.y*.5;lengthAlong=category<.5?3.+q*5.:width*2.;
-          opacity=(.18+.5*(1.-q))*smoothstep(-3.25,-1.6,age);
+          width=category<.5?.14+.15*(1.-q):.2+eventSeed.y*.35;lengthAlong=category<.5?2.+q*4.:width*2.;
+          opacity=(.10+.46*(1.-q))*smoothstep(-2.95,-1.15,age);
           if(style>2.5){
             // Pomu inflates with compact comic flecks rather than chakra-gathering arcs.
             category=2.;float orbit=6.+eventSeed.y*9.;
@@ -119,7 +210,7 @@ export class UltimateBlast {
         }else{
           float speed=mix(70.,reach*.84,eventSeed.y),distance=3.+speed*t;
           centre=anchor+dir*distance+vec3(0.,3.+eventSeed.w*22.*t-9.*t*t,0.);
-          if(category<.5){lengthAlong=(24.+eventSeed.w*65.)*ease(t/.11)*fade;width=(.65+eventSeed.y*2.)*fade;}
+          if(category<.5){lengthAlong=(12.+eventSeed.w*37.)*ease(t/.11)*fade;width=(.36+eventSeed.y*1.65)*fade;}
           else if(category<1.5){width=(1.2+eventSeed.w*3.)*fade;lengthAlong=width*(1.3+eventSeed.y);centre.y+=sin(theta*3.)*t*4.;}
           else{width=(.18+eventSeed.w*.6)*fade;lengthAlong=width*(2.+eventSeed.y*3.);centre.y+=eventSeed.y*5.;}
           opacity=step(eventData.y,age)*fade*(category<.5?.88:category<1.5?.8:.65);
@@ -140,10 +231,10 @@ export class UltimateBlast {
         opacity*=mix(1.,.48,softened);project(pos);
       }`, fragment + `
       void main(){float across=abs(point.y*2.-1.);float alpha=opacity;
-        if(category<.5)alpha*=1.-smoothstep(.5,1.,across);
+        if(category<.5)alpha*=1.-smoothstep(.22,.92,across);
         else if(category<1.5){float cut=abs(point.x-.5)*2.+across*.55;alpha*=1.-smoothstep(.6,1.,cut);}
         else{alpha*=1.-smoothstep(.25,1.,length(vec2((point.x-.5)*2.,across)));}
-        vec3 color=mix(mix(ash,energy,.55),hot,heat*(category<.5?.65:.4));
+        vec3 color=mix(mix(ash,energy,.80),hot,heat*(category<.5?(1.-across)*.79:.46));
         if(alpha<.012)discard;gl_FragColor=vec4(color,alpha);
         #include <colorspace_fragment>
       }`);
@@ -152,8 +243,8 @@ export class UltimateBlast {
         float grow=ease(t/.35),fade=1.-smoothstep(.5,duration-eventData.y,t);
         float radius=(12.+eventSeed.y*reach*.46)*grow;
         vec3 centre=anchor+vec3(cos(eventSeed.x)*radius,4.+eventSeed.w*11.+t*4.,sin(eventSeed.x)*radius);
-        float size=(9.+eventSeed.w*13.)*grow;
-        opacity=step(eventData.y,age)*fade*grow*mix(.34,.15,softened);
+        float size=(5.+eventSeed.w*11.)*grow;
+        opacity=step(eventData.y,age)*fade*grow*mix(.21,.10,softened);
         heat=max(0.,1.-t*1.5)*.22;project(centre+(rightAxis()*point.x+upAxis()*point.y*.72)*size);
       }`, fragment + `
       void main(){float a=atan(point.y,point.x),r=length(point);

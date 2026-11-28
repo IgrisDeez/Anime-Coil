@@ -1,7 +1,7 @@
 import { angleDelta, CHARACTERS, type CharacterId, type GameEvent } from './simulation';
 
 export const PRACTICE_STEPS = [
-  'Turn with your mouse or joystick.',
+  'Turn with the mouse, arrow keys, or joystick.',
   'Collect five glowing energy orbs.',
   'Hold Boost for one second.',
   'Use your E skill once.',

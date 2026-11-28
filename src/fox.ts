@@ -1,4 +1,4 @@
-// Approved Stage 1 Kurama sculpture and tailed beast bomb.
+// Kurama sculpture with a fractured chakra core and a braided launch wake.
 import * as THREE from 'three';
 import { CastSnapshot, foxFlight } from './cinematic-staging';
 import { foxTailGeometry, type FoxSummonModel } from './fox-model';
@@ -33,7 +33,7 @@ export class FoxCinematic {
   private tailEdges: THREE.InstancedMesh;
   private orb: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
   private shell: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>;
-  private wake: THREE.Mesh<THREE.ConeGeometry, THREE.MeshBasicMaterial>;
+  private wake: THREE.Mesh<THREE.ConeGeometry, THREE.ShaderMaterial>;
   private flames: THREE.InstancedMesh;
   private smoke: THREE.InstancedMesh;
   private fragments: THREE.InstancedMesh;
@@ -82,41 +82,108 @@ export class FoxCinematic {
     for (const mesh of [this.tailEdges, this.tails]) {
       mesh.frustumCulled = false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.beast.add(mesh);
     }
+    const bombVertex = `
+      varying vec3 surfacePoint;
+      varying vec3 viewPosition;
+      varying vec3 viewNormal;
+      void main() {
+        surfacePoint = normalize(position);
+        viewNormal = normalMatrix * normal;
+        vec4 viewPoint = modelViewMatrix * vec4(position, 1.);
+        viewPosition = viewPoint.xyz;
+        gl_Position = projectionMatrix * viewPoint;
+      }`;
     this.orb = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), new THREE.ShaderMaterial({
       uniforms: { time: { value: 0 }, alpha: { value: 1 }, pressure: { value: 0 } }, transparent: true, depthWrite: true,
-      vertexShader: 'varying vec3 spherePoint; varying vec3 viewNormal; void main(){spherePoint=normalize(position);viewNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-      fragmentShader: `uniform float time; uniform float alpha; uniform float pressure;
-      varying vec3 spherePoint; varying vec3 viewNormal;
-      float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
-      float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
-        return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
-          mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
-      void main(){vec3 p=spherePoint*3.8;float slow=time*.23;
-        float warp=noise3(p*.8+vec3(slow,-slow*.4,slow*.2));
-        float broad=noise3(p+vec3(warp*.8,slow,warp*.6));
-        float fine=noise3(p*2.5+vec3(slow*.7,-slow*.6,warp));
-        float channels=pow(smoothstep(.48,.77,broad*.72+fine*.28),2.4);
-        float hot=pow(smoothstep(.7,.9,broad*.67+fine*.33),1.8);
-        vec3 dark=vec3(.016,.006,.029), ember=vec3(.125,.030,.24);
-        vec3 color=mix(dark,ember,channels*.86);
-        color+=vec3(.34,.07,.57)*hot*(.55+pressure*.45);
-        float rim=pow(1.-abs(viewNormal.z),5.8);
-        color+=vec3(.55,.08,.80)*rim*(.35+pressure*.2);
-        gl_FragColor=vec4(color,alpha);}`,
+      vertexShader: bombVertex,
+      fragmentShader: `
+        uniform float time;
+        uniform float alpha;
+        uniform float pressure;
+        varying vec3 surfacePoint;
+        varying vec3 viewPosition;
+        varying vec3 viewNormal;
+        float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+        float noise3(vec3 p) {
+          vec3 i = floor(p), f = fract(p);
+          f = f * f * (3. - 2. * f);
+          return mix(
+            mix(mix(hash(i), hash(i+vec3(1,0,0)), f.x), mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y),
+            mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)), f.x), mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)), f.x), f.y), f.z);
+        }
+        void main() {
+          vec3 p = normalize(surfacePoint);
+          float shift = time * .31;
+          float mass = noise3(p * 2.9 + vec3(shift, -.7 * shift, .4 * shift));
+          float warp = noise3(p * 6.1 + vec3(1.25 * mass, shift, -.8 * shift));
+          float fold = sin(dot(p, vec3(12.4, 8.6, 6.9)) + 4.3 * mass + 2.7 * warp - time * .82);
+          float cut = sin(dot(p, vec3(-8.2, 12.3, 9.8)) + 2.9 * warp + time * .32);
+          float fracture = abs(fold * .64 + cut * .36);
+          float cavity = smoothstep(.36, .65, mass + warp * .24);
+          float fissure = (1. - smoothstep(.035, .13 + fwidth(fracture), fracture)) * cavity;
+          float heat = (1. - smoothstep(.05, .34, fracture)) * cavity;
+          float face = abs(dot(normalize(viewNormal), normalize(viewPosition)));
+          float collar = pow(1. - face, 3.);
+          float chippedRim = collar * smoothstep(.22, .78, warp + .17 * cut);
+          vec3 color = mix(vec3(.027, .011, .062), vec3(.20, .068, .36), mass * mass);
+          color = mix(color, vec3(.46, .12, .75), heat * (.43 + .14 * pressure));
+          color = mix(color, vec3(.98, .39, .86), fissure * (.59 + .20 * pressure));
+          color = mix(color, vec3(.69, .31, .99), chippedRim * .72);
+          gl_FragColor = vec4(color, alpha);
+        }`,
     }));
     this.beast.name = 'fox-summon';
     this.orb.name = 'fox-bomb-core';
     this.shell = new THREE.Mesh(this.orb.geometry, new THREE.ShaderMaterial({
-      uniforms:{time:{value:0},alpha:{value:.16}}, transparent:true, depthWrite:false,
-      side:THREE.BackSide, blending:THREE.AdditiveBlending,
-      vertexShader:'varying vec3 spherePoint;varying vec3 viewNormal;void main(){spherePoint=normalize(position);viewNormal=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-      fragmentShader:`uniform float time;uniform float alpha;varying vec3 spherePoint;varying vec3 viewNormal;
-        void main(){float rough=sin(dot(spherePoint,vec3(13.7,21.1,9.3))+time*1.4)*sin(dot(spherePoint,vec3(25.2,7.8,18.4))-time*.9);
-          float rim=pow(1.-abs(viewNormal.z),5.5);float split=smoothstep(-.3,.65,rough);
-          gl_FragColor=vec4(vec3(.65,.12,.95),alpha*rim*(.3+.7*split));}`
+      uniforms: { time: { value: 0 }, alpha: { value: .16 } }, transparent: true, depthWrite: false,
+      side: THREE.BackSide, blending: THREE.AdditiveBlending,
+      vertexShader: bombVertex,
+      fragmentShader: `
+        uniform float time;
+        uniform float alpha;
+        varying vec3 surfacePoint;
+        varying vec3 viewPosition;
+        varying vec3 viewNormal;
+        void main() {
+          vec3 p = normalize(surfacePoint);
+          float ridge = sin(dot(p, vec3(19.1, 13.7, 8.2)) - time * 1.2 + 1.4 * sin(p.z * 13.6));
+          float braid = sin(dot(p, vec3(-12.3, 9.4, 16.8)) + time * .78);
+          float arc = 1. - smoothstep(.12, .62, abs(ridge * .7 + braid * .3));
+          float rim = pow(1. - abs(dot(normalize(viewNormal), normalize(viewPosition))), 3.4);
+          vec3 ink = mix(vec3(.30, .12, .92), vec3(.98, .38, .91), arc);
+          gl_FragColor = vec4(ink, alpha * rim * (.27 + .73 * arc));
+        }`,
     }));
     this.shell.name = 'fox-bomb-shell';
-    this.wake = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 12, 1, true), glow('#8b58cc', .25));
+    this.wake = new THREE.Mesh(new THREE.ConeGeometry(1, 1, 12, 7, true), new THREE.ShaderMaterial({
+      uniforms: { time: { value: 0 }, alpha: { value: 0 } }, transparent: true, depthWrite: false,
+      side: THREE.DoubleSide, forceSinglePass: true,
+      vertexShader: `
+        varying vec2 trailUv;
+        void main() {
+          trailUv = uv;
+          float downwind = 1. - uv.y;
+          float shoulder = pow(max(0., sin(downwind * 3.141593)), .82) * (1.17 - downwind * .40);
+          vec3 point = position;
+          point.xz *= shoulder / max(.001, downwind);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(point, 1.);
+        }`,
+      fragmentShader: `
+        uniform float time;
+        uniform float alpha;
+        varying vec2 trailUv;
+        void main() {
+          float downwind = 1. - trailUv.y;
+          float twist = trailUv.x * 6.283185 + downwind * 4.3;
+          float ripples = sin(twist * 5. - downwind * 9. - time * 12.);
+          float filaments = sin(twist * 9. + downwind * 10. - time * 17.);
+          float ribbon = smoothstep(.02, .65, ripples * .67 + .33 * filaments);
+          float envelope = smoothstep(.12, .27, downwind) * (1. - smoothstep(.53, 1., downwind));
+          vec3 color = mix(vec3(.11, .033, .31), vec3(.80, .26, .94), ribbon);
+          gl_FragColor = vec4(color, alpha * envelope * (.25 + .75 * ribbon));
+        }`,
+    }));
+    this.wake.name = 'fox-chakra-wake';
     this.flames = new THREE.InstancedMesh(new THREE.ConeGeometry(1, 2, 5), glow('#ffffff', .66), 16);
     this.flames.frustumCulled=false;this.flames.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     for (let i=0;i<16;i++) this.flames.setColorAt(i,new THREE.Color(['#c29be8','#895cc2','#513d7b','#a375d1'][i%4]));
@@ -176,6 +243,7 @@ export class FoxCinematic {
     this.orb.material.uniforms.time.value = this.shell.material.uniforms.time.value = 0;
     this.orb.material.uniforms.alpha.value = this.shell.material.uniforms.alpha.value = 0;
     this.orb.material.uniforms.pressure.value = 0;
+    this.wake.material.uniforms.time.value = this.wake.material.uniforms.alpha.value = 0;
     this.staged.muzzle.set(0,0,0); this.staged.bombCenter.set(0,0,0); this.staged.firingDirection.set(0,0,0);
     this.staged.cameraFocus.set(0,0,0); this.staged.summonBounds.min.set(0,0,0); this.staged.summonBounds.max.set(0,0,0);
   }
@@ -228,13 +296,15 @@ export class FoxCinematic {
     this.orb.visible = t >= .65 && t < NUKE_BLAST;
     foxFlight(this.orb.position,this.flightDirection,this.chargeAnchor,this.impact,launch,radius);
     this.orb.position.y = Math.max(radius + .28, this.orb.position.y);
+    // Tighten the corona at the pressure beat without changing the sphere's path or radius.
+    const compression = reduced ? 0 : smooth(3.22, 3.38, t);
     this.orb.scale.setScalar(radius);
     this.staged.bombCenter.copy(this.orb.position); this.group.localToWorld(this.staged.bombCenter);
     this.shell.visible = this.orb.visible || (b < 1.8 && shot.detonated);
     if (this.orb.visible) {
       this.shell.position.copy(this.orb.position);
-      this.shell.scale.setScalar(radius * 1.025);
-      this.shell.material.uniforms.alpha.value = .16 + charge*.07;
+      this.shell.scale.setScalar(radius * (1.065 - compression * .032));
+      this.shell.material.uniforms.alpha.value = (.18 + charge * .30 + compression * .16) * smooth(.65, .92, t);
     } else if (this.shell.visible) {
       const dome = reduced ? 25 : 10 + b * 40;
       this.shell.position.set(this.impact.x, 2.5, this.impact.z);
@@ -243,14 +313,16 @@ export class FoxCinematic {
     }
     this.orb.material.uniforms.time.value = reduced ? 0 : t;
     this.orb.material.uniforms.alpha.value = THREE.MathUtils.clamp((t-.65) / .3, 0, 1);
-    this.orb.material.uniforms.pressure.value = reduced ? .25 : smooth(1.5,2.5,t);
+    this.orb.material.uniforms.pressure.value = reduced ? .25 : smooth(1.5, 2.5, t) + compression * .30;
 
     this.shell.material.uniforms.time.value = reduced ? 0 : t;
     this.wake.visible = !reduced && t >= 2.5 && t < 3.4;
-    const wakeLength = 1 + launch * 17;
-    this.wake.position.copy(this.orb.position).addScaledVector(this.flightDirection,-wakeLength*.5);
-    this.wake.quaternion.setFromUnitVectors(this.up,this.flightDirection);
-    this.wake.scale.set(radius * .30, wakeLength, radius * .30);
+    const wakeLength = 4 + launch * 38;
+    this.wake.position.copy(this.orb.position).addScaledVector(this.flightDirection, -wakeLength * .5);
+    this.wake.quaternion.setFromUnitVectors(this.up, this.flightDirection);
+    this.wake.scale.set(radius * .83, wakeLength, radius * .83);
+    this.wake.material.uniforms.time.value = reduced ? 0 : t;
+    this.wake.material.uniforms.alpha.value = reduced ? 0 : smooth(2.50, 2.78, t) * .72;
     this.flames.count = !visual?.managed && shot.detonated && b < 1.75 ? (reduced ? 4 : this.profile === 'mobile' ? 6 : 12) : 0;
     for(let i=0;i<this.flames.count;i++) {
       const layer=i%3,age=Math.max(0,b-layer*.07),a=i*2.39996+layer*.21;
@@ -299,8 +371,9 @@ export class FoxCinematic {
     const tailAftermath=!visual?.managed && shot.detonated && b < 1.45;
     const lineCount = reduced || (visual?.managed&&shot.detonated) ? 0 : tailAftermath ? this.profile === 'mobile' ? 18 : 36 : this.profile === 'mobile' ? 24 : 48;
     this.ribbons.geometry.setDrawRange(0, lineCount * 2);
-    this.ribbons.material.color.setHex(shot.detonated?0xffa731:0xffdf8b);
-    this.embers.material.color.setHex(shot.detonated?0xffa22c:0xffe5a4);
+    const gathering = t > .9 && t < 2.5;
+    this.ribbons.material.color.setHex(shot.detonated ? 0xffa731 : 0xe396ff);
+    this.embers.material.color.setHex(shot.detonated ? 0xffa22c : gathering ? 0xdda2ff : 0xffda96);
     this.ribbons.visible = !reduced && ((t > .9 && t < 2.5) || tailAftermath);
     for (let i=0;i<lineCount;i++) {
       if (tailAftermath) {
@@ -310,10 +383,15 @@ export class FoxCinematic {
           lines.setXYZ(i*2+j,this.impact.x+Math.cos(a+twist)*r,3+s*(9+b*5),this.impact.z+Math.sin(a+twist)*r);
         }
       } else {
-        const a=i*2.39996, flow=((i*.17-t*.8)%1+1)%1;
-        for (let j=0;j<2;j++) {
-          const q=Math.max(0,flow-j*.09), distance=radius+2+q*(5+radius*.5);
-          lines.setXYZ(i*2+j,chargeX+Math.cos(a)*distance,chargeY+Math.sin(a)*distance*.7,chargeZ-distance*(.35+Math.sin(a*.7)*.25));
+        const lane = Math.floor(i / 6), segment = i % 6;
+        const orbit = lane * 2.39996;
+        const feed = ((lane * .22 - t * .72) % 1 + 1) % 1;
+        for (let j = 0; j < 2; j++) {
+          const sweep = (segment + j) / 6;
+          const angle = orbit + sweep * 1.36 + feed * .96;
+          const reach = radius + 1.1 + feed * (4 + radius * .36) + (1 - sweep) * 3.4;
+          lines.setXYZ(i * 2 + j, chargeX + Math.cos(angle) * reach,
+            chargeY + Math.sin(angle) * reach * .76, chargeZ + Math.sin(orbit) * reach * .37 - 1.4 * sweep);
         }
       }
     }
